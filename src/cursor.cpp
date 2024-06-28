@@ -6,7 +6,7 @@ void Cursor::update(int X, int Y, int dX, int dY)
     yPos = Y;
     deltaX = dX;
     deltaY = dY;
-    showCoordinates();
+    //showCoordinates();
     move();
     // tft->updateScreenAsync();
 }

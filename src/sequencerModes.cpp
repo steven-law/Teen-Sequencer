@@ -38,8 +38,8 @@ void Track::play_SeqMode1(byte cloock)
     {
         if (!note_is_on[0])
         {
-            noteToPlay[0] = random(0, 11) + (random(SeqMod_1_Poti[0], SeqMod_1_Poti[1]+1) * 12) + noteOffset[internal_clock_bar];
-            byte Velo = random(SeqMod_1_Poti[2],SeqMod_1_Poti[3]);
+            noteToPlay[0] = random(0, 11) + (random(SeqMod_1_Poti[0], SeqMod_1_Poti[1] + 1) * 12) + noteOffset[internal_clock_bar];
+            byte Velo = random(SeqMod_1_Poti[2], SeqMod_1_Poti[3]);
             note_is_on[0] = true;
             noteOn(noteToPlay[0], Velo, MIDI_channel_out); // Send a Note (pitch 42, velo 127 on channel 1)
                                                            // Serial.printf("ON   tick: %d, voice: %d, note: %d\n", cloock, 0, noteToPlay[0]);
@@ -61,13 +61,13 @@ void Track::set_SeqMode1_parameters(byte row)
     draw_SeqMode1();
     if (row == 0)
     {
-        set_SeqMode1_value(0, 0, "Oct -", 0, 0);
-        set_SeqMode1_value(1, 0, "Oct +", 0, 0);
-        set_SeqMode1_value(2, 0, "Vol -", 0, 0);
-        set_SeqMode1_value(3, 0, "Vol +", 0, 0);
+        set_SeqMode1_value(0, 0, "Oct -");
+        set_SeqMode1_value(1, 0, "Oct +");
+        set_SeqMode1_value(2, 0, "Vol -");
+        set_SeqMode1_value(3, 0, "Vol +");
     }
 }
-void Track::set_SeqMode1_value(byte XPos, byte YPos, const char *name, int min, int max)
+void Track::set_SeqMode1_value(byte XPos, byte YPos, const char *name)
 {
     if (enc_moved[XPos])
     {
@@ -87,7 +87,7 @@ void Track::draw_SeqMode1()
         drawPot(3, 0, SeqMod_1_Poti[3], "Vol +");
     }
 }
-
+// dropseq
 void Track::play_SeqMode2(byte cloock)
 {
     static byte maxValIndex;
@@ -227,7 +227,7 @@ void Track::draw_SeqMode2()
         drawPot(3, 3, SeqMod_2_Poti[15], "B");
     }
 }
-
+// bitread
 void Track::play_SeqMode3(byte cloock)
 {
     byte seq3_clock = cloock / 6;
@@ -252,7 +252,7 @@ void Track::play_SeqMode3(byte cloock)
             if (note_is_on[v])
             {
                 note_is_on[v] = false;
-                // Masterout->noteOff(noteToPlay[v], VELOCITY_NOTE_ON, MIDI_channel_out, v); // Send a Note (pitch 42, velo 127 on channel 1)
+                noteOff(noteToPlay[v], 0, MIDI_channel_out); // Send a Note (pitch 42, velo 127 on channel 1)
                 //  Serial.printf("OFF   tick: %d, voice: %d, note: %d\n", cloock, 0, noteToPlay[0]);
             }
         }
@@ -307,5 +307,102 @@ void Track::draw_SeqMode3()
         drawPot(1, 2, SeqMod_3_Poti[9], noteNames[9]);
         drawPot(2, 2, SeqMod_3_Poti[10], noteNames[10]);
         drawPot(3, 2, SeqMod_3_Poti[11], noteNames[11]);
+    }
+}
+// 16 step pot sequencer
+void Track::play_SeqMode4(byte cloock)
+{
+    byte seq3_clock = cloock / 6;
+    bool seq4_bool = cloock % 6;
+    if (seq3_clock == 16)
+        seq3_clock = 0;
+
+    if (seq4_bool)
+    {
+        if (!note_is_on[0])
+        {
+            noteToPlay[0] = SeqMod_4_Poti[seq3_clock];
+            byte Velo = 99;
+            note_is_on[0] = true;
+            noteOn(noteToPlay[0], Velo, MIDI_channel_out); // Send a Note (pitch 42, velo 127 on channel 1)
+                                                           // Serial.printf("ON   tick: %d, voice: %d, note: %d\n", cloock, 0, noteToPlay[0]);
+        }
+    }
+
+    if (!seq4_bool)
+    {
+        if (note_is_on[0])
+        {
+            note_is_on[0] = false;
+            noteOff(noteToPlay[0], 0, MIDI_channel_out); // Send a Note (pitch 42, velo 127 on channel 1)
+                                                         // Serial.printf("OFF   tick: %d, voice: %d, note: %d\n", cloock, 0, noteToPlay[0]);
+        }
+    }
+}
+void Track::set_SeqMode4_parameters(byte row)
+{
+    draw_SeqMode4();
+    if (row == 0)
+    {
+        set_SeqMode4_value(0, 0, "1");
+        set_SeqMode4_value(1, 0, "2");
+        set_SeqMode4_value(2, 0, "3");
+        set_SeqMode4_value(3, 0, "4");
+    }
+    if (row == 1)
+    {
+        set_SeqMode4_value(0, 1, "5");
+        set_SeqMode4_value(1, 1, "6");
+        set_SeqMode4_value(2, 1, "7");
+        set_SeqMode4_value(3, 1, "8");
+    }
+    if (row == 2)
+    {
+        set_SeqMode4_value(0, 2, "9");
+        set_SeqMode4_value(1, 2, "10");
+        set_SeqMode4_value(2, 2, "11");
+        set_SeqMode4_value(3, 2, "12");
+    }
+    if (row == 3)
+    {
+        set_SeqMode4_value(0, 3, "13");
+        set_SeqMode4_value(1, 3, "14");
+        set_SeqMode4_value(2, 3, "15");
+        set_SeqMode4_value(3, 3, "16");
+    }
+}
+void Track::set_SeqMode4_value(byte XPos, byte YPos, const char *name)
+{
+    if (enc_moved[XPos])
+    {
+        int n = XPos + (YPos * NUM_ENCODERS);
+        SeqMod_4_Poti[n] = constrain(SeqMod_4_Poti[n] + encoded[XPos], 0, MIDI_CC_RANGE);
+        drawPot(XPos, YPos, SeqMod_4_Poti[n], name);
+    }
+}
+void Track::draw_SeqMode4()
+{
+    if (change_plugin_row)
+    {
+        change_plugin_row = false;
+        drawPot(0, 0, SeqMod_4_Poti[0], "1");
+        drawPot(1, 0, SeqMod_4_Poti[1], "2");
+        drawPot(2, 0, SeqMod_4_Poti[2], "3");
+        drawPot(3, 0, SeqMod_4_Poti[3], "4");
+
+        drawPot(0, 1, SeqMod_4_Poti[4], "5");
+        drawPot(1, 1, SeqMod_4_Poti[5], "6");
+        drawPot(2, 1, SeqMod_4_Poti[6], "7");
+        drawPot(3, 1, SeqMod_4_Poti[7], "8");
+
+        drawPot(0, 2, SeqMod_4_Poti[8], "9");
+        drawPot(1, 2, SeqMod_4_Poti[9], "10");
+        drawPot(2, 2, SeqMod_4_Poti[10], "11");
+        drawPot(3, 2, SeqMod_4_Poti[11], "12");
+
+        drawPot(0, 3, SeqMod_4_Poti[12], "13");
+        drawPot(1, 3, SeqMod_4_Poti[13], "14");
+        drawPot(2, 3, SeqMod_4_Poti[14], "15");
+        drawPot(3, 3, SeqMod_4_Poti[15], "16");
     }
 }

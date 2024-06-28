@@ -8,12 +8,12 @@ void encoder_SetCursor(byte deltaX, byte maxY)
     {
         pixelTouchX = constrain(pixelTouchX + encoded[0] * deltaX, 0, 304);
         // Serial.printf("encoder: %d + deltaX: %d = pixelTouchX %d\n", encoded[0], deltaX, pixelTouchX);
-        enc_moved[0] = false;
+         //enc_moved[0] = false;
     }
     if (enc_moved[1])
     {
         gridTouchY = constrain(gridTouchY + encoded[1], 0, maxY);
-        enc_moved[1] = false;
+         //enc_moved[1] = false;
     }
 }
 void buttons_SetCursor(byte maxY)
@@ -67,6 +67,7 @@ void buttons_SelectTrack()
             if (buttonPressed[i])
             {
                 active_track = i;
+                show_active_track(active_track);
                 encoder_function = INPUT_FUNCTIONS_FOR_SEQUENCER;
                 // buttonPressed[BUTTON_TRACK] = false;
                 allTracks[active_track]->drawStepSequencerStatic();
@@ -85,10 +86,31 @@ void buttons_SelectSequencerMode()
         {
             if (buttonPressed[i])
             {
+                show_active_track(i);
                 allTracks[i]->draw_sequencer_modes(allTracks[i]->sequencer_mode);
                 encoder_function = INPUT_FUNCTIONS_FOR_SEQUENCER_MODES;
                 Serial.println("SeqMode selected");
                 // buttonPressed[BUTTON_PLUGIN] = false;
+                buttonPressed[i] = false;
+            }
+        }
+    }
+}
+void buttons_SelectPlugin()
+{ // select active plugin from choosen track
+    if (buttonPressed[BUTTON_PLUGIN])
+    {
+        for (int i = 0; i < BUTTONS_PER_ROW; i++)
+        {
+            if (buttonPressed[i])
+            {
+                active_track = i;
+                show_active_track(active_track);
+                change_plugin_row = true;
+                allTracks[active_track]->draw_MIDI_CC_screen();
+                encoder_function = INPUT_FUNCTIONS_FOR_PLUGIN;
+                // Serial.printf("plugin selected Track: %d on channel: %d\n", i,allTracks[i]->MIDI_channel_out );
+                //  buttonPressed[BUTTON_PLUGIN] = false;
                 buttonPressed[i] = false;
             }
         }
@@ -213,7 +235,7 @@ void input_behaviour()
     buttons_SelectTrack();
     buttons_SelectArranger();
     buttons_SelectSequencerMode();
-
+    buttons_SelectPlugin();
     // if none of the bottom buttons are pressed with the upper ones
     if (!otherCtrlButtons)
     {
@@ -237,8 +259,11 @@ void input_behaviour()
         switch (lastPotRow)
         {
         case 0:
-            encoder_SetCursor(allTracks[active_track]->step_length*2, 14); // Encoder: 0+1
-            allTracks[active_track]->set_octave(2);                      // Encoder: 2
+
+            encoder_SetCursor(allTracks[active_track]->step_length * 2, 14); // Encoder: 0+1
+            allTracks[active_track]->set_coordinateX(0, 0);
+            allTracks[active_track]->set_coordinateY(1, 0);
+            allTracks[active_track]->set_octave(2); // Encoder: 2
             allTracks[active_track]->set_velocity(3, 0);
 
             break;
@@ -298,11 +323,16 @@ void input_behaviour()
         // if Shift button is NOT pressed
         if (!buttonPressed[BUTTON_SHIFT])
         {
-            for (int i = 0; i < NUM_TRACKS; i++)
-            {
-                allTracks[i]->set_SeqMode_parameters(lastPotRow);
-            }
+            /* for (int i = 0; i < NUM_TRACKS; i++)
+             {
+                 allTracks[i]->set_SeqMode_parameters(lastPotRow);
+             }*/
+            allTracks[active_track]->set_SeqMode_parameters(lastPotRow);
         }
+    }
+    if (encoder_function == INPUT_FUNCTIONS_FOR_PLUGIN)
+    {
+        allTracks[active_track]->set_MIDI_CC(lastPotRow);
     }
 }
 
@@ -350,6 +380,7 @@ void drawPot(int XPos, byte YPos, int dvalue, const char *dname)
     circlePos[XPos] = dvalue / 63.5;
 
     draw_Value(XPos, YPos, xPos, yPos, 4, -3, dvalue, color, false, false);
+    draw_Text(XPos, YPos, xPos, yPos + 1, 0, 3, dname, color, false, false);
 
     tft.setFont(Arial_8);
     tft.setTextColor(ILI9341_DARKGREY);
@@ -400,6 +431,7 @@ void draw_Text(byte index, byte lastPRow, byte XPos, byte YPos, byte offest_X, i
     tft.setFont(Arial_8);
     tft.setTextColor(ILI9341_DARKGREY);
     tft.setCursor(xPos + offest_X, yPos + offset_Y);
+    tft.fillRect(xPos, yPos, 2 * STEP_FRAME_W, STEP_FRAME_H, ILI9341_DARKGREY);
     tft.print(old_value[index]);
     if (lastPotRow != lastPRow)
         color = ILI9341_LIGHTGREY;
@@ -412,6 +444,11 @@ void draw_Text(byte index, byte lastPRow, byte XPos, byte YPos, byte offest_X, i
     tft.setCursor(xPos + offest_X, yPos + offset_Y);
     tft.print(name);
     old_value[index] = name;
+}
+void show_active_track(byte trax)
+{
+    draw_Text(3, 0, 1, 0, 2, 3, "Trk:", ILI9341_WHITE, false, false);
+    draw_Value(3, 0, 2, 0, 6, 3, active_track + 1, ILI9341_WHITE, false, false);
 }
 void drawsongmodepageselector()
 {

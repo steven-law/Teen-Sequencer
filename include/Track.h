@@ -4,6 +4,7 @@
 #include <Arduino.h>
 #include <ILI9341_t3n.h>
 #include <ili9341_t3n_font_Arial.h> // from ILI9341_t3
+#include <MIDI.h>
 #include "project_variables.h"
 #include "project_functions.h"
 // void draw_sequencer_option(byte x, const char *nameshort, int value, byte enc, const char *pluginName);
@@ -28,7 +29,7 @@
 
 #define MAX_CLIPS 9
 #define NUM_USER_CLIPS 7
-
+#define NUM_PRESETS 8
 #define MAX_VOICES 12
 
 #define ENCODER_STEP_LENGTH 2
@@ -50,13 +51,17 @@ extern int pixelTouchX;
 extern int gridTouchY;
 extern byte active_track;
 extern byte arrangerpage;
+void sendNoteOn(byte Note, byte Velo, byte Channel);
+void sendNoteOff(byte Note, byte Velo, byte Channel);
+void sendControlChange(byte control, byte value, byte channel);
+// extern midi::MidiInterface<midi::SerialMIDI<HardwareSerial>> MIDI1;
 class Track
 {
 public:
     void play_SeqMode0(byte cloock);
     void play_SeqMode1(byte cloock);
     void set_SeqMode1_parameters(byte row);
-    void set_SeqMode1_value(byte XPos, byte YPos, const char *name, int min, int max);
+    void set_SeqMode1_value(byte XPos, byte YPos, const char *name);
     void draw_SeqMode1();
 
     void play_SeqMode2(byte cloock);
@@ -68,6 +73,11 @@ public:
     void set_SeqMode3_parameters(byte row);
     void set_SeqMode3_value(byte XPos, byte YPos, const char *name, int min, int max);
     void draw_SeqMode3();
+
+    void play_SeqMode4(byte cloock);
+    void set_SeqMode4_parameters(byte row);
+    void set_SeqMode4_value(byte XPos, byte YPos, const char *name);
+    void draw_SeqMode4();
 
     ILI9341_t3n *tft; // Pointer to the display object
 
@@ -97,29 +107,38 @@ public:
     byte search_free_voice = 0;
     bool note_is_on[MAX_VOICES] = {true, true, true, true, true, true, true, true, true, true, true, true};
     bool ready_for_NoteOff[MAX_VOICES] = {false, false, false, false, false, false, false, false, false, false, false, false};
+    byte CCvalue[NUM_PRESETS + 1][16];
+    byte CCchannel[NUM_PRESETS + 1][16];
+    byte edit_presetNr_ccChannel = 0;
+    byte edit_presetNr_ccValue = 0;
+    byte play_presetNr_ccChannel = 0;
+    byte play_presetNr_ccValue = 0;
+    const char *CCnames[128]{"CC", "CC", "CC", "CC", "CC", "CC", "CC", "CC", "CC", "CC", "CC", "CC", "CC", "CC", "CC", "CC",
+                             "CC", "CC", "CC", "CC", "CC", "CC", "CC", "CC", "CC", "CC", "CC", "CC", "CC", "CC", "CC", "CC",
+                             "CC", "CC", "CC", "CC", "CC", "CC", "CC", "CC", "CC", "CC", "CC", "CC", "CC", "CC", "CC", "CC",
+                             "CC", "CC", "CC", "CC", "CC", "CC", "CC", "CC", "CC", "CC", "CC", "CC", "CC", "CC", "CC", "CC",
+                             "CC", "CC", "CC", "CC", "CC", "CC", "CC", "CC", "CC", "CC", "CC", "CC", "CC", "CC", "CC", "CC",
+                             "CC", "CC", "CC", "CC", "CC", "CC", "CC", "CC", "CC", "CC", "CC", "CC", "CC", "CC", "CC", "CC",
+                             "CC", "CC", "CC", "CC", "CC", "CC", "CC", "CC", "CC", "CC", "CC", "CC", "CC", "CC", "CC", "CC",
+                             "CC", "CC", "CC", "CC", "CC", "CC", "CC", "CC", "CC", "CC", "CC", "CC", "CC", "CC", "CC", "CC"};
 
     const char *noteNames[12]{"C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"};
+    const char *seqModname[5]{"Step", "Rand", "Drop", "BitRd", "PotS"};
     byte SeqMod_1_Poti[4]; // oct- ; oct+ ; vol- ; vol+
     byte SeqMod_2_Poti[16];
     byte SeqMod_3_Poti[12];
+    byte SeqMod_4_Poti[16];
     byte maxVal;
-    byte mixGainPot;
-    float mixGain = 1;
-    byte mixDryPot;
-    float mixDry = 1;
-    byte mixFX1Pot;
-    float mixFX1 = 0;
-    byte mixFX2Pot;
-    float mixFX2 = 0;
-    byte mixFX3Pot;
-    float mixFX3 = 0;
+
     byte mute_norm_solo_pot = 1;
     bool muted;
     bool soloed;
 
     Track(ILI9341_t3n *display, byte Y)
     {
-
+        // MIDI1.setHandleNoteOn(myNoteOn);
+        // MIDI1.setHandleNoteOff(myNoteOff);
+        // MIDI1.begin();
         tft = display;
         my_Arranger_Y_axis = Y;
         MIDI_channel_in = Y;
@@ -186,6 +205,21 @@ public:
     void set_velocity(byte n, byte lastProw);
     void draw_velocity(byte n, byte lastProw);
     byte get_velocity();
+
+    void set_CCvalue(byte XPos, byte YPos);
+    void set_CCchannel(byte XPos, byte YPos);
+    void draw_MIDI_CC(byte XPos, byte YPos);
+    void set_MIDI_CC(byte row);
+    void draw_MIDI_CC_screen();
+    void set_edit_presetNr_ccChannel(byte n, byte lastProw);
+    void draw_edit_presetNr_ccChannel(byte n, byte lastProw);
+    void set_edit_presetNr_ccValue(byte n, byte lastProw);
+    void draw_edit_presetNr_ccValue(byte n, byte lastProw);
+    // coordinates
+    void set_coordinateX(byte n, byte lastProw);
+    void set_coordinateY(byte n, byte lastProw);
+    void draw_coordinateX(byte n, byte lastProw);
+    void draw_coordinateY(byte n, byte lastProw);
     // helpers
 
     void draw_sequencer_screen(byte lastProw);
@@ -205,6 +239,8 @@ public:
 
     //----------------------------------------------------------------
     // arranger stuff
+    void set_arranger_parameters(byte lastProw);
+    void draw_arranger_parameters(byte lastProw);
     // clip to play
     void set_clip_to_play(byte n, byte b);
     void draw_clip_to_play(byte n, byte b);
@@ -219,6 +255,11 @@ public:
     void set_note_offset(byte n, int b);
     void draw_noteOffset(byte n, int b);
     void draw_offset_arranger(byte n, byte b);
+    // MIDI CC
+    void set_play_presetNr_ccChannel(byte n, byte lastProw);
+    void draw_play_presetNr_ccChannel(byte n, byte lastProw);
+    void set_play_presetNr_ccValue(byte n, byte lastProw);
+    void draw_play_presetNr_ccValue(byte n, byte lastProw);
 };
 
 extern Track *allTracks[8];
