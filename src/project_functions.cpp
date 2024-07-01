@@ -8,12 +8,12 @@ void encoder_SetCursor(byte deltaX, byte maxY)
     {
         pixelTouchX = constrain(pixelTouchX + encoded[0] * deltaX, 0, 304);
         // Serial.printf("encoder: %d + deltaX: %d = pixelTouchX %d\n", encoded[0], deltaX, pixelTouchX);
-         //enc_moved[0] = false;
+        // enc_moved[0] = false;
     }
     if (enc_moved[1])
     {
         gridTouchY = constrain(gridTouchY + encoded[1], 0, maxY);
-         //enc_moved[1] = false;
+        // enc_moved[1] = false;
     }
 }
 void buttons_SetCursor(byte maxY)
@@ -69,9 +69,9 @@ void buttons_SelectTrack()
                 active_track = i;
                 show_active_track(active_track);
                 encoder_function = INPUT_FUNCTIONS_FOR_SEQUENCER;
-                // buttonPressed[BUTTON_TRACK] = false;
+                change_plugin_row = true;
                 allTracks[active_track]->drawStepSequencerStatic();
-                allTracks[active_track]->draw_sequencer_screen(lastPotRow);
+                allTracks[active_track]->draw_stepSequencer_parameters(lastPotRow);
                 allTracks[active_track]->draw_notes_in_grid();
                 buttonPressed[i] = false;
             }
@@ -87,7 +87,7 @@ void buttons_SelectSequencerMode()
             if (buttonPressed[i])
             {
                 show_active_track(i);
-                allTracks[i]->draw_sequencer_modes(allTracks[i]->sequencer_mode);
+                allTracks[i]->draw_sequencer_modes(allTracks[i]->parameter[SET_SEQ_MODE]);
                 encoder_function = INPUT_FUNCTIONS_FOR_SEQUENCER_MODES;
                 Serial.println("SeqMode selected");
                 // buttonPressed[BUTTON_PLUGIN] = false;
@@ -109,7 +109,7 @@ void buttons_SelectPlugin()
                 change_plugin_row = true;
                 allTracks[active_track]->draw_MIDI_CC_screen();
                 encoder_function = INPUT_FUNCTIONS_FOR_PLUGIN;
-                // Serial.printf("plugin selected Track: %d on channel: %d\n", i,allTracks[i]->MIDI_channel_out );
+                // Serial.printf("plugin selected Track: %d on channel: %d\n", i,allTracks[i]->parameter[SET_MIDICH_OUT] );
                 //  buttonPressed[BUTTON_PLUGIN] = false;
                 buttonPressed[i] = false;
             }
@@ -181,6 +181,8 @@ void buttons_SelectArranger()
         gridSongMode(arrangerpage);
         for (int i = 0; i < NUM_TRACKS; i++)
             allTracks[i]->draw_arrangment_lines(3, arrangerpage);
+        change_plugin_row = true;
+        allTracks[active_track]->draw_arranger_parameters(lastPotRow);
     }
 }
 void buttons_Set_potRow()
@@ -200,14 +202,14 @@ void buttons_Set_potRow()
 }
 void buttons_SetNoteOnTick(int x, byte y)
 {
-
-    if (buttonPressed[BUTTON_ENTER])
+    if (pixelTouchX >= SEQ_GRID_LEFT && pixelTouchX <= SEQ_GRID_RIGHT && gridTouchY >= SEQ_GRID_TOP && gridTouchY <= SEQ_GRID_BOTTOM)
     {
-        if (pixelTouchX >= SEQ_GRID_LEFT && pixelTouchX <= SEQ_GRID_RIGHT && gridTouchY >= SEQ_GRID_TOP && gridTouchY <= SEQ_GRID_BOTTOM)
+        if (buttonPressed[BUTTON_ENTER])
         {
+            buttonPressed[BUTTON_ENTER] = false;
+
             allTracks[active_track]->set_note_on_tick();
         }
-        buttonPressed[BUTTON_ENTER] = false;
     }
 }
 void clock_to_notes()
@@ -250,49 +252,24 @@ void input_behaviour()
         buttons_SetNoteOnTick(pixelTouchX, gridTouchY);
         if (buttonPressed[BUTTON_ROW])
         {
-            tft.fillRect(18 * STEP_FRAME_W, 5 * STEP_FRAME_H, 20 * STEP_FRAME_W, 12 * STEP_FRAME_H, ILI9341_DARKGREY);
-            allTracks[active_track]->draw_sequencer_screen(lastPotRow);
-            Serial.println(lastPotRow);
+            change_plugin_row = true;
+
+            allTracks[active_track]->draw_stepSequencer_parameters(lastPotRow);
             buttonPressed[BUTTON_ROW] = false;
         }
-
-        switch (lastPotRow)
-        {
-        case 0:
-
-            encoder_SetCursor(allTracks[active_track]->step_length * 2, 14); // Encoder: 0+1
-            allTracks[active_track]->set_coordinateX(0, 0);
-            allTracks[active_track]->set_coordinateY(1, 0);
-            allTracks[active_track]->set_octave(2); // Encoder: 2
-            allTracks[active_track]->set_velocity(3, 0);
-
-            break;
-        case 1:
-            allTracks[active_track]->set_sequence_length(ENCODER_SEQUENCE_LENGTH, 1); // Encoder: 0
-            allTracks[active_track]->set_step_division(ENCODER_STEP_DIVISION, 1);     // Encoder: 1
-            allTracks[active_track]->set_step_length(ENCODER_STEP_LENGTH, 1);         // Encoder: 2
-            allTracks[active_track]->set_clip_to_edit(ENCODER_CLIP2_EDIT, 1);         // Encoder: 3
-            break;
-        case 2:
-            allTracks[active_track]->set_sequencer_mode(ENCODER_SEQ_MODE, 2);     // Encoder: 0
-            allTracks[active_track]->set_MIDI_channel_out(ENCODER_MIDICH_OUT, 2); // Encoder: 1
-
-            break;
-        case 3:
-        default:
-            break;
-        }
+        allTracks[active_track]->set_stepSequencer_parameters(lastPotRow);
     }
     // if we are in one of the Arrangerpages
     if (encoder_function == INPUT_FUNCTIONS_FOR_ARRANGER)
     {
         if (buttonPressed[BUTTON_ROW])
         {
-            tft.fillRect(18 * STEP_FRAME_W, 5 * STEP_FRAME_H, 20 * STEP_FRAME_W, 12 * STEP_FRAME_H, ILI9341_DARKGREY);
-            // allTracks[active_track]->draw_arranger_screen(lastPotRow);
+            change_plugin_row = true;
+            allTracks[active_track]->draw_arranger_parameters(lastPotRow);
             buttonPressed[BUTTON_ROW] = false;
         }
         buttons_SetCursor(8);
+
         switch (lastPotRow)
         {
         case 0:
@@ -307,6 +284,8 @@ void input_behaviour()
             Masterclock.set_end_of_loop(3);   // Encoder: 3
             break;
         case 2:
+            allTracks[gridTouchY - 1]->set_play_presetNr_ccChannel(2, 2);
+            allTracks[gridTouchY - 1]->set_play_presetNr_ccValue(3, 2);
             break;
         case 3:
         default:

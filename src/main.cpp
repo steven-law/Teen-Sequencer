@@ -47,19 +47,20 @@ void loop()
     else
       cursor.update(pixelTouchX, gridTouchY, 1, STEP_FRAME_H);
     tft.fillRect(70, lastPotRow * 4, 10, 3, ILI9341_RED);
-    
   }
   input_behaviour();
   for (int i = 0; i < NUM_TRACKS; i++)
   {
     allTracks[i]->update(pixelTouchX, gridTouchY);
+    // allTracks[i]->saveTrack();
+    // allTracks[i]->loadTrack();
   }
 
   Masterclock.process_MIDItick();
   clock_to_notes();
 
   if (millis() % 50 == 0)
-  tft.updateScreenAsync();
+    tft.updateScreenAsync();
 }
 
 // put function definitions here:

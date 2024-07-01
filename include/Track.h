@@ -5,6 +5,7 @@
 #include <ILI9341_t3n.h>
 #include <ili9341_t3n_font_Arial.h> // from ILI9341_t3
 #include <MIDI.h>
+#include <SD.h>
 #include "project_variables.h"
 #include "project_functions.h"
 // void draw_sequencer_option(byte x, const char *nameshort, int value, byte enc, const char *pluginName);
@@ -32,14 +33,25 @@
 #define NUM_PRESETS 8
 #define MAX_VOICES 12
 
+#define ENCODER_OCTAVE 2
 #define ENCODER_STEP_LENGTH 2
 #define ENCODER_SEQUENCE_LENGTH 0
 #define ENCODER_STEP_DIVISION 1
 #define ENCODER_SEQ_MODE 0
 #define ENCODER_MIDICH_OUT 1
-
 #define ENCODER_CLIP2_EDIT 3
+//
+#define NUM_PARAMETERS 16
+#define SET_OCTAVE 2
+#define SET_VELO2SET 3
+#define SET_SEQUENCE_LENGTH 4
+#define SET_STEP_DIVIVISION 5
+#define SET_STEP_LENGTH 6
+#define SET_CLIP2_EDIT 7
+#define SET_SEQ_MODE 8
+#define SET_MIDICH_OUT 9
 
+extern File myFile;
 extern int trackColor[9];
 // Encoder Pins
 extern bool enc_moved[4];
@@ -82,28 +94,24 @@ public:
     ILI9341_t3n *tft; // Pointer to the display object
 
     byte MIDI_channel_in;
-    byte MIDI_channel_out;
-    byte octave = 4;
+    byte parameter[16]{0, 0, 4, 99, 96, 1, 3, 0, 0, 0, 0, 0};
     byte my_Arranger_Y_axis;
-    byte sequencer_mode = 0;
     byte note2set;
     byte tick_start;
     byte noteToPlay[MAX_VOICES];
     int pixelOn_X;
     int pixelOn_Y;
-    byte clip_to_edit = 0;
-    byte clip_to_play[255];
-    int noteOffset[255];
+    int gridX_4_save;
+    byte gridY_4_save;
+    byte clip_to_play[256];
+    int noteOffset[256];
     byte tick;
     byte internal_clock = 0;
     bool internal_clock_is_on = false;
     byte internal_clock_bar = 0;
-    byte step_division = 1;
     byte sequence_length = MAX_TICKS;
-    byte step_length = 6;
-    byte array[MAX_CLIPS][MAX_TICKS + 1][MAX_VOICES];
-    byte velocity[MAX_CLIPS][MAX_TICKS + 1][MAX_VOICES];
-    byte active_voice = 0;
+    byte array[MAX_CLIPS][MAX_TICKS +1][MAX_VOICES];
+    byte velocity[MAX_CLIPS][MAX_TICKS +1][MAX_VOICES];
     byte search_free_voice = 0;
     bool note_is_on[MAX_VOICES] = {true, true, true, true, true, true, true, true, true, true, true, true};
     bool ready_for_NoteOff[MAX_VOICES] = {false, false, false, false, false, false, false, false, false, false, false, false};
@@ -111,8 +119,9 @@ public:
     byte CCchannel[NUM_PRESETS + 1][16];
     byte edit_presetNr_ccChannel = 0;
     byte edit_presetNr_ccValue = 0;
-    byte play_presetNr_ccChannel = 0;
-    byte play_presetNr_ccValue = 0;
+    byte play_presetNr_ccChannel[256];
+    byte play_presetNr_ccValue[256];
+    byte bar_to_edit = 0;
     const char *CCnames[128]{"CC", "CC", "CC", "CC", "CC", "CC", "CC", "CC", "CC", "CC", "CC", "CC", "CC", "CC", "CC", "CC",
                              "CC", "CC", "CC", "CC", "CC", "CC", "CC", "CC", "CC", "CC", "CC", "CC", "CC", "CC", "CC", "CC",
                              "CC", "CC", "CC", "CC", "CC", "CC", "CC", "CC", "CC", "CC", "CC", "CC", "CC", "CC", "CC", "CC",
@@ -139,13 +148,14 @@ public:
         // MIDI1.setHandleNoteOn(myNoteOn);
         // MIDI1.setHandleNoteOff(myNoteOff);
         // MIDI1.begin();
+        //SD.begin(BUILTIN_SDCARD);
         tft = display;
         my_Arranger_Y_axis = Y;
         MIDI_channel_in = Y;
-        MIDI_channel_out = Y;
+        parameter[SET_MIDICH_OUT] = Y;
         for (int c = 0; c < MAX_CLIPS; c++)
         {
-            for (int t = 0; t < MAX_TICKS + 1; t++)
+            for (int t = 0; t <= MAX_TICKS ; t++)
             {
                 for (int v = 0; v < MAX_VOICES; v++)
                 {
@@ -154,16 +164,27 @@ public:
                 }
             }
         }
-        for (int i = 0; i < 255; i++)
+        for (int i = 0; i < 256; i++)
         {
             clip_to_play[i] = 8;
             noteOffset[i] = 0;
+            play_presetNr_ccChannel[i] = 8;
+            play_presetNr_ccValue[i] = 8;
+        }
+        for (int p = 0; p < NUM_PRESETS; p++)
+        {
+            for (int t = 0; t < 16 + 1; t++)
+            {
+                CCchannel[p][t] = 128;
+                CCvalue[p][t] = 0;
+            }
         }
     }
 
     // update
     void update(int PixelX, byte gridY);
-
+    void saveTrack();
+    void loadTrack();
     // sequencer Modes
     void play_sequencer_mode(byte cloock, byte start, byte end);
     void set_SeqMode_parameters(byte row);
@@ -171,40 +192,19 @@ public:
     void noteOn(byte Note, byte Velo, byte Channel);
     void noteOff(byte Note, byte Velo, byte Channel);
     // void play_SeqMode0(byte cloock);
+    void set_stepSequencer_parameters(byte row);
+    void draw_stepSequencer_parameters(byte row);
 
+    void set_stepSequencer_parameter_value(byte XPos, byte YPos, const char *name, byte min, byte max);
+    void draw_stepSequencer_parameter_value(byte XPos, byte YPos, const char *name);
+
+    void set_stepSequencer_parameter_text(byte XPos, byte YPos, const char *name, const char *text, byte min, byte max);
+    void draw_stepSequencer_parameter_text(byte XPos, byte YPos, const char *text, const char *name);
     // sequencer options:
     // octave
     void set_octave(byte n);
     void drawOctaveNumber();
     byte get_octave();
-    // sequencer Mode
-    void set_sequencer_mode(byte n, byte lastProw);
-    void draw_sequencer_mode(byte n, byte lastProw);
-    byte get_sequencer_mode();
-    // step division
-    void set_step_division(byte n, byte lastProw);
-    void draw_step_division(byte n, byte lastProw);
-    byte get_step_division();
-    // midi channel out
-    void set_MIDI_channel_out(byte n, byte lastProw);
-    void draw_MIDI_channel_out(byte n, byte lastProw);
-    byte get_MIDI_channel_out();
-    // sequence length
-    void set_sequence_length(byte n, byte lastProw);
-    void draw_sequence_length(byte n, byte lastProw);
-    byte get_sequence_length();
-    // step length
-    void set_step_length(byte n, byte lastProw);
-    void draw_step_length(byte n, byte lastProw);
-    byte get_step_length();
-    // clip to edit
-    void set_clip_to_edit(byte n, byte lastProw);
-    void draw_clip_to_edit(byte n, byte lastProw);
-    byte get_clip_to_edit();
-    // velocity
-    void set_velocity(byte n, byte lastProw);
-    void draw_velocity(byte n, byte lastProw);
-    byte get_velocity();
 
     void set_CCvalue(byte XPos, byte YPos);
     void set_CCchannel(byte XPos, byte YPos);
@@ -222,7 +222,6 @@ public:
     void draw_coordinateY(byte n, byte lastProw);
     // helpers
 
-    void draw_sequencer_screen(byte lastProw);
     // sequencer note input stuff
     void set_note_on_tick();
     void check_for_free_voices(byte onTick, byte cnote);
@@ -239,6 +238,7 @@ public:
 
     //----------------------------------------------------------------
     // arranger stuff
+    void change_presets();
     void set_arranger_parameters(byte lastProw);
     void draw_arranger_parameters(byte lastProw);
     // clip to play

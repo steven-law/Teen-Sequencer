@@ -23,6 +23,8 @@ int encoder_colour[NUM_ENCODERS] = {ILI9341_BLUE, ILI9341_RED, ILI9341_GREEN, IL
 int phraseSegmentLength = 16;
 // mixer
 const char *playstate[3] = {"Mute", "Play", "Solo"};
+
+char _trackname[20];
 // cursor
 
 

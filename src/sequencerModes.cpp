@@ -4,9 +4,10 @@
 
 void Track::play_SeqMode0(byte cloock)
 {
-
+Serial.printf("track= %d,tick: %d, array note= %d on voice: %d\n", MIDI_channel_in, cloock, array[clip_to_play[internal_clock_bar]][cloock][0], 0);
     for (int v = 0; v < MAX_VOICES; v++)
     {
+        
         if (array[clip_to_play[internal_clock_bar]][cloock][v] < NO_NOTE)
         {
             if (!note_is_on[v])
@@ -15,7 +16,7 @@ void Track::play_SeqMode0(byte cloock)
                 noteToPlay[v] = array[clip_to_play[internal_clock_bar]][cloock][v] + noteOffset[internal_clock_bar];
                 byte Velo = velocity[clip_to_play[internal_clock_bar]][cloock][v];
                 note_is_on[v] = true;
-                noteOn(noteToPlay[v], Velo, MIDI_channel_out);
+                noteOn(noteToPlay[v], Velo, parameter[SET_MIDICH_OUT]);
             }
         }
         if (array[clip_to_play[internal_clock_bar]][cloock][v] == NO_NOTE)
@@ -23,7 +24,7 @@ void Track::play_SeqMode0(byte cloock)
             if (note_is_on[v])
             {
                 note_is_on[v] = false;
-                noteOff(noteToPlay[v], 0, MIDI_channel_out);
+                noteOff(noteToPlay[v], 0, parameter[SET_MIDICH_OUT]);
 
                 // Serial.printf("OFF   tick: %d, voice: %d, note: %d\n", cloock, v, noteToPlay[v]);
             }
@@ -41,7 +42,7 @@ void Track::play_SeqMode1(byte cloock)
             noteToPlay[0] = random(0, 11) + (random(SeqMod_1_Poti[0], SeqMod_1_Poti[1] + 1) * 12) + noteOffset[internal_clock_bar];
             byte Velo = random(SeqMod_1_Poti[2], SeqMod_1_Poti[3]);
             note_is_on[0] = true;
-            noteOn(noteToPlay[0], Velo, MIDI_channel_out); // Send a Note (pitch 42, velo 127 on channel 1)
+            noteOn(noteToPlay[0], Velo, parameter[SET_MIDICH_OUT]); // Send a Note (pitch 42, velo 127 on channel 1)
                                                            // Serial.printf("ON   tick: %d, voice: %d, note: %d\n", cloock, 0, noteToPlay[0]);
         }
     }
@@ -51,7 +52,7 @@ void Track::play_SeqMode1(byte cloock)
         if (note_is_on[0])
         {
             note_is_on[0] = false;
-            noteOff(noteToPlay[0], 0, MIDI_channel_out); // Send a Note (pitch 42, velo 127 on channel 1)
+            noteOff(noteToPlay[0], 0, parameter[SET_MIDICH_OUT]); // Send a Note (pitch 42, velo 127 on channel 1)
                                                          // Serial.printf("OFF   tick: %d, voice: %d, note: %d\n", cloock, 0, noteToPlay[0]);
         }
     }
@@ -127,12 +128,11 @@ void Track::play_SeqMode2(byte cloock)
                 }
             }
 
-            Serial.print("octave:");
-            Serial.println(thisOctave);
+            Serial.printf("octave:%d\n", thisOctave);
             note_is_on[0] = true;
             noteToPlay[0] = (maxValIndex) + (thisOctave * 12) + noteOffset[internal_clock_bar];
             byte Velo = velocity[clip_to_play[internal_clock_bar]][cloock][0];
-            noteOn(noteToPlay[0], Velo, MIDI_channel_out);
+            noteOn(noteToPlay[0], Velo, parameter[SET_MIDICH_OUT]);
             // Serial.print(track[i].notePlayed[0]);
             // Serial.print("--");
 
@@ -147,7 +147,7 @@ void Track::play_SeqMode2(byte cloock)
         {
 
             note_is_on[0] = false;
-            noteOff(noteToPlay[0], 0, MIDI_channel_out);
+            noteOff(noteToPlay[0], 0, parameter[SET_MIDICH_OUT]);
             // Serial.println(track[i].notePlayed[0]);
         }
     }
@@ -239,10 +239,10 @@ void Track::play_SeqMode3(byte cloock)
         {
             if (!note_is_on[v])
             {
-                noteToPlay[v] = v + (octave * 12) + noteOffset[internal_clock_bar];
+                noteToPlay[v] = v + (parameter[SET_OCTAVE] * 12) + noteOffset[internal_clock_bar];
                 byte Velo = velocity[clip_to_play[internal_clock_bar]][cloock][v];
                 note_is_on[v] = true;
-                noteOn(noteToPlay[v], Velo, MIDI_channel_out); // Send a Note (pitch 42, velo 127 on channel 1)
+                noteOn(noteToPlay[v], Velo, parameter[SET_MIDICH_OUT]); // Send a Note (pitch 42, velo 127 on channel 1)
                                                                // Serial.printf("ON   tick: %d, voice: %d, note: %d\n", cloock, 0, noteToPlay[0]);
             }
         }
@@ -252,7 +252,7 @@ void Track::play_SeqMode3(byte cloock)
             if (note_is_on[v])
             {
                 note_is_on[v] = false;
-                noteOff(noteToPlay[v], 0, MIDI_channel_out); // Send a Note (pitch 42, velo 127 on channel 1)
+                noteOff(noteToPlay[v], 0, parameter[SET_MIDICH_OUT]); // Send a Note (pitch 42, velo 127 on channel 1)
                 //  Serial.printf("OFF   tick: %d, voice: %d, note: %d\n", cloock, 0, noteToPlay[0]);
             }
         }
@@ -324,7 +324,7 @@ void Track::play_SeqMode4(byte cloock)
             noteToPlay[0] = SeqMod_4_Poti[seq3_clock];
             byte Velo = 99;
             note_is_on[0] = true;
-            noteOn(noteToPlay[0], Velo, MIDI_channel_out); // Send a Note (pitch 42, velo 127 on channel 1)
+            noteOn(noteToPlay[0], Velo, parameter[SET_MIDICH_OUT]); // Send a Note (pitch 42, velo 127 on channel 1)
                                                            // Serial.printf("ON   tick: %d, voice: %d, note: %d\n", cloock, 0, noteToPlay[0]);
         }
     }
@@ -334,7 +334,7 @@ void Track::play_SeqMode4(byte cloock)
         if (note_is_on[0])
         {
             note_is_on[0] = false;
-            noteOff(noteToPlay[0], 0, MIDI_channel_out); // Send a Note (pitch 42, velo 127 on channel 1)
+            noteOff(noteToPlay[0], 0, parameter[SET_MIDICH_OUT]); // Send a Note (pitch 42, velo 127 on channel 1)
                                                          // Serial.printf("OFF   tick: %d, voice: %d, note: %d\n", cloock, 0, noteToPlay[0]);
         }
     }
