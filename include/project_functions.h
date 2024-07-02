@@ -12,6 +12,8 @@ void buttons_SetPlayStatus();
 void buttons_SelectTrack();
 void buttons_SelectSequencerMode();
 void buttons_SelectPlugin();
+void buttons_saveTrack();
+void buttons_loadTrack();
 void buttons_SelectArranger();
 void buttons_Set_potRow();
 void buttons_SetNoteOnTick(int x, byte y);

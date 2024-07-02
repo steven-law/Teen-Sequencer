@@ -16,197 +16,141 @@ void Track::update(int PixelX, byte gridY)
     }
     gridX_4_save = PixelX / STEP_FRAME_W;
     gridY_4_save = gridY;
-    saveTrack();
-    loadTrack();
+    // saveTrack();
+    // loadTrack();
 }
 void Track::saveTrack()
 {
-    if (buttonPressed[BUTTON_ENTER])
+    SD.begin(BUILTIN_SDCARD);
+    // Serial.println("in save mode:");
+    buttonPressed[BUTTON_ENTER] = false;
+
+    sprintf(_trackname, "track%d.txt\0", MIDI_channel_in);
+    // Serial.println(_trackname);
+
+    // delete the file:
+    // Serial.println("Removing:");
+    SD.remove(_trackname);
+    // Serial.println("Done:");
+
+    // open the file.
+    // Serial.println("Creating and opening:");
+    myFile = SD.open(_trackname, FILE_WRITE);
+    // Serial.println(_trackname);
+    // Serial.println("Done:");
+    //  if the file opened okay, write to it:
+    if (myFile)
     {
-        Serial.printf("X= %d, Y= %d\n", gridX_4_save, gridY_4_save);
-        if (gridX_4_save >= 13 && gridX_4_save <= 14 && gridY_4_save == 0)
+        // save tracks
+        // Serial.println("Writing track:");
+
+        for (int c = 0; c < MAX_CLIPS; c++)
         {
-            SD.begin(BUILTIN_SDCARD);
-            Serial.println("in save mode:");
-            buttonPressed[BUTTON_ENTER] = false;
-
-            sprintf(_trackname, "track%d.txt\0", MIDI_channel_in);
-            Serial.println(_trackname);
-            tft->fillScreen(ILI9341_DARKGREY);
-            tft->setTextColor(ILI9341_WHITE);
-            tft->setFont(Arial_8);
-            tft->setCursor(0, 0);
-
-            // delete the file:
-            tft->print("Removing:");
-            Serial.println("Removing:");
-            tft->print(_trackname);
-            SD.remove(_trackname);
-            tft->println("Done");
-            Serial.println("Done:");
-
-            // open the file.
-            tft->print("Creating and opening:");
-            Serial.println("Creating and opening:");
-
-            tft->print(_trackname);
-
-            myFile = SD.open(_trackname, FILE_WRITE);
-            Serial.println(_trackname);
-            tft->println("Done");
-            Serial.println("Done:");
-            // if the file opened okay, write to it:
-            if (myFile)
+            for (int t = 0; t <= MAX_TICKS; t++)
             {
-                // save tracks
-                tft->print("Writing track to:");
-                tft->print(_trackname);
-                Serial.println("Writing track:");
-
-                for (int c = 0; c < MAX_CLIPS; c++)
+                for (int v = 0; v < MAX_VOICES; v++)
                 {
-                    for (int t = 0; t <= MAX_TICKS ; t++)
-                    {
-                        for (int v = 0; v < MAX_VOICES; v++)
-                        {
-                            myFile.print((char)array[c][t][v]);
-                            myFile.print((char)velocity[c][t][v]);
-                        }
-                    }
+                    myFile.print((char)this->array[c][t][v]);
+                    myFile.print((char)velocity[c][t][v]);
                 }
-                for (int t = 0; t < MAX_TICKS; t++)
-                    Serial.printf(" tick: %d,  note: %d\n", t, array[0][t][0]);
-
-                Serial.println("array saved:");
-                for (int i = 0; i < 256; i++)
-                {
-                    myFile.print((char)clip_to_play[i]);
-                    myFile.print((char)noteOffset[i]);
-                    myFile.print((char)play_presetNr_ccChannel[i]);
-                    myFile.print((char)play_presetNr_ccValue[i]);
-                }
-                Serial.println("song saved:");
-                for (int p = 0; p < NUM_PRESETS; p++)
-                {
-                    for (int t = 0; t < NUM_PARAMETERS + 1; t++)
-                    {
-                        myFile.print((char)CCchannel[p][t]);
-                        myFile.print((char)CCvalue[p][t]);
-                    }
-                }
-                Serial.println("midi saved:");
-                for (int i = 0; i < NUM_PARAMETERS; i++)
-                    myFile.print((char)parameter[i]);
-                Serial.println("settings saved:");
-
-                // close the file:
-                myFile.close();
-                tft->println("Done");
-                Serial.println("all saved:");
             }
-
-            else
-            {
-                // if the file didn't open, print an error:
-                tft->println("error opening:");
-                Serial.println("error:");
-                tft->print(_trackname);
-            }
-
-            tft->println("Saving done.");
-            Serial.println("saving Done:");
-            startUpScreen();
         }
+
+        // Serial.println("array saved:");
+        for (int i = 0; i < 256; i++)
+        {
+            myFile.print((char)clip_to_play[i]);
+            myFile.print((char)noteOffset[i]);
+            myFile.print((char)play_presetNr_ccChannel[i]);
+            myFile.print((char)play_presetNr_ccValue[i]);
+        }
+        // Serial.println("song saved:");
+        for (int p = 0; p < NUM_PRESETS; p++)
+        {
+            for (int t = 0; t < NUM_PARAMETERS + 1; t++)
+            {
+                myFile.print((char)CCchannel[p][t]);
+                myFile.print((char)CCvalue[p][t]);
+            }
+        }
+        // Serial.println("midi saved:");
+        for (int i = 0; i < NUM_PARAMETERS; i++)
+            myFile.print((char)parameter[i]);
+        // Serial.println("settings saved:");
+
+        // close the file:
+        myFile.close();
+        // Serial.println("all saved:");
     }
+    else
+    {
+        // if the file didn't open, print an error:
+        Serial.println("error:");
+    }
+    // Serial.println("saving Done:");
+    startUpScreen();
 }
 void Track::loadTrack()
 {
-    if (buttonPressed[BUTTON_ENTER])
+
+    SD.begin(BUILTIN_SDCARD);
+    // Serial.println("in load mode");
+    sprintf(_trackname, "track%d.txt\0", MIDI_channel_in);
+    // Serial.println(_trackname);
+    //  open the file for reading:
+    myFile = SD.open(_trackname, FILE_READ);
+    // Serial.println(_trackname);
+    if (myFile)
     {
-        buttonPressed[BUTTON_ENTER] = false;
-        Serial.printf("X= %d, Y= %d\n", gridX_4_save, gridY_4_save);
-
-        if (gridX_4_save == 15 && gridY_4_save == 0)
+        // Serial.println("opening:");
+        //  read from the file until there's nothing else in it:
+        //  load track 1
+        for (int c = 0; c < MAX_CLIPS; c++)
         {
-            SD.begin(BUILTIN_SDCARD);
-            Serial.println("in load mode");
-            sprintf(_trackname, "track%d.txt\0", MIDI_channel_in);
-            Serial.println(_trackname);
-            tft->fillScreen(ILI9341_DARKGREY);
-            tft->setFont(Arial_8);
-            tft->setTextColor(ILI9341_WHITE);
-            tft->setCursor(0, 0);
-            // open the file for reading:
-            myFile = SD.open(_trackname);
-            Serial.println(_trackname);
-            if (myFile)
+            for (int t = 0; t <= MAX_TICKS; t++)
             {
-                tft->println("opening:");
-                Serial.println("opening:");
-
-                tft->println(_trackname);
-
-                // read from the file until there's nothing else in it:
-                // load track 1
-                tft->print("Reading clips from:");
-                tft->println(_trackname);
-
-                for (int c = 0; c < MAX_CLIPS; c++)
+                for (int v = 0; v < MAX_VOICES; v++)
                 {
-                    for (int t = 0; t <= MAX_TICKS ; t++)
-                    {
-                        for (int v = 0; v < MAX_VOICES; v++)
-                        {
-                            array[c][t][v] = myFile.read();
-                            // Serial.printf("clip: %d, tick: %d, voice: %d, note: %d\n", c, t, v, array[0][t][0]);
-                            velocity[c][t][v] = myFile.read();
-                        }
-                    }
+                    this->array[c][t][v] = myFile.read();
+                    // Serial.printf("clip: %d, tick: %d, voice: %d, note: %d\n", c, t, v, this->array[0][t][0]);
+                    velocity[c][t][v] = myFile.read();
                 }
-                for (int t = 0; t < MAX_TICKS; t++)
-                    Serial.printf(" tick: %d,  note: %d\n", t, array[0][t][0]);
-
-                Serial.println("array loaded:");
-
-                for (int i = 0; i < 256; i++)
-                {
-                    clip_to_play[i] = myFile.read();
-                    noteOffset[i] = myFile.read();
-                    play_presetNr_ccChannel[i] = myFile.read();
-                    play_presetNr_ccValue[i] = myFile.read();
-                }
-                Serial.println("song loaded:");
-
-                for (int p = 0; p < NUM_PRESETS; p++)
-                {
-                    for (int t = 0; t < NUM_PARAMETERS + 1; t++)
-                    {
-                        CCchannel[p][t] = myFile.read();
-                        CCvalue[p][t] = myFile.read();
-                    }
-                }
-                Serial.println("midi loaded:");
-
-                for (int i = 0; i < NUM_PARAMETERS; i++)
-                    parameter[i] = myFile.read();
-                Serial.println("settings loaded:");
-
-                tft->println("Done");
-                Serial.println("Loading done");
-
-                startUpScreen();
-                // close the file:
-                myFile.close();
-            }
-            else
-            {
-                // if the file didn't open, print an error:
-                Serial.println("error:");
-
-                tft->println("error opening:");
-                tft->println(_trackname);
             }
         }
+        // Serial.println("array loaded:");
+
+        for (int i = 0; i < 256; i++)
+        {
+            clip_to_play[i] = myFile.read();
+            noteOffset[i] = myFile.read();
+            play_presetNr_ccChannel[i] = myFile.read();
+            play_presetNr_ccValue[i] = myFile.read();
+        }
+        // Serial.println("song loaded:");
+
+        for (int p = 0; p < NUM_PRESETS; p++)
+        {
+            for (int t = 0; t < NUM_PARAMETERS + 1; t++)
+            {
+                CCchannel[p][t] = myFile.read();
+                CCvalue[p][t] = myFile.read();
+            }
+        }
+        // Serial.println("midi loaded:");
+
+        for (int i = 0; i < NUM_PARAMETERS; i++)
+            parameter[i] = myFile.read();
+        // Serial.println("settings loaded:");
+        Serial.println("Loading done");
+
+        startUpScreen();
+        // close the file:
+        myFile.close();
+    }
+    else
+    {
+        // if the file didn't open, print an error:
+        Serial.println("error:");
     }
 }
 void Track::play_sequencer_mode(byte cloock, byte start, byte end)

@@ -4,22 +4,22 @@
 
 void Track::play_SeqMode0(byte cloock)
 {
-Serial.printf("track= %d,tick: %d, array note= %d on voice: %d\n", MIDI_channel_in, cloock, array[clip_to_play[internal_clock_bar]][cloock][0], 0);
+Serial.printf("track= %d,tick: %d, array note= %d on voice: %d\n", MIDI_channel_in, cloock, this->array[clip_to_play[internal_clock_bar]][cloock][0], 0);
     for (int v = 0; v < MAX_VOICES; v++)
     {
         
-        if (array[clip_to_play[internal_clock_bar]][cloock][v] < NO_NOTE)
+        if (this->array[clip_to_play[internal_clock_bar]][cloock][v] < NO_NOTE)
         {
             if (!note_is_on[v])
             {
                 Serial.println("send Note");
-                noteToPlay[v] = array[clip_to_play[internal_clock_bar]][cloock][v] + noteOffset[internal_clock_bar];
+                noteToPlay[v] = this->array[clip_to_play[internal_clock_bar]][cloock][v] + noteOffset[internal_clock_bar];
                 byte Velo = velocity[clip_to_play[internal_clock_bar]][cloock][v];
                 note_is_on[v] = true;
                 noteOn(noteToPlay[v], Velo, parameter[SET_MIDICH_OUT]);
             }
         }
-        if (array[clip_to_play[internal_clock_bar]][cloock][v] == NO_NOTE)
+        if (this->array[clip_to_play[internal_clock_bar]][cloock][v] == NO_NOTE)
         {
             if (note_is_on[v])
             {
@@ -35,7 +35,7 @@ Serial.printf("track= %d,tick: %d, array note= %d on voice: %d\n", MIDI_channel_
 void Track::play_SeqMode1(byte cloock)
 {
 
-    if (array[clip_to_play[internal_clock_bar]][cloock][0] < NO_NOTE)
+    if (this->array[clip_to_play[internal_clock_bar]][cloock][0] < NO_NOTE)
     {
         if (!note_is_on[0])
         {
@@ -47,7 +47,7 @@ void Track::play_SeqMode1(byte cloock)
         }
     }
 
-    if (array[clip_to_play[internal_clock_bar]][cloock][0] == NO_NOTE)
+    if (this->array[clip_to_play[internal_clock_bar]][cloock][0] == NO_NOTE)
     {
         if (note_is_on[0])
         {
@@ -97,7 +97,7 @@ void Track::play_SeqMode2(byte cloock)
     byte cc24 = SeqMod_2_Poti[3];
     byte thisOctave;
 
-    if (array[clip_to_play[internal_clock_bar]][cloock][0] < NO_NOTE)
+    if (this->array[clip_to_play[internal_clock_bar]][cloock][0] < NO_NOTE)
     {
         if (!note_is_on[0])
         {
@@ -141,7 +141,7 @@ void Track::play_SeqMode2(byte cloock)
         }
     }
     // NoteOff
-    if (array[clip_to_play[internal_clock_bar]][cloock][0] == NO_NOTE)
+    if (this->array[clip_to_play[internal_clock_bar]][cloock][0] == NO_NOTE)
     {
         if (note_is_on[0])
         {

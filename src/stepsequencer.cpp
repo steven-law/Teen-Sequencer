@@ -338,29 +338,29 @@ void Track::check_for_free_voices(byte onTick, byte cnote)
     static byte old_cnote;
     for (int i = 0; i < MAX_VOICES; i++)
     {
-        if (array[parameter[SET_CLIP2_EDIT]][onTick][i] < NO_NOTE && array[parameter[SET_CLIP2_EDIT]][onTick][i] != cnote)
+        if (this->array[parameter[SET_CLIP2_EDIT]][onTick][i] < NO_NOTE && this->array[parameter[SET_CLIP2_EDIT]][onTick][i] != cnote)
         {
             if (old_cnote != cnote)
                 search_free_voice++;
-            array[parameter[SET_CLIP2_EDIT]][tick][search_free_voice] = cnote;
+            this->array[parameter[SET_CLIP2_EDIT]][tick][search_free_voice] = cnote;
             velocity[parameter[SET_CLIP2_EDIT]][tick][search_free_voice] = parameter[SET_VELO2SET];
-            Serial.printf("noteold:%d replaced with: %d with voice: %d, on tick: %d\n", old_cnote, array[parameter[SET_CLIP2_EDIT]][tick][search_free_voice], search_free_voice, tick);
+            Serial.printf("noteold:%d replaced with: %d with voice: %d, on tick: %d\n", old_cnote, this->array[parameter[SET_CLIP2_EDIT]][tick][search_free_voice], search_free_voice, tick);
             break;
         }
-        else if (array[parameter[SET_CLIP2_EDIT]][onTick][i] == cnote)
+        else if (this->array[parameter[SET_CLIP2_EDIT]][onTick][i] == cnote)
         {
             // search_free_voice = i;
-            array[parameter[SET_CLIP2_EDIT]][tick][search_free_voice] = NO_NOTE;
+            this->array[parameter[SET_CLIP2_EDIT]][tick][search_free_voice] = NO_NOTE;
             velocity[parameter[SET_CLIP2_EDIT]][tick][search_free_voice] = 0;
-            Serial.printf("note2set set to NO_NOTE: %d with voice: %d, on tick: %d\n", array[parameter[SET_CLIP2_EDIT]][tick][search_free_voice], search_free_voice, tick);
+            Serial.printf("note2set set to NO_NOTE: %d with voice: %d, on tick: %d\n", this->array[parameter[SET_CLIP2_EDIT]][tick][search_free_voice], search_free_voice, tick);
             break;
         }
-        else if (array[parameter[SET_CLIP2_EDIT]][onTick][i] == NO_NOTE)
+        else if (this->array[parameter[SET_CLIP2_EDIT]][onTick][i] == NO_NOTE)
         {
             // search_free_voice = i;
-            array[parameter[SET_CLIP2_EDIT]][tick][search_free_voice] = cnote;
+            this->array[parameter[SET_CLIP2_EDIT]][tick][search_free_voice] = cnote;
             velocity[parameter[SET_CLIP2_EDIT]][tick][search_free_voice] = parameter[SET_VELO2SET];
-            Serial.printf("note2set set to note: %d with voice: %d, on tick: %d\n", array[parameter[SET_CLIP2_EDIT]][tick][search_free_voice], search_free_voice, tick);
+            Serial.printf("note2set set to note: %d with voice: %d, on tick: %d\n", this->array[parameter[SET_CLIP2_EDIT]][tick][search_free_voice], search_free_voice, tick);
             break;
         }
     }
@@ -386,13 +386,13 @@ void Track::draw_note_on_tick(byte dr_X)
     // int thisTick = (dr_X - SEQ_GRID_LEFT) / 2;
     for (int i = 0; i < MAX_VOICES; i++)
     {
-        if (array[parameter[SET_CLIP2_EDIT]][dr_X][i] >= parameter[SET_OCTAVE] * NOTES_PER_OCTAVE && array[parameter[SET_CLIP2_EDIT]][dr_X][i] < (parameter[SET_OCTAVE] + 1) * NOTES_PER_OCTAVE)
+        if (this->array[parameter[SET_CLIP2_EDIT]][dr_X][i] >= parameter[SET_OCTAVE] * NOTES_PER_OCTAVE && this->array[parameter[SET_CLIP2_EDIT]][dr_X][i] < (parameter[SET_OCTAVE] + 1) * NOTES_PER_OCTAVE)
         {
 
-            byte PixelOn_Y = ((array[parameter[SET_CLIP2_EDIT]][dr_X][i] - (parameter[SET_OCTAVE] * NOTES_PER_OCTAVE)) + 1) * STEP_FRAME_H;
+            byte PixelOn_Y = ((this->array[parameter[SET_CLIP2_EDIT]][dr_X][i] - (parameter[SET_OCTAVE] * NOTES_PER_OCTAVE)) + 1) * STEP_FRAME_H;
             int minY = map(velocity[parameter[SET_CLIP2_EDIT]][dr_X][i], 0, 127, 0, 4);
             int maxY = map(velocity[parameter[SET_CLIP2_EDIT]][dr_X][i], 0, 127, 0, 5);
-            // Serial.printf("draw velocity: %d tick: %d for note: %d\n", velocity[parameter[SET_CLIP2_EDIT]][dr_X][i], dr_X, array[parameter[SET_CLIP2_EDIT]][dr_X][i]);
+            // Serial.printf("draw velocity: %d tick: %d for note: %d\n", velocity[parameter[SET_CLIP2_EDIT]][dr_X][i], dr_X, this->array[parameter[SET_CLIP2_EDIT]][dr_X][i]);
             //  Serial.printf("tick: %d,  minY=%d, axY=%d\n", dr_X, minY, maxY);
             for (int w = -minY; w < maxY; w++)
             {

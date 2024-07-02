@@ -159,8 +159,8 @@ public:
             {
                 for (int v = 0; v < MAX_VOICES; v++)
                 {
-                    array[c][t][v] = NO_NOTE;
-                    velocity[c][t][v] = 99;
+                    this->array[c][t][v] = NO_NOTE;
+                    this->velocity[c][t][v] = 99;
                 }
             }
         }
