@@ -314,7 +314,7 @@ void Track::set_coordinateY(byte n, byte lastProw)
 void Track::draw_coordinateX(byte n, byte lastProw)
 {
     draw_Text(n, lastProw, SEQUENCER_OPTIONS_VERY_RIGHT, (n * 2) + 5, 4, 4, "Tick", encoder_colour[n], false, false);
-    draw_Value(n, lastProw, SEQUENCER_OPTIONS_VERY_RIGHT, (n * 2) + 6, 4, 4, tick_start, encoder_colour[n], true, false);
+    draw_Value(n, lastProw, SEQUENCER_OPTIONS_VERY_RIGHT, (n * 2) + 6, 4, 4, tickStart, encoder_colour[n], true, false);
 }
 void Track::draw_coordinateY(byte n, byte lastProw)
 {
@@ -327,46 +327,92 @@ void Track::set_note_on_tick()
 {
     for (int i = 0; i < parameter[SET_STEP_LENGTH]; i++)
     {
-        tick = tick_start + i;
-        check_for_free_voices(tick, note2set);
-        clear_notes_on_tick(tick);
-        draw_note_on_tick(tick);
+        sTick = tickStart + i;
+        this->check_for_free_voices(sTick, note2set);
+        this->clear_notes_on_tick(sTick);
+        this->draw_note_on_tick(sTick);
     }
 }
-void Track::check_for_free_voices(byte onTick, byte cnote)
+void Track::check_for_free_voices(byte onTick, byte newNote)
 {
-    static byte old_cnote;
+    // Serial.printf("newNote: %d\n", newNote);
+    search_free_voice = pixelOn_Y - 1;
+    /*
     for (int i = 0; i < MAX_VOICES; i++)
     {
-        if (this->array[parameter[SET_CLIP2_EDIT]][onTick][i] < NO_NOTE && this->array[parameter[SET_CLIP2_EDIT]][onTick][i] != cnote)
-        {
-            if (old_cnote != cnote)
-                search_free_voice++;
-            this->array[parameter[SET_CLIP2_EDIT]][tick][search_free_voice] = cnote;
-            velocity[parameter[SET_CLIP2_EDIT]][tick][search_free_voice] = parameter[SET_VELO2SET];
-            Serial.printf("noteold:%d replaced with: %d with voice: %d, on tick: %d\n", old_cnote, this->array[parameter[SET_CLIP2_EDIT]][tick][search_free_voice], search_free_voice, tick);
-            break;
-        }
-        else if (this->array[parameter[SET_CLIP2_EDIT]][onTick][i] == cnote)
-        {
-            // search_free_voice = i;
-            this->array[parameter[SET_CLIP2_EDIT]][tick][search_free_voice] = NO_NOTE;
-            velocity[parameter[SET_CLIP2_EDIT]][tick][search_free_voice] = 0;
-            Serial.printf("note2set set to NO_NOTE: %d with voice: %d, on tick: %d\n", this->array[parameter[SET_CLIP2_EDIT]][tick][search_free_voice], search_free_voice, tick);
-            break;
-        }
-        else if (this->array[parameter[SET_CLIP2_EDIT]][onTick][i] == NO_NOTE)
-        {
-            // search_free_voice = i;
-            this->array[parameter[SET_CLIP2_EDIT]][tick][search_free_voice] = cnote;
-            velocity[parameter[SET_CLIP2_EDIT]][tick][search_free_voice] = parameter[SET_VELO2SET];
-            Serial.printf("note2set set to note: %d with voice: %d, on tick: %d\n", this->array[parameter[SET_CLIP2_EDIT]][tick][search_free_voice], search_free_voice, tick);
-            break;
-        }
+        // Serial.printf("Voice: %d, Note: %d\n", i, array[parameter[SET_CLIP2_EDIT]][onTick][i]);
+        if (array[parameter[SET_CLIP2_EDIT]][onTick][i] == newNote)
+            Serial.printf("should clear:   old Note= %d on voice: %d, with new Note: %d on voice: %d\n", array[parameter[SET_CLIP2_EDIT]][onTick][i], i, newNote, search_free_voice);
+        if (array[parameter[SET_CLIP2_EDIT]][onTick][i] == NO_NOTE)
+            Serial.printf("should set new: old Note= %d on voice: %d, with new Note: %d on voice: %d\n", array[parameter[SET_CLIP2_EDIT]][onTick][i], i, newNote, search_free_voice);
+        if (array[parameter[SET_CLIP2_EDIT]][onTick][i] != newNote && array[parameter[SET_CLIP2_EDIT]][onTick][i] < NO_NOTE)
+            Serial.printf("should replace: old Note= %d on voice: %d, with new Note: %d on voice: %d\n", array[parameter[SET_CLIP2_EDIT]][onTick][i], i, newNote, search_free_voice);
     }
-    if (search_free_voice == MAX_VOICES)
-        search_free_voice = 0;
-    old_cnote = cnote;
+    */
+
+    // for (int i = 0; i < MAX_VOICES; i++)
+    {
+        // löschen der Note
+        if (array[parameter[SET_CLIP2_EDIT]][onTick][search_free_voice] == newNote)
+        {
+            array[parameter[SET_CLIP2_EDIT]][onTick][search_free_voice] = NO_NOTE;
+            velocity[parameter[SET_CLIP2_EDIT]][onTick][search_free_voice] = 0;
+            // search_free_voice = i;
+            /* Serial.printf("Cleared note: %d at tick: %d, voice: %d with velocity: %d\n",
+                          array[parameter[SET_CLIP2_EDIT]][onTick][search_free_voice],
+                          onTick,
+                          search_free_voice,
+                          velocity[parameter[SET_CLIP2_EDIT]][onTick][search_free_voice]);
+                          // break;
+                          */
+        }
+        // setzen neuer Note
+        else if (array[parameter[SET_CLIP2_EDIT]][onTick][search_free_voice] == NO_NOTE)
+        {
+            // if (old_cnote != newNote)
+            // search_free_voice++;
+            array[parameter[SET_CLIP2_EDIT]][onTick][search_free_voice] = newNote;
+            velocity[parameter[SET_CLIP2_EDIT]][onTick][search_free_voice] = parameter[SET_VELO2SET];
+            // search_free_voice = i;
+            /* Serial.printf("Set new note: %d at tick: %d, voice: %d with velocity: %d\n",
+                          array[parameter[SET_CLIP2_EDIT]][onTick][search_free_voice],
+                          onTick,
+                          search_free_voice,
+                          velocity[parameter[SET_CLIP2_EDIT]][onTick][search_free_voice]);
+                          // break;
+                          */
+        }
+        /*
+                // ersetzen alter note
+                else if (array[parameter[SET_CLIP2_EDIT]][onTick][search_free_voice] != newNote && array[parameter[SET_CLIP2_EDIT]][onTick][search_free_voice] < NO_NOTE)
+                {
+
+                    if (old_cnote != newNote)
+                        search_free_voice++;
+                    byte noteToReplace = array[parameter[SET_CLIP2_EDIT]][onTick][i];
+                    array[parameter[SET_CLIP2_EDIT]][onTick][i] = NO_NOTE;
+                    array[parameter[SET_CLIP2_EDIT]][onTick][search_free_voice] = newNote;
+                    velocity[parameter[SET_CLIP2_EDIT]][onTick][search_free_voice] = parameter[SET_VELO2SET];
+
+                    Serial.printf("Replaced old note: %d on voice: %d, with new note: %d  voice: %d with velocity: %d, at tick: %d\n",
+                                  noteToReplace,
+                                  i,
+                                  array[parameter[SET_CLIP2_EDIT]][onTick][search_free_voice],
+                                  search_free_voice,
+                                  velocity[parameter[SET_CLIP2_EDIT]][onTick][search_free_voice],
+                                  onTick);
+                    break;
+                }
+                */
+    }
+    // if (search_free_voice >= MAX_VOICES)
+    // search_free_voice = 0;
+    // old_cnote = array[parameter[SET_CLIP2_EDIT]][onTick][search_free_voice];
+
+    for (int i = 0; i < MAX_VOICES; i++)
+    {
+        Serial.printf("Tick: %d, Note: %d, Voice: %d\n", onTick, array[parameter[SET_CLIP2_EDIT]][onTick][i], i);
+    }
 }
 void Track::clear_notes_on_tick(byte cl_X)
 {
@@ -383,23 +429,44 @@ void Track::clear_notes_on_tick(byte cl_X)
 void Track::draw_note_on_tick(byte dr_X)
 {
     int stepcolor = trackColor[active_track] + (parameter[SET_CLIP2_EDIT] * 20);
-    // int thisTick = (dr_X - SEQ_GRID_LEFT) / 2;
+
     for (int i = 0; i < MAX_VOICES; i++)
     {
-        if (this->array[parameter[SET_CLIP2_EDIT]][dr_X][i] >= parameter[SET_OCTAVE] * NOTES_PER_OCTAVE && this->array[parameter[SET_CLIP2_EDIT]][dr_X][i] < (parameter[SET_OCTAVE] + 1) * NOTES_PER_OCTAVE)
-        {
+        byte note = this->array[parameter[SET_CLIP2_EDIT]][dr_X][i];
+        byte velo = velocity[parameter[SET_CLIP2_EDIT]][dr_X][i];
 
-            byte PixelOn_Y = ((this->array[parameter[SET_CLIP2_EDIT]][dr_X][i] - (parameter[SET_OCTAVE] * NOTES_PER_OCTAVE)) + 1) * STEP_FRAME_H;
-            int minY = map(velocity[parameter[SET_CLIP2_EDIT]][dr_X][i], 0, 127, 0, 4);
-            int maxY = map(velocity[parameter[SET_CLIP2_EDIT]][dr_X][i], 0, 127, 0, 5);
-            // Serial.printf("draw velocity: %d tick: %d for note: %d\n", velocity[parameter[SET_CLIP2_EDIT]][dr_X][i], dr_X, this->array[parameter[SET_CLIP2_EDIT]][dr_X][i]);
-            //  Serial.printf("tick: %d,  minY=%d, axY=%d\n", dr_X, minY, maxY);
+        if (note >= parameter[SET_OCTAVE] * NOTES_PER_OCTAVE && note < (parameter[SET_OCTAVE] + 1) * NOTES_PER_OCTAVE)
+        {
+            byte PixelOn_Y = ((note - (parameter[SET_OCTAVE] * NOTES_PER_OCTAVE)) + 1) * STEP_FRAME_H;
+            int minY = map(velo, 0, 127, 0, 4);
+            int maxY = map(velo, 0, 127, 0, 5);
+
+            // Serial.printf("draw velocity: %d tick: %d for note: %d on voice: %d\n", velo, dr_X, note, i);
+
             for (int w = -minY; w < maxY; w++)
             {
                 tft->drawPixel((dr_X * 2) + 32, PixelOn_Y + w + 8, stepcolor);
                 tft->drawPixel((dr_X * 2) + 32 + 1, PixelOn_Y + w + 8, stepcolor);
-                // Serial.println(w);
             }
+        }
+        else
+        {
+            // Serial.printf("Skipping note: %d at tick: %d, voice: %d\n", note, dr_X, i);
+        }
+    }
+}
+void Track::print_velocity_matrix()
+{
+    for (int clip = 0; clip < MAX_CLIPS; clip++)
+    {
+        for (int tick = 0; tick < MAX_TICKS; tick++)
+        {
+            // Serial.printf("Tick %d: ", tick);
+            for (int voice = 0; voice < MAX_VOICES; voice++)
+            {
+                // Serial.printf("%d ", velocity[clip][tick][voice]);
+            }
+            // Serial.println();
         }
     }
 }

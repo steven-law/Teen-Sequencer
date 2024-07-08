@@ -9,6 +9,7 @@
 #define SONG_POSITION_POINTER_Y 228
 #define BAR_POSITION_POINTER_Y 232
 #define STEP_POSITION_POINTER_Y 236
+void sendClock();
 //clock
 
 class Clock

@@ -95,6 +95,9 @@ extern bool otherCtrlButtons;
 extern int phraseSegmentLength;
 extern const char *playstate[3];
 extern char _trackname[20];
+extern const char *CCnames[128];
+extern const char *noteNames[12];
+extern  const char *seqModname[5];
 
 
 

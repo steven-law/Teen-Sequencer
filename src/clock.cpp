@@ -74,7 +74,8 @@ int Clock::get_tempo()
 void Clock::send_MIDIclock()
 {
     // spit out a MIDItick
-    usbMIDI.sendRealTime(usbMIDI.Clock); // send a midiclock to usb host
+    sendClock();
+    //usbMIDI.sendRealTime(usbMIDI.Clock); // send a midiclock to usb host
                                          // MIDI.sendRealTime(0xF8);              //send a midiclock to serial midi
 }
 void Clock::send_sync_clock()

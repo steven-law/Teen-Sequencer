@@ -9,17 +9,17 @@ void Track::update(int PixelX, byte gridY)
     if (PixelX > SEQ_GRID_LEFT && PixelX < 14 * STEP_FRAME_W && gridY >= 1 && gridY < 13)
     {
         note2set = (gridY - SEQ_GRID_TOP) + (parameter[SET_OCTAVE] * NOTES_PER_OCTAVE);
-        tick_start = (PixelX - SEQ_GRID_LEFT) / 2;
+        tickStart = (PixelX - SEQ_GRID_LEFT) / 2;
         pixelOn_X = PixelX;
         pixelOn_Y = gridY;
         bar_to_edit = ((PixelX - SEQ_GRID_LEFT) / STEP_FRAME_W) + (BARS_PER_PAGE * (arrangerpage));
     }
     gridX_4_save = PixelX / STEP_FRAME_W;
     gridY_4_save = gridY;
-    // saveTrack();
-    // loadTrack();
+    // save_track();
+    // load_track();
 }
-void Track::saveTrack()
+void Track::save_track()
 {
     SD.begin(BUILTIN_SDCARD);
     // Serial.println("in save mode:");
@@ -55,7 +55,10 @@ void Track::saveTrack()
                 }
             }
         }
-
+        for (int t = 0; t <= MAX_TICKS; t++)
+        {
+            Serial.printf("save track: %d, tick: %d, note: %d, channel out; %d\n", MIDI_channel_in, t, this->array[0][t][0], parameter[SET_MIDICH_OUT]);
+        }
         // Serial.println("array saved:");
         for (int i = 0; i < 256; i++)
         {
@@ -75,8 +78,14 @@ void Track::saveTrack()
         }
         // Serial.println("midi saved:");
         for (int i = 0; i < NUM_PARAMETERS; i++)
+        {
             myFile.print((char)parameter[i]);
-        // Serial.println("settings saved:");
+            myFile.print((char)SeqMod1Value[i]);
+            myFile.print((char)SeqMod2Value[i]);
+            myFile.print((char)SeqMod3Value[i]);
+            myFile.print((char)SeqMod4Value[i]);
+        }
+        // Serial.println("settings & seqmodes saved:");
 
         // close the file:
         myFile.close();
@@ -90,7 +99,7 @@ void Track::saveTrack()
     // Serial.println("saving Done:");
     startUpScreen();
 }
-void Track::loadTrack()
+void Track::load_track()
 {
 
     SD.begin(BUILTIN_SDCARD);
@@ -117,6 +126,10 @@ void Track::loadTrack()
                 }
             }
         }
+        for (int t = 0; t <= MAX_TICKS; t++)
+        {
+            Serial.printf("load track: %d, tick: %d, note: %d, channel out; %d\n", MIDI_channel_in, t, this->array[0][t][0], parameter[SET_MIDICH_OUT]);
+        }
         // Serial.println("array loaded:");
 
         for (int i = 0; i < 256; i++)
@@ -139,7 +152,13 @@ void Track::loadTrack()
         // Serial.println("midi loaded:");
 
         for (int i = 0; i < NUM_PARAMETERS; i++)
+        {
             parameter[i] = myFile.read();
+            SeqMod1Value[i] = myFile.read();
+            SeqMod2Value[i] = myFile.read();
+            SeqMod3Value[i] = myFile.read();
+            SeqMod4Value[i] = myFile.read();
+        }
         // Serial.println("settings loaded:");
         Serial.println("Loading done");
 
@@ -178,50 +197,50 @@ void Track::play_sequencer_mode(byte cloock, byte start, byte end)
         {
             if (parameter[SET_SEQ_MODE] == 0)
             {
-                play_SeqMode0(internal_clock);
+                play_seq_mode0(internal_clock);
             }
             if (parameter[SET_SEQ_MODE] == 1)
             {
-                play_SeqMode1(internal_clock);
+                play_seq_mode1(internal_clock);
             }
             if (parameter[SET_SEQ_MODE] == 2)
             {
-                play_SeqMode2(internal_clock);
+                play_seq_mode2(internal_clock);
             }
             if (parameter[SET_SEQ_MODE] == 3)
             {
-                play_SeqMode3(internal_clock);
+                play_seq_mode3(internal_clock);
             }
             if (parameter[SET_SEQ_MODE] == 4)
             {
-                play_SeqMode4(internal_clock);
+                play_seq_mode4(internal_clock);
             }
         }
     }
 }
-void Track::set_SeqMode_parameters(byte row)
+void Track::set_seq_mode_parameters(byte row)
 {
     if (parameter[SET_SEQ_MODE] == 1)
-        set_SeqMode1_parameters(row);
+        set_seq_mode1_parameters(row);
     if (parameter[SET_SEQ_MODE] == 2)
-        set_SeqMode2_parameters(row);
+        set_seq_mode2_parameters(row);
     if (parameter[SET_SEQ_MODE] == 3)
-        set_SeqMode3_parameters(row);
+        set_seq_mode3_parameters(row);
     if (parameter[SET_SEQ_MODE] == 4)
-        set_SeqMode4_parameters(row);
+        set_seq_mode4_parameters(row);
 }
 void Track::draw_sequencer_modes(byte mode)
 {
     clearWorkSpace();
     change_plugin_row = true;
     if (mode == 1)
-        draw_SeqMode1();
+        draw_seq_mode1();
     if (mode == 2)
-        draw_SeqMode2();
+        draw_seq_mode2();
     if (mode == 3)
-        draw_SeqMode3();
+        draw_seq_mode3();
     if (mode == 4)
-        draw_SeqMode4();
+        draw_seq_mode4();
 }
 
 void Track::noteOn(byte Note, byte Velo, byte Channel)

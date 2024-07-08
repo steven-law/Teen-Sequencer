@@ -16,6 +16,7 @@ MIDI_CREATE_INSTANCE(HardwareSerial, Serial1, MIDI1);
 void sendNoteOn(byte Note, byte Velo, byte Channel);
 void sendNoteOff(byte Note, byte Velo, byte Channel);
 void sendControlChange(byte control, byte value, byte channel);
+void sendClock();
 void setup()
 {
   // put your setup code here, to run once:
@@ -52,8 +53,8 @@ void loop()
   for (int i = 0; i < NUM_TRACKS; i++)
   {
     allTracks[i]->update(pixelTouchX, gridTouchY);
-    // allTracks[i]->saveTrack();
-    // allTracks[i]->loadTrack();
+    // allTracks[i]->save_track();
+    // allTracks[i]->load_track();
   }
 
   Masterclock.process_MIDItick();
@@ -78,4 +79,19 @@ void sendControlChange(byte control, byte value, byte channel)
 {
   usbMIDI.sendControlChange(control, value, channel);
   MIDI1.sendControlChange(control, value, channel);
+}
+void sendClock(){
+  MIDI1.sendClock();
+  usbMIDI.sendRealTime(usbMIDI.Clock);
+}
+
+void myNoteOn(byte channel, byte note, byte velocity)
+{
+  if (channel < 9 && !allTracks[channel - 1]->muted)
+    allTracks[channel-1]->noteOn(note, velocity, allTracks[channel - 1]->parameter[SET_MIDICH_OUT]);
+}
+void myNoteOff(byte channel, byte note, byte velocity)
+{
+  if (channel < 9 && !allTracks[channel - 1]->muted)
+    allTracks[channel-1]->noteOff(note, velocity, allTracks[channel - 1]->parameter[SET_MIDICH_OUT]);
 }

@@ -150,9 +150,4 @@ void readMIDI()
 {
     usbMIDI.read();
 }
-void myNoteOn(byte channel, byte note, byte velocity)
-{
-}
-void myNoteOff(byte channel, byte note, byte velocity)
-{
-}
+

@@ -116,26 +116,26 @@ void buttons_SelectPlugin()
         }
     }
 }
-void buttons_saveTrack()
+void buttons_save_track()
 { //  save track stuff fromSD
     if (buttonPressed[BUTTON_ENTER])
     {
         if (pixelTouchX >= 13 * STEP_FRAME_W && pixelTouchX <= 14 * STEP_FRAME_W && gridTouchY == 0)
         {
-            allTracks[active_track]->saveTrack();
+            allTracks[active_track]->save_track();
             // Serial.println("saved track");
             buttonPressed[BUTTON_ENTER] = false;
         }
     }
 }
-void buttons_loadTrack()
+void buttons_load_track()
 { // load track stuff fromSD
     if (buttonPressed[BUTTON_ENTER])
     {
         if (pixelTouchX >= 15 * STEP_FRAME_W && gridTouchY == 0)
         {
 
-            allTracks[active_track]->loadTrack();
+            allTracks[active_track]->load_track();
             // Serial.println("loaded track");
             buttonPressed[BUTTON_ENTER] = false;
         }
@@ -273,8 +273,8 @@ void input_behaviour()
     // if we are in one of the sequencer pages
     if (encoder_function == INPUT_FUNCTIONS_FOR_SEQUENCER)
     {
-        buttons_saveTrack();
-        buttons_loadTrack();
+        buttons_save_track();
+        buttons_load_track();
         buttons_SetCursor(14);
         buttons_SetNoteOnTick(pixelTouchX, gridTouchY);
         if (buttonPressed[BUTTON_ROW])
@@ -331,9 +331,9 @@ void input_behaviour()
         {
             /* for (int i = 0; i < NUM_TRACKS; i++)
              {
-                 allTracks[i]->set_SeqMode_parameters(lastPotRow);
+                 allTracks[i]->set_seq_mode_parameters(lastPotRow);
              }*/
-            allTracks[active_track]->set_SeqMode_parameters(lastPotRow);
+            allTracks[active_track]->set_seq_mode_parameters(lastPotRow);
         }
     }
     if (encoder_function == INPUT_FUNCTIONS_FOR_PLUGIN)
