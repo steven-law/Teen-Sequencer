@@ -4,33 +4,35 @@
 
 void Track::set_stepSequencer_parameters(byte row)
 {
-    draw_stepSequencer_parameters(row);
+
     switch (row)
     {
     case 0:
         encoder_SetCursor(parameter[SET_STEP_LENGTH] * 2, 14); // Encoder: 0+1
         set_coordinateX(0, 0);
         set_coordinateY(1, 0);
-        set_stepSequencer_parameter_value(ENCODER_OCTAVE, 0, "Oct", 0, 11);
-        // set_octave(2); // Encoder: 2
+
+        set_stepSequencer_parameter_value(ENCODER_STEP_FX, 0, CCnames[setStepFX], 0, 127);
         set_stepSequencer_parameter_value(3, 0, "Velo", 1, 128);
         break;
     case 1:
         set_stepSequencer_parameter_value(ENCODER_SEQUENCE_LENGTH, 1, "seqL", 1, MAX_TICKS);
         set_stepSequencer_parameter_value(ENCODER_STEP_DIVISION, 1, "sDiv", 1, 16);
         set_stepSequencer_parameter_value(ENCODER_STEP_LENGTH, 1, "stpL", 1, 96);
-        set_stepSequencer_parameter_value(ENCODER_CLIP2_EDIT, 1, "Clip", 0, NUM_USER_CLIPS);
+        set_stepSequencer_parameter_value(ENCODER_OCTAVE, 1, "Oct", 0, 11);
 
         break;
     case 2:
         set_stepSequencer_parameter_text(ENCODER_SEQ_MODE, 2, "sMod", seqModname[parameter[8]], 0, 4);
-        set_stepSequencer_parameter_value(ENCODER_MIDICH_OUT, 2, "MCh", 1, 16);
+        set_stepSequencer_parameter_text(ENCODER_MIDICH_OUT, 2, "MCh",channelOutNames[parameter[SET_MIDICH_OUT]], 1, 32);
+        set_stepSequencer_parameter_value(ENCODER_CLIP2_EDIT, 2, "Clip", 0, NUM_USER_CLIPS);
 
         break;
     case 3:
     default:
         break;
     }
+    draw_stepSequencer_parameters(row);
 }
 void Track::draw_stepSequencer_parameters(byte lastProw)
 {
@@ -42,8 +44,7 @@ void Track::draw_stepSequencer_parameters(byte lastProw)
         {
             draw_coordinateX(0, 0);
             draw_coordinateY(1, 0);
-            draw_stepSequencer_parameter_value(ENCODER_OCTAVE, 0, "Oct");
-            // drawOctaveNumber();
+            draw_stepSequencer_parameter_value(ENCODER_STEP_FX, 0, CCnames[setStepFX]);
             draw_stepSequencer_parameter_value(3, 0, "Velo");
         }
         if (lastProw == 1)
@@ -51,12 +52,14 @@ void Track::draw_stepSequencer_parameters(byte lastProw)
             draw_stepSequencer_parameter_value(ENCODER_SEQUENCE_LENGTH, 1, "seqL");
             draw_stepSequencer_parameter_value(ENCODER_STEP_DIVISION, 1, "sDiv");
             draw_stepSequencer_parameter_value(ENCODER_STEP_LENGTH, 1, "stpL");
-            draw_stepSequencer_parameter_value(ENCODER_CLIP2_EDIT, 1, "Clip");
+            draw_stepSequencer_parameter_value(ENCODER_OCTAVE, 1, "Oct");
         }
         if (lastProw == 2)
         {
-            draw_stepSequencer_parameter_text(ENCODER_SEQ_MODE, 1, seqModname[parameter[8]], "sMod");
-            draw_stepSequencer_parameter_value(ENCODER_MIDICH_OUT, 1, "MCh");
+            draw_stepSequencer_parameter_text(ENCODER_SEQ_MODE, 2, seqModname[parameter[8]], "sMod");
+            draw_stepSequencer_parameter_text(ENCODER_MIDICH_OUT, 2, channelOutNames[parameter[SET_MIDICH_OUT]], "MCh");
+
+            draw_stepSequencer_parameter_value(ENCODER_CLIP2_EDIT, 2, "Clip");
         }
     }
 }
@@ -81,7 +84,7 @@ void Track::set_stepSequencer_parameter_value(byte XPos, byte YPos, const char *
 void Track::draw_stepSequencer_parameter_value(byte XPos, byte YPos, const char *name)
 {
     byte index = XPos + (YPos * NUM_ENCODERS);
-    draw_Text(XPos, YPos, SEQUENCER_OPTIONS_VERY_RIGHT, (XPos * 2) + 5, 4, 4, name, encoder_colour[XPos], false, false);
+    draw_Text(XPos, YPos, SEQUENCER_OPTIONS_VERY_RIGHT, (XPos * 2) + 5, 0, 4, name, encoder_colour[XPos], false, false);
     draw_Value(XPos, YPos, SEQUENCER_OPTIONS_VERY_RIGHT, (XPos * 2) + 6, 4, 4, parameter[index], encoder_colour[XPos], true, false);
 }
 
@@ -97,31 +100,10 @@ void Track::set_stepSequencer_parameter_text(byte XPos, byte YPos, const char *n
 }
 void Track::draw_stepSequencer_parameter_text(byte XPos, byte YPos, const char *text, const char *name)
 {
-    draw_Text(XPos, YPos, SEQUENCER_OPTIONS_VERY_RIGHT, (XPos * 2) + 5, 4, 4, name, encoder_colour[XPos], false, false);
+    draw_Text(XPos, YPos, SEQUENCER_OPTIONS_VERY_RIGHT, (XPos * 2) + 5, 0, 4, name, encoder_colour[XPos], false, false);
     draw_Text(XPos, YPos, SEQUENCER_OPTIONS_VERY_RIGHT, (XPos * 2) + 6, 4, 4, text, encoder_colour[XPos], true, false);
 }
-// octave
-void Track::set_octave(byte n)
-{
-    if (enc_moved[n])
-    {
-        parameter[SET_OCTAVE] = constrain(parameter[SET_OCTAVE] + encoded[n], 0, 9);
-        Serial.println(parameter[SET_OCTAVE]);
-        drawOctaveNumber();
 
-        enc_moved[n] = false;
-    }
-}
-void Track::drawOctaveNumber()
-{
-    // draw the octave number
-    tft->fillRect(STEP_FRAME_W * 18 + 1, STEP_FRAME_H * OCTAVE_CHANGE_TEXT, STEP_FRAME_W * 2, STEP_FRAME_H * 1 + 1, ILI9341_DARKGREY);
-    tft->setCursor(STEP_FRAME_W * 18 + 11, STEP_FRAME_H * OCTAVE_CHANGE_TEXT);
-    tft->setFont(Arial_16);
-    tft->setTextColor(ILI9341_GREEN);
-    tft->setTextSize(1);
-    tft->print(parameter[SET_OCTAVE]);
-}
 // MIDI CC
 void Track::set_CCchannel(byte XPos, byte YPos)
 {
@@ -147,9 +129,7 @@ void Track::set_CCvalue(byte XPos, byte YPos)
 void Track::draw_MIDI_CC(byte XPos, byte YPos)
 {
     int n = XPos + (YPos * NUM_ENCODERS);
-    char _CCName[6];
-    sprintf(_CCName, "CC%d\0", CCchannel[edit_presetNr_ccChannel][n]);
-    drawPot(XPos, YPos, CCvalue[edit_presetNr_ccValue][n], _CCName);
+    drawPot(XPos, YPos, CCvalue[edit_presetNr_ccValue][n], CCnames[CCchannel[edit_presetNr_ccChannel][n]]);
 }
 void Track::set_MIDI_CC(byte row)
 {
@@ -323,6 +303,30 @@ void Track::draw_coordinateY(byte n, byte lastProw)
 }
 // helpers
 // sequencer note input stuff
+void Track::set_active_note(byte _clip, byte _tick, byte _voice, byte _note)
+{
+    this->clip[_clip].tick[_tick].voice[_voice] = _note;
+}
+byte Track::get_active_note(byte _clip, byte _tick, byte _voice)
+{
+    return this->clip[_clip].tick[_tick].voice[_voice];
+}
+void Track::set_active_velo(byte _clip, byte _tick, byte _voice, byte _velo)
+{
+    this->clip[_clip].tick[_tick].velo[_voice] = _velo;
+}
+byte Track::get_active_velo(byte _clip, byte _tick, byte _voice)
+{
+    return this->clip[_clip].tick[_tick].velo[_voice];
+}
+void Track::set_active_stepFX(byte _clip, byte _tick, byte _voice, byte _stepFX)
+{
+    this->clip[_clip].tick[_tick].stepFX = _stepFX;
+}
+byte Track::get_active_stepFX(byte _clip, byte _tick, byte _voice)
+{
+    return this->clip[_clip].tick[_tick].stepFX;
+}
 void Track::set_note_on_tick()
 {
     for (int i = 0; i < parameter[SET_STEP_LENGTH]; i++)
@@ -335,7 +339,7 @@ void Track::set_note_on_tick()
 }
 void Track::check_for_free_voices(byte onTick, byte newNote)
 {
-    // Serial.printf("newNote: %d\n", newNote);
+    Serial.printf("newNote: %d\n", newNote);
     search_free_voice = pixelOn_Y - 1;
     /*
     for (int i = 0; i < MAX_VOICES; i++)
@@ -353,34 +357,37 @@ void Track::check_for_free_voices(byte onTick, byte newNote)
     // for (int i = 0; i < MAX_VOICES; i++)
     {
         // löschen der Note
-        if (array[parameter[SET_CLIP2_EDIT]][onTick][search_free_voice] == newNote)
+
+        if (get_active_note(parameter[SET_CLIP2_EDIT], onTick, search_free_voice) == newNote)
         {
-            array[parameter[SET_CLIP2_EDIT]][onTick][search_free_voice] = NO_NOTE;
-            velocity[parameter[SET_CLIP2_EDIT]][onTick][search_free_voice] = 0;
+            set_active_note(parameter[SET_CLIP2_EDIT], onTick, search_free_voice, NO_NOTE);
+            set_active_velo(parameter[SET_CLIP2_EDIT], onTick, search_free_voice, 0);
+            set_active_stepFX(parameter[SET_CLIP2_EDIT], onTick, search_free_voice, 0);
             // search_free_voice = i;
-            /* Serial.printf("Cleared note: %d at tick: %d, voice: %d with velocity: %d\n",
-                          array[parameter[SET_CLIP2_EDIT]][onTick][search_free_voice],
+            /*Serial.printf("Cleared note: %d at tick: %d, voice: %d with velocity: %d\n",
+                          clip[parameter[SET_CLIP2_EDIT]].tick[onTick].voice[search_free_voice],
                           onTick,
                           search_free_voice,
-                          velocity[parameter[SET_CLIP2_EDIT]][onTick][search_free_voice]);
-                          // break;
+                          clip[parameter[SET_CLIP2_EDIT]].tick[onTick].velo[search_free_voice]);
                           */
+            // break;
         }
         // setzen neuer Note
-        else if (array[parameter[SET_CLIP2_EDIT]][onTick][search_free_voice] == NO_NOTE)
+        else if (get_active_note(parameter[SET_CLIP2_EDIT], onTick, search_free_voice) == NO_NOTE)
         {
             // if (old_cnote != newNote)
             // search_free_voice++;
-            array[parameter[SET_CLIP2_EDIT]][onTick][search_free_voice] = newNote;
-            velocity[parameter[SET_CLIP2_EDIT]][onTick][search_free_voice] = parameter[SET_VELO2SET];
+            set_active_note(parameter[SET_CLIP2_EDIT], onTick, search_free_voice, newNote);
+            set_active_velo(parameter[SET_CLIP2_EDIT], onTick, search_free_voice, parameter[SET_VELO2SET]);
+            set_active_stepFX(parameter[SET_CLIP2_EDIT], onTick, search_free_voice, parameter[SET_STEP_FX]);
             // search_free_voice = i;
-            /* Serial.printf("Set new note: %d at tick: %d, voice: %d with velocity: %d\n",
-                          array[parameter[SET_CLIP2_EDIT]][onTick][search_free_voice],
+            /*Serial.printf("Set new note: %d at tick: %d, voice: %d with velocity: %d\n",
+                          clip[parameter[SET_CLIP2_EDIT]].tick[onTick].voice[search_free_voice],
                           onTick,
                           search_free_voice,
-                          velocity[parameter[SET_CLIP2_EDIT]][onTick][search_free_voice]);
-                          // break;
+                          clip[parameter[SET_CLIP2_EDIT]].tick[onTick].velo[search_free_voice]);
                           */
+            // break;
         }
         /*
                 // ersetzen alter note
@@ -408,11 +415,6 @@ void Track::check_for_free_voices(byte onTick, byte newNote)
     // if (search_free_voice >= MAX_VOICES)
     // search_free_voice = 0;
     // old_cnote = array[parameter[SET_CLIP2_EDIT]][onTick][search_free_voice];
-
-    for (int i = 0; i < MAX_VOICES; i++)
-    {
-        Serial.printf("Tick: %d, Note: %d, Voice: %d\n", onTick, array[parameter[SET_CLIP2_EDIT]][onTick][i], i);
-    }
 }
 void Track::clear_notes_on_tick(byte cl_X)
 {
@@ -432,8 +434,8 @@ void Track::draw_note_on_tick(byte dr_X)
 
     for (int i = 0; i < MAX_VOICES; i++)
     {
-        byte note = this->array[parameter[SET_CLIP2_EDIT]][dr_X][i];
-        byte velo = velocity[parameter[SET_CLIP2_EDIT]][dr_X][i];
+        byte note = this->clip[parameter[SET_CLIP2_EDIT]].tick[dr_X].voice[i];
+        byte velo = this->clip[parameter[SET_CLIP2_EDIT]].tick[dr_X].velo[i];
 
         if (note >= parameter[SET_OCTAVE] * NOTES_PER_OCTAVE && note < (parameter[SET_OCTAVE] + 1) * NOTES_PER_OCTAVE)
         {
@@ -455,21 +457,7 @@ void Track::draw_note_on_tick(byte dr_X)
         }
     }
 }
-void Track::print_velocity_matrix()
-{
-    for (int clip = 0; clip < MAX_CLIPS; clip++)
-    {
-        for (int tick = 0; tick < MAX_TICKS; tick++)
-        {
-            // Serial.printf("Tick %d: ", tick);
-            for (int voice = 0; voice < MAX_VOICES; voice++)
-            {
-                // Serial.printf("%d ", velocity[clip][tick][voice]);
-            }
-            // Serial.println();
-        }
-    }
-}
+
 void Track::clear_notes_in_grid()
 {
     for (int i = 0; i < MAX_TICKS; i++)
@@ -546,4 +534,19 @@ void Track::draw_Clipselector()
         tft->print("Clip ");
         tft->print(ClipNr);
     }
+}
+
+void Track::set_recordState(bool _status)
+{
+    int circleColor;
+    this->recordState = _status;
+    if (recordState)
+        circleColor = ILI9341_RED;
+    else
+        circleColor = ILI9341_LIGHTGREY;
+    tft->fillCircle(STEP_FRAME_W * POSITION_RECORD_BUTTON + 7, 7, 6, circleColor);
+}
+bool Track::get_recordState()
+{
+    return recordState;
 }

@@ -32,24 +32,29 @@
 #define NUM_USER_CLIPS 7
 #define NUM_PRESETS 8
 #define MAX_VOICES 12
-
-#define ENCODER_OCTAVE 2
-#define ENCODER_STEP_LENGTH 2
+// potrow 0
+#define ENCODER_STEP_FX 2
+// potrow 1
 #define ENCODER_SEQUENCE_LENGTH 0
 #define ENCODER_STEP_DIVISION 1
+#define ENCODER_STEP_LENGTH 2
+// potrow 2
+#define ENCODER_OCTAVE 3
 #define ENCODER_SEQ_MODE 0
 #define ENCODER_MIDICH_OUT 1
 #define ENCODER_CLIP2_EDIT 3
-//
+
 #define NUM_PARAMETERS 16
-#define SET_OCTAVE 2
+#define SET_STEP_FX 2
 #define SET_VELO2SET 3
 #define SET_SEQUENCE_LENGTH 4
 #define SET_STEP_DIVIVISION 5
 #define SET_STEP_LENGTH 6
-#define SET_CLIP2_EDIT 7
+#define SET_OCTAVE 7
 #define SET_SEQ_MODE 8
 #define SET_MIDICH_OUT 9
+
+#define SET_CLIP2_EDIT 11
 
 extern File myFile;
 extern int trackColor[9];
@@ -72,8 +77,11 @@ class Track
 
 public:
     // Stepsequencer
-    byte parameter[16]{0, 0, 4, 99, 96, 1, 3, 0, 0, 0, 0, 0};
+    bool recordState = false;
+    byte parameter[16]{0, 0, 128, 99, 96, 1, 3, 4, 0, 0, 0, 0};
     bool muted;
+    int internal_clock = 0;
+    int internal_clock_bar = 0;
     Track(ILI9341_t3n *display, byte Y)
     {
         // MIDI1.setHandleNoteOn(myNoteOn);
@@ -84,27 +92,39 @@ public:
         my_Arranger_Y_axis = Y;
         MIDI_channel_in = Y;
         parameter[SET_MIDICH_OUT] = Y;
+        // allocate tracks0-7 "array"
+        clip = static_cast<clip_t *>(calloc(MAX_CLIPS, sizeof(clip_t)));
+        // fill the tracks0-7 "array"
+
         for (int c = 0; c < MAX_CLIPS; c++)
         {
-            for (int t = 0; t <= MAX_TICKS; t++)
+            for (int t = 0; t < MAX_TICKS; t++)
             {
                 for (int v = 0; v < MAX_VOICES; v++)
                 {
-                    this->array[c][t][v] = NO_NOTE;
-                    this->velocity[c][t][v] = 5;
+                    clip[c].tick[t].voice[v] = NO_NOTE;
+                    clip[c].tick[t].velo[v] = 7;
+                    clip[c].tick[t].stepFX = 0;
                 }
             }
         }
+        if (clip == nullptr)
+        {
+            // Fehlerbehandlung, wenn calloc fehlschlägt
+            Serial.println("Memory allocation failed");
+        }
+
         for (int i = 0; i < 256; i++)
         {
             clip_to_play[i] = 8;
             noteOffset[i] = 0;
+            barVelocity[i] = 127;
             play_presetNr_ccChannel[i] = 8;
             play_presetNr_ccValue[i] = 8;
         }
-        for (int p = 0; p < NUM_PRESETS; p++)
+        for (int p = 0; p < NUM_PRESETS + 1; p++)
         {
-            for (int t = 0; t < 16 + 1; t++)
+            for (int t = 0; t < 16; t++)
             {
                 CCchannel[p][t] = 128;
                 CCvalue[p][t] = 0;
@@ -118,8 +138,11 @@ public:
 
     void set_note_on_tick();
     void draw_notes_in_grid();
-    void print_velocity_matrix();
     void draw_sequencer_modes(byte mode);
+    void set_recordState(bool _status);
+    bool get_recordState();
+    void record_noteOn(byte Note, byte Velo, byte Channel);
+    void record_noteOff(byte Note, byte Velo, byte Channel);
     void draw_MIDI_CC_screen();
     void set_MIDI_CC(byte row);
     // update
@@ -133,6 +156,7 @@ public:
     void draw_arranger_parameters(byte lastProw);
     void set_clip_to_play(byte n, byte b);
     void set_note_offset(byte n, int b);
+    void set_barVelocity(byte n, int b);
     void set_play_presetNr_ccChannel(byte n, byte lastProw);
     void set_play_presetNr_ccValue(byte n, byte lastProw);
     //
@@ -167,6 +191,7 @@ private:
 
     byte my_Arranger_Y_axis;
     byte note2set;
+    byte setStepFX = 74;
     byte tickStart;
     byte noteToPlay[MAX_VOICES];
     int pixelOn_X;
@@ -175,13 +200,28 @@ private:
     byte gridY_4_save;
     byte clip_to_play[256];
     int noteOffset[256];
+    byte barVelocity[256];
     byte sTick;
-    byte internal_clock = 0;
+
     bool internal_clock_is_on = false;
-    byte internal_clock_bar = 0;
+
+    int recordStartTick[MAX_VOICES];
+    byte recordLastNote[MAX_VOICES];
+    byte recordVelocity[MAX_VOICES];
+    byte recordVoice;
+    byte recordChannel;
     byte sequence_length = MAX_TICKS;
-    byte array[MAX_CLIPS][MAX_TICKS + 1][MAX_VOICES];
-    byte velocity[MAX_CLIPS][MAX_TICKS + 1][MAX_VOICES];
+    struct tick_t
+    {
+        byte voice[MAX_VOICES];
+        byte velo[MAX_VOICES];
+        byte stepFX;
+    };
+    struct clip_t
+    {
+        tick_t tick[MAX_TICKS];
+    };
+    clip_t *clip = nullptr;
     byte search_free_voice = 0;
     byte old_cnote = NO_NOTE;
     byte oldNotesInArray[MAX_VOICES]{NO_NOTE, NO_NOTE, NO_NOTE, NO_NOTE, NO_NOTE, NO_NOTE, NO_NOTE, NO_NOTE, NO_NOTE, NO_NOTE, NO_NOTE, NO_NOTE};
@@ -216,9 +256,6 @@ private:
     void draw_stepSequencer_parameter_text(byte XPos, byte YPos, const char *text, const char *name);
     // sequencer options:
     // octave
-    void set_octave(byte n);
-    void drawOctaveNumber();
-    byte get_octave();
 
     void set_CCvalue(byte XPos, byte YPos);
     void set_CCchannel(byte XPos, byte YPos);
@@ -236,7 +273,12 @@ private:
     // helpers
 
     // sequencer note input stuff
-
+    void set_active_note(byte _clip, byte _tick, byte _voice, byte _note);
+    byte get_active_note(byte _clip, byte _tick, byte _voice);
+    void set_active_velo(byte _clip, byte _tick, byte _voice, byte _velo);
+    byte get_active_velo(byte _clip, byte _tick, byte _voice);
+    void set_active_stepFX(byte _clip, byte _tick, byte _voice, byte _stepFX);
+    byte get_active_stepFX(byte _clip, byte _tick, byte _voice);
     void check_for_free_voices(byte onTick, byte cnote);
     void clear_notes_on_tick(byte cl_X);
     void draw_note_on_tick(byte dr_X);
@@ -266,6 +308,9 @@ private:
 
     void draw_noteOffset(byte n, int b);
     void draw_offset_arranger(byte n, byte b);
+    // bar Velocity
+
+    void draw_barVelocity(byte n, int b);
     // MIDI CC
 
     void draw_play_presetNr_ccChannel(byte n, byte lastProw);

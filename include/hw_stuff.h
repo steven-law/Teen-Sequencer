@@ -50,6 +50,9 @@ extern Adafruit_Keypad kpd;
 #define BUTTONS_PER_ROW 8
 #define NUM_BUTTONS 16
 extern bool buttonPressed[NUM_BUTTONS];
+extern unsigned long buttonPressStartTime[NUM_BUTTONS] ;  // Zeitpunkt, zu dem jeder Button gedrückt wurde
+extern const unsigned long longPressDuration;  // 1 Sekunde in Millisekunden
+
 extern void button_setup(int dly);
 extern void readMainButtons();
 

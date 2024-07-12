@@ -37,6 +37,9 @@ byte rowPins[ROWS] = {37, 36, 35, 34}; // connect to the row pinouts of the keyp
 byte colPins[COLS] = {41, 38, 39, 40}; // connect to the column pinouts of the keypad
 Adafruit_Keypad kpd = Adafruit_Keypad(makeKeymap(keys), rowPins, colPins, ROWS, COLS);
 bool buttonPressed[NUM_BUTTONS];
+unsigned long buttonPressStartTime[NUM_BUTTONS] = {0};  // Zeitpunkt, zu dem jeder Button gedrückt wurde
+const unsigned long longPressDuration = 600;  // 1 Sekunde in Millisekunden
+
 void button_setup(int dly)
 {
     kpd.begin();
@@ -57,6 +60,7 @@ void readMainButtons()
             {
                 int pressedKey = (int)(key.bit.KEY - 65);
                 buttonPressed[pressedKey] = true;
+                buttonPressStartTime[pressedKey] = millis();
                 Serial.printf("pressed Key: %d\n", pressedKey);
             }
 

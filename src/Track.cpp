@@ -12,8 +12,8 @@ void Track::update(int PixelX, byte gridY)
         tickStart = (PixelX - SEQ_GRID_LEFT) / 2;
         pixelOn_X = PixelX;
         pixelOn_Y = gridY;
-        bar_to_edit = ((PixelX - SEQ_GRID_LEFT) / STEP_FRAME_W) + (BARS_PER_PAGE * (arrangerpage));
     }
+    bar_to_edit = ((PixelX - SEQ_GRID_LEFT) / STEP_FRAME_W) + (BARS_PER_PAGE * (arrangerpage));
     gridX_4_save = PixelX / STEP_FRAME_W;
     gridY_4_save = gridY;
     // save_track();
@@ -50,27 +50,29 @@ void Track::save_track()
             {
                 for (int v = 0; v < MAX_VOICES; v++)
                 {
-                    myFile.print((char)this->array[c][t][v]);
-                    myFile.print((char)velocity[c][t][v]);
+                    myFile.print((char)this->clip[c].tick[t].voice[v]);
+                    myFile.print((char)this->clip[c].tick[t].velo[v]);
                 }
+                myFile.print((char)this->clip[c].tick[t].stepFX);
             }
         }
         for (int t = 0; t <= MAX_TICKS; t++)
         {
-            Serial.printf("save track: %d, tick: %d, note: %d, channel out; %d\n", MIDI_channel_in, t, this->array[0][t][0], parameter[SET_MIDICH_OUT]);
+            Serial.printf("save track: %d, tick: %d, note: %d, channel out; %d\n", MIDI_channel_in, t, this->clip[0].tick[t].voice[0], parameter[SET_MIDICH_OUT]);
         }
         // Serial.println("array saved:");
         for (int i = 0; i < 256; i++)
         {
             myFile.print((char)clip_to_play[i]);
             myFile.print((char)noteOffset[i]);
+            myFile.print((char)barVelocity[i]);
             myFile.print((char)play_presetNr_ccChannel[i]);
             myFile.print((char)play_presetNr_ccValue[i]);
         }
         // Serial.println("song saved:");
-        for (int p = 0; p < NUM_PRESETS; p++)
+        for (int p = 0; p < NUM_PRESETS + 1; p++)
         {
-            for (int t = 0; t < NUM_PARAMETERS + 1; t++)
+            for (int t = 0; t < NUM_PARAMETERS; t++)
             {
                 myFile.print((char)CCchannel[p][t]);
                 myFile.print((char)CCvalue[p][t]);
@@ -86,6 +88,7 @@ void Track::save_track()
             myFile.print((char)SeqMod4Value[i]);
         }
         // Serial.println("settings & seqmodes saved:");
+        myFile.print((char)setStepFX);
 
         // close the file:
         myFile.close();
@@ -120,15 +123,16 @@ void Track::load_track()
             {
                 for (int v = 0; v < MAX_VOICES; v++)
                 {
-                    this->array[c][t][v] = myFile.read();
+                    this->clip[c].tick[t].voice[v] = myFile.read();
                     // Serial.printf("clip: %d, tick: %d, voice: %d, note: %d\n", c, t, v, this->array[0][t][0]);
-                    velocity[c][t][v] = myFile.read();
+                    this->clip[c].tick[t].velo[v] = myFile.read();
                 }
+                this->clip[c].tick[t].stepFX = myFile.read();
             }
         }
         for (int t = 0; t <= MAX_TICKS; t++)
         {
-            Serial.printf("load track: %d, tick: %d, note: %d, channel out; %d\n", MIDI_channel_in, t, this->array[0][t][0], parameter[SET_MIDICH_OUT]);
+            Serial.printf("load track: %d, tick: %d, note: %d, channel out; %d\n", MIDI_channel_in, t, this->clip[0].tick[t].voice[0], parameter[SET_MIDICH_OUT]);
         }
         // Serial.println("array loaded:");
 
@@ -136,14 +140,15 @@ void Track::load_track()
         {
             clip_to_play[i] = myFile.read();
             noteOffset[i] = myFile.read();
+            barVelocity[i] = myFile.read();
             play_presetNr_ccChannel[i] = myFile.read();
             play_presetNr_ccValue[i] = myFile.read();
         }
         // Serial.println("song loaded:");
 
-        for (int p = 0; p < NUM_PRESETS; p++)
+        for (int p = 0; p < NUM_PRESETS + 1; p++)
         {
-            for (int t = 0; t < NUM_PARAMETERS + 1; t++)
+            for (int t = 0; t < NUM_PARAMETERS; t++)
             {
                 CCchannel[p][t] = myFile.read();
                 CCvalue[p][t] = myFile.read();
@@ -159,6 +164,7 @@ void Track::load_track()
             SeqMod3Value[i] = myFile.read();
             SeqMod4Value[i] = myFile.read();
         }
+        setStepFX = myFile.read();
         // Serial.println("settings loaded:");
         Serial.println("Loading done");
 
@@ -185,7 +191,7 @@ void Track::play_sequencer_mode(byte cloock, byte start, byte end)
     {
         internal_clock = 0;
         internal_clock_bar++;
-        // change_presets();
+        change_presets();
     }
     if (internal_clock_bar == end)
         internal_clock_bar = start;
@@ -258,7 +264,28 @@ void Track::noteOff(byte Note, byte Velo, byte Channel)
     // MIDI1.sendNoteOn(Note, Velo, Channel);
     // usbMIDI.sendNoteOn(Note, Velo, Channel);
 }
-
+void Track::record_noteOn(byte Note, byte Velo, byte Channel)
+{
+    recordVoice = Note % NOTES_PER_OCTAVE;
+    recordLastNote[recordVoice] = Note;
+    recordVelocity[recordVoice] = Velo;
+    recordStartTick[recordVoice] = internal_clock;
+    recordChannel = Channel;
+    // clip[parameter[SET_CLIP2_EDIT]].tick[internal_clock].voice[0] = Note;
+    // clip[parameter[SET_CLIP2_EDIT]].tick[internal_clock].velo[0] = Velo;
+}
+void Track::record_noteOff(byte Note, byte Velo, byte Channel)
+{
+    recordVoice = Note % NOTES_PER_OCTAVE;
+    if (recordLastNote[recordVoice] == Note)
+    {
+        for (int i = recordStartTick[recordVoice]; i <= internal_clock; i++)
+        {
+            clip[parameter[SET_CLIP2_EDIT]].tick[i].voice[recordVoice] = Note;
+            clip[parameter[SET_CLIP2_EDIT]].tick[i].velo[recordVoice] = recordVelocity[recordVoice];
+        }
+    }
+}
 //---------------------------arranger stuff-------------------------------------
 void Track::draw_arranger_parameters(byte lastProw)
 {
@@ -273,8 +300,14 @@ void Track::draw_arranger_parameters(byte lastProw)
             // drawOctaveNumber();
             // draw_velocity(3, 0);
         }
+          if (lastProw == 1)
+        {
+            draw_barVelocity(0, 1);
+
+        }
         if (lastProw == 2)
         {
+            //draw_barVelocity(0, 1);
             draw_play_presetNr_ccChannel(2, 2);
             draw_play_presetNr_ccValue(3, 2);
             // drawOctaveNumber();
@@ -287,7 +320,11 @@ void Track::change_presets()
     for (int i = 0; i < 16; i++)
     {
         if (CCchannel[play_presetNr_ccChannel[internal_clock_bar]][i] < 128)
+        {
+            Serial.print("cc:");
+            Serial.println(CCchannel[play_presetNr_ccChannel[internal_clock_bar]][i]);
             sendControlChange(CCchannel[play_presetNr_ccChannel[internal_clock_bar]][i], CCvalue[play_presetNr_ccValue[internal_clock_bar]][i], parameter[SET_MIDICH_OUT]);
+        }
     }
 }
 // clip to play
@@ -348,14 +385,16 @@ void Track::draw_arrangment_lines(byte n, byte b) // b= active page
     for (int i = 0; i < 16; i++)
     {
         draw_arrangment_line(n, i + (BARS_PER_PAGE * (b - SONGMODE_PAGE_1)));
-        Serial.printf("active page = %d, which bar = %d\n", b, i + (16 * (b - SONGMODE_PAGE_1)));
+        // Serial.printf("active page = %d, which bar = %d\n", b, i + (16 * (b - SONGMODE_PAGE_1)));
     }
 }
 void Track::draw_arrangment_line(byte n, byte b) // b= 0-255; which bar
 {
-    if (clip_to_play[b] == 8)
+    int minY = map(barVelocity[b], 0, 127, 0, 10);
+
+    if (clip_to_play[b] == MAX_CLIPS - 1)
     {
-        for (int thickness = -7; thickness < 7; thickness++)
+        for (int thickness = -10; thickness < 10; thickness++)
         {
             tft->drawFastHLine(((b - (16 * arrangerpage)) * STEP_FRAME_W + STEP_FRAME_W * 2) + 1, ((my_Arranger_Y_axis)*TRACK_FRAME_H + thickness) + 12, STEP_FRAME_W - 1, ILI9341_DARKGREY); //(x-start, y, length, color)
         }
@@ -363,7 +402,7 @@ void Track::draw_arrangment_line(byte n, byte b) // b= 0-255; which bar
     else
     {
         // for other clips
-        for (int thickness = -7; thickness < 7; thickness++)
+        for (int thickness = -minY; thickness < minY; thickness++)
         {
             tft->drawFastHLine(((b - (16 * arrangerpage)) * STEP_FRAME_W + STEP_FRAME_W * 2) + 1, ((my_Arranger_Y_axis)*TRACK_FRAME_H + thickness) + 12, STEP_FRAME_W - 1, trackColor[my_Arranger_Y_axis - 1] + (clip_to_play[b] * 20)); //(x-start, y, length, color)
         }
@@ -391,7 +430,7 @@ void Track::set_note_offset(byte n, int b)
         byte when = ((b - SEQ_GRID_LEFT) / STEP_FRAME_W) + (BARS_PER_PAGE * arrangerpage);
         if (enc_moved[n])
         {
-            noteOffset[when] = constrain(noteOffset[when] + encoded[n], -24, +24);
+            noteOffset[when] = constrain(noteOffset[when] + encoded[n], -99, +99);
             draw_noteOffset(n, when);
             draw_arrangment_line(n, when);
             enc_moved[n] = false;
@@ -402,6 +441,27 @@ void Track::draw_noteOffset(byte n, int b)
 {
     draw_Text(n, 1, SEQUENCER_OPTIONS_VERY_RIGHT, (n * 2) + 5, 4, 4, "Trns", encoder_colour[n], false, false);
     draw_Value(n, 1, SEQUENCER_OPTIONS_VERY_RIGHT, (n * 2) + 6, 4, 4, noteOffset[b], encoder_colour[n], true, false);
+    // draw_sequencer_option(SEQUENCER_OPTIONS_VERY_RIGHT, "ofSet", noteOffset[b], n, 0);
+}
+// velocity per bar
+void Track::set_barVelocity(byte n, int b)
+{
+    if (gridTouchY == my_Arranger_Y_axis)
+    {
+        byte when = ((b - SEQ_GRID_LEFT) / STEP_FRAME_W) + (BARS_PER_PAGE * arrangerpage);
+        if (enc_moved[n])
+        {
+            barVelocity[when] = constrain(barVelocity[when] + encoded[n], 0, 127);
+            draw_barVelocity(n, when);
+            draw_arrangment_line(n, when);
+            enc_moved[n] = false;
+        }
+    }
+}
+void Track::draw_barVelocity(byte n, int b)
+{
+    draw_Text(n, 1, SEQUENCER_OPTIONS_VERY_RIGHT, (n * 2) + 5, 4, 4, "Velo", encoder_colour[n], false, false);
+    draw_Value(n, 1, SEQUENCER_OPTIONS_VERY_RIGHT, (n * 2) + 6, 4, 4, barVelocity[b], encoder_colour[n], true, false);
     // draw_sequencer_option(SEQUENCER_OPTIONS_VERY_RIGHT, "ofSet", noteOffset[b], n, 0);
 }
 void Track::draw_offset_arranger(byte n, byte b)

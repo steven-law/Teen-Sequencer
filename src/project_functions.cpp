@@ -52,6 +52,12 @@ void buttons_SetPlayStatus()
     if (buttonPressed[BUTTON_STOP]) //..set Play status to stop
     {
         Masterclock.setPlayStatus(false);
+        for (int i = 0; i < NUM_TRACKS; i++)
+        {
+            allTracks[i]->internal_clock = 0;
+            allTracks[i]->internal_clock_bar = 0;
+        }
+
         Serial.println("Stop");
         buttonPressed[BUTTON_STOP] = false;
     }
@@ -67,7 +73,7 @@ void buttons_SelectTrack()
             if (buttonPressed[i])
             {
                 active_track = i;
-                show_active_track(active_track);
+                show_active_track();
                 encoder_function = INPUT_FUNCTIONS_FOR_SEQUENCER;
                 change_plugin_row = true;
                 allTracks[active_track]->drawStepSequencerStatic();
@@ -86,7 +92,7 @@ void buttons_SelectSequencerMode()
         {
             if (buttonPressed[i])
             {
-                show_active_track(i);
+                show_active_track();
                 allTracks[i]->draw_sequencer_modes(allTracks[i]->parameter[SET_SEQ_MODE]);
                 encoder_function = INPUT_FUNCTIONS_FOR_SEQUENCER_MODES;
                 Serial.println("SeqMode selected");
@@ -105,7 +111,7 @@ void buttons_SelectPlugin()
             if (buttonPressed[i])
             {
                 active_track = i;
-                show_active_track(active_track);
+                show_active_track();
                 change_plugin_row = true;
                 allTracks[active_track]->draw_MIDI_CC_screen();
                 encoder_function = INPUT_FUNCTIONS_FOR_PLUGIN;
@@ -141,73 +147,121 @@ void buttons_load_track()
         }
     }
 }
+void buttons_set_track_recordState()
+{
+    if (buttonPressed[BUTTON_REC])
+    {
+        if (!allTracks[active_track]->get_recordState())
+            allTracks[active_track]->set_recordState(true);
+        else
+            allTracks[active_track]->set_recordState(false);
+        buttonPressed[BUTTON_REC] = false;
+    }
+}
+
+void buttons_save_all()
+{ //  save track stuff fromSD
+    if (buttonPressed[BUTTON_ENTER])
+    {
+        if (pixelTouchX >= 13 * STEP_FRAME_W && pixelTouchX <= 14 * STEP_FRAME_W && gridTouchY == 0)
+        {
+            for (int i = 0; i < NUM_TRACKS; i++)
+                allTracks[i]->save_track();
+            // Serial.println("saved track");
+            buttonPressed[BUTTON_ENTER] = false;
+        }
+    }
+}
+void buttons_load_all()
+{ // load track stuff fromSD
+    if (buttonPressed[BUTTON_ENTER])
+    {
+        if (pixelTouchX >= 15 * STEP_FRAME_W && gridTouchY == 0)
+        {
+            for (int i = 0; i < NUM_TRACKS; i++)
+                allTracks[i]->load_track();
+            // Serial.println("loaded track");
+            buttonPressed[BUTTON_ENTER] = false;
+        }
+    }
+}
 void buttons_SelectArranger()
 {
     if (buttonPressed[BUTTON_SONG])
     {
         encoder_function = INPUT_FUNCTIONS_FOR_ARRANGER;
-        arrangerpage = SONGMODE_PAGE_11;
-        if (buttonPressed[BUTTON_LEFT])
+        unsigned long currentTime = millis();
+        if (currentTime - buttonPressStartTime[BUTTON_SONG] >= longPressDuration)
+        {
+
+            arrangerpage = SONGMODE_PAGE_11;
+            gridSongMode(arrangerpage);
+        }
+        else if (buttonPressed[BUTTON_LEFT])
         {
             arrangerpage = SONGMODE_PAGE_1;
             buttonPressed[BUTTON_LEFT] = false;
             buttonPressed[BUTTON_SONG] = false;
+            gridSongMode(arrangerpage);
         }
         if (buttonPressed[BUTTON_RIGHT])
         {
             arrangerpage = SONGMODE_PAGE_2;
             buttonPressed[BUTTON_RIGHT] = false;
             buttonPressed[BUTTON_SONG] = false;
+            gridSongMode(arrangerpage);
         }
         if (buttonPressed[BUTTON_UP])
         {
             arrangerpage = SONGMODE_PAGE_3;
             buttonPressed[BUTTON_UP] = false;
             buttonPressed[BUTTON_SONG] = false;
+            gridSongMode(arrangerpage);
         }
         if (buttonPressed[BUTTON_DOWN])
         {
             arrangerpage = SONGMODE_PAGE_4;
             buttonPressed[BUTTON_DOWN] = false;
             buttonPressed[BUTTON_SONG] = false;
+            gridSongMode(arrangerpage);
         }
         if (buttonPressed[BUTTON_ROW])
         {
             arrangerpage = SONGMODE_PAGE_5;
             buttonPressed[BUTTON_ROW] = false;
             buttonPressed[BUTTON_SONG] = false;
+            gridSongMode(arrangerpage);
         }
         if (buttonPressed[BUTTON_REC])
         {
             arrangerpage = SONGMODE_PAGE_6;
             buttonPressed[BUTTON_REC] = false;
             buttonPressed[BUTTON_SONG] = false;
+            gridSongMode(arrangerpage);
         }
         if (buttonPressed[BUTTON_PLAY])
         {
             arrangerpage = SONGMODE_PAGE_7;
             buttonPressed[BUTTON_PLAY] = false;
             buttonPressed[BUTTON_SONG] = false;
+            gridSongMode(arrangerpage);
         }
         if (buttonPressed[BUTTON_STOP])
         {
             arrangerpage = SONGMODE_PAGE_8;
             buttonPressed[BUTTON_STOP] = false;
             buttonPressed[BUTTON_SONG] = false;
+            gridSongMode(arrangerpage);
         }
         if (buttonPressed[BUTTON_TRACK])
         {
             arrangerpage = SONGMODE_PAGE_9;
             buttonPressed[BUTTON_TRACK] = false;
             buttonPressed[BUTTON_SONG] = false;
+            gridSongMode(arrangerpage);
         }
-
+        show_active_songpage();
         Serial.println(arrangerpage);
-        gridSongMode(arrangerpage);
-        for (int i = 0; i < NUM_TRACKS; i++)
-            allTracks[i]->draw_arrangment_lines(3, arrangerpage);
-        change_plugin_row = true;
-        allTracks[active_track]->draw_arranger_parameters(lastPotRow);
     }
 }
 void buttons_Set_potRow()
@@ -231,9 +285,9 @@ void buttons_SetNoteOnTick(int x, byte y)
     {
         if (buttonPressed[BUTTON_ENTER])
         {
-            buttonPressed[BUTTON_ENTER] = false;
 
             allTracks[active_track]->set_note_on_tick();
+            buttonPressed[BUTTON_ENTER] = false;
         }
     }
 }
@@ -275,6 +329,7 @@ void input_behaviour()
     {
         buttons_save_track();
         buttons_load_track();
+        buttons_set_track_recordState();
         buttons_SetCursor(14);
         buttons_SetNoteOnTick(pixelTouchX, gridTouchY);
         if (buttonPressed[BUTTON_ROW])
@@ -295,6 +350,8 @@ void input_behaviour()
             allTracks[active_track]->draw_arranger_parameters(lastPotRow);
             buttonPressed[BUTTON_ROW] = false;
         }
+        buttons_save_all();
+        buttons_load_all();
         buttons_SetCursor(8);
 
         switch (lastPotRow)
@@ -306,6 +363,7 @@ void input_behaviour()
             allTracks[gridTouchY - 1]->set_note_offset(3, pixelTouchX);
             break;
         case 1:
+            allTracks[gridTouchY - 1]->set_barVelocity(0, pixelTouchX);
             Masterclock.set_tempo(1);         // Encoder: 1
             Masterclock.set_start_of_loop(2); // Encoder: 2
             Masterclock.set_end_of_loop(3);   // Encoder: 3
@@ -339,6 +397,7 @@ void input_behaviour()
     if (encoder_function == INPUT_FUNCTIONS_FOR_PLUGIN)
     {
         allTracks[active_track]->set_MIDI_CC(lastPotRow);
+        buttonPressed[BUTTON_ROW] = false;
     }
 }
 
@@ -409,12 +468,12 @@ void draw_Value(byte index, byte lastPRow, byte XPos, byte YPos, byte offest_X, 
 
     int xPos = XPos * STEP_FRAME_W;
     byte yPos = YPos * STEP_FRAME_H;
-    static int old_value[9];
 
     tft.setFont(Arial_8);
     tft.setTextColor(ILI9341_DARKGREY);
     tft.setCursor(xPos + offest_X, yPos + offset_Y);
-    tft.print(old_value[index]);
+    tft.fillRect(xPos, yPos, 2 * STEP_FRAME_W, STEP_FRAME_H, ILI9341_DARKGREY);
+    // tft.print(old_value[index]);
     if (lastPotRow != lastPRow)
         color = ILI9341_LIGHTGREY;
     if (drawRect)
@@ -425,20 +484,18 @@ void draw_Value(byte index, byte lastPRow, byte XPos, byte YPos, byte offest_X, 
     tft.setTextColor(ILI9341_WHITE);
     tft.setCursor(xPos + offest_X, yPos + offset_Y);
     tft.print(value);
-    old_value[index] = value;
 }
 void draw_Text(byte index, byte lastPRow, byte XPos, byte YPos, byte offest_X, int offset_Y, const char *name, int color, bool drawRect, bool drawFilling)
 {
 
     int xPos = XPos * STEP_FRAME_W;
     byte yPos = YPos * STEP_FRAME_H;
-    static const char *old_value[9];
 
     tft.setFont(Arial_8);
     tft.setTextColor(ILI9341_DARKGREY);
     tft.setCursor(xPos + offest_X, yPos + offset_Y);
     tft.fillRect(xPos, yPos, 2 * STEP_FRAME_W, STEP_FRAME_H, ILI9341_DARKGREY);
-    tft.print(old_value[index]);
+    // tft.print(old_value[index]);
     if (lastPotRow != lastPRow)
         color = ILI9341_LIGHTGREY;
     if (drawRect)
@@ -449,12 +506,16 @@ void draw_Text(byte index, byte lastPRow, byte XPos, byte YPos, byte offest_X, i
     tft.setTextColor(ILI9341_WHITE);
     tft.setCursor(xPos + offest_X, yPos + offset_Y);
     tft.print(name);
-    old_value[index] = name;
 }
-void show_active_track(byte trax)
+void show_active_track()
 {
     draw_Text(3, 0, 1, 0, 2, 3, "Trk:", ILI9341_WHITE, false, false);
     draw_Value(3, 0, 2, 0, 6, 3, active_track + 1, ILI9341_WHITE, false, false);
+}
+void show_active_songpage()
+{
+    draw_Text(3, 0, 1, 0, 2, 3, "Page:", ILI9341_WHITE, false, false);
+    draw_Value(3, 0, 3, 0, 0, 3, arrangerpage + 1, ILI9341_WHITE, false, false);
 }
 void drawsongmodepageselector()
 {
@@ -487,6 +548,10 @@ void gridSongMode(int songpageNumber)
             tft.drawFastVLine((f * phraseSegmentLength) + 32, STEP_FRAME_H + 4, STEP_FRAME_H * 12, 370); //(x, y-start, y-length, color)
         }
     }
+    for (int i = 0; i < NUM_TRACKS; i++)
+        allTracks[i]->draw_arrangment_lines(3, arrangerpage);
+    change_plugin_row = true;
+    allTracks[active_track]->draw_arranger_parameters(lastPotRow);
 }
 
 void startUpScreen()
