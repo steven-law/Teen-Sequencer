@@ -35,11 +35,14 @@ const char *CCnames[129]{"CC0", "CC1", "CC2", "CC3", "CC4", "CC5", "CC6", "CC7",
                          "CC100", "CC101", "CC102", "CC103", "CC104", "CC105", "CC106", "CC107", "CC108", "CC109",
                          "CC110", "CC111", "CC112", "CC113", "CC114", "CC115", "CC116", "CC117", "CC118", "CC119",
                          "CC120", "CC121", "CC122", "CC123", "CC124", "CC125", "CC126", "CC127", "none"};
-const char *channelOutNames[33]{"none", "UD1", "UD2", "UD3", "UD4", "UD5", "UD6", "UD7", "UD8", 
+
+const char *channelOutNames[49]{"none", "SR1", "SR2", "SR3", "SR4", "SR5", "SR6", "SR7", "SR8",
+                                "SR9", "SR10", "SR11", "SR12", "SR13", "SR14", "SR15", "SR16",
+                                "UD1", "UD2", "UD3", "UD4", "UD5", "UD6", "UD7", "UD8",
                                 "UD9", "UD10", "UD11", "UD12", "UD13", "UD14", "UD15", "UD16",
-                                 "SR1", "SR2", "SR3", "SR4", "SR5", "SR6","SR7", "SR8", 
-                                 "SR9", "SR10", "SR11", "SR12", "SR13", "SR14", "SR15", "SR16" };
+                                "Ua1", "Ua2", "Ua3", "Ua4", "Ua5", "Ua6", "Ua7", "Ua8",
+                                "Ua9", "Ua10", "Ua11", "Ua12", "Ua13", "Ua14", "Ua15", "Ua16"};
+
 const char *noteNames[12]{"C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"};
 const char *seqModname[5]{"Step", "Rand", "Drop", "BitRd", "PotS"};
 char _trackname[20];
-

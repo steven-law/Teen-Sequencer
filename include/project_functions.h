@@ -15,7 +15,7 @@ void buttons_SelectPlugin();
 void buttons_save_track();
 void buttons_load_track();
 void buttons_set_track_recordState();
-
+void mouse(byte deltaX, byte maxY);
 
 void buttons_save_all();
 void buttons_load_all();

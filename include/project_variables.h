@@ -96,7 +96,7 @@ extern int phraseSegmentLength;
 extern const char *playstate[3];
 extern char _trackname[20];
 extern const char *CCnames[129];
-extern const char *channelOutNames[33];
+extern const char *channelOutNames[49];
 extern const char *noteNames[12];
 extern  const char *seqModname[5];
 

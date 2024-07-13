@@ -332,6 +332,7 @@ void input_behaviour()
         buttons_set_track_recordState();
         buttons_SetCursor(14);
         buttons_SetNoteOnTick(pixelTouchX, gridTouchY);
+         
         if (buttonPressed[BUTTON_ROW])
         {
             change_plugin_row = true;
