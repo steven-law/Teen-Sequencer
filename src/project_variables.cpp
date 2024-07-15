@@ -11,6 +11,9 @@ int gridTouchY = 0;
 byte lastPotRow = 0;
 byte encoder_function = 0;
 bool change_plugin_row = false;
+uint16_t tftRamInfoBox[200][120];
+unsigned long currentTime=0;
+bool showBox = false;
 
 byte active_track;
 byte arrangerpage;
@@ -21,8 +24,8 @@ int encoder_colour[NUM_ENCODERS] = {ILI9341_BLUE, ILI9341_RED, ILI9341_GREEN, IL
 // songmode
 int phraseSegmentLength = 16;
 // mixer
-const char *playstate[3] = {"Mute", "Play", "Solo"};
-const char *CCnames[129]{"CC0", "CC1", "CC2", "CC3", "CC4", "CC5", "CC6", "CC7", "CC8", "CC9",
+const char FLASHMEM *playstate[3] = {"Mute", "Play", "Solo"};
+const char FLASHMEM *CCnames[129]{"CC0", "CC1", "CC2", "CC3", "CC4", "CC5", "CC6", "CC7", "CC8", "CC9",
                          "CC10", "CC11", "CC12", "CC13", "CC14", "CC15", "CC16", "CC17", "CC18", "CC19",
                          "CC20", "CC21", "CC22", "CC23", "CC24", "CC25", "CC26", "CC27", "CC28", "CC29",
                          "CC30", "CC31", "CC32", "CC33", "CC34", "CC35", "CC36", "CC37", "CC38", "CC39",
@@ -36,13 +39,13 @@ const char *CCnames[129]{"CC0", "CC1", "CC2", "CC3", "CC4", "CC5", "CC6", "CC7",
                          "CC110", "CC111", "CC112", "CC113", "CC114", "CC115", "CC116", "CC117", "CC118", "CC119",
                          "CC120", "CC121", "CC122", "CC123", "CC124", "CC125", "CC126", "CC127", "none"};
 
-const char *channelOutNames[49]{"none", "SR1", "SR2", "SR3", "SR4", "SR5", "SR6", "SR7", "SR8",
+const char FLASHMEM *channelOutNames[49]{"none", "SR1", "SR2", "SR3", "SR4", "SR5", "SR6", "SR7", "SR8",
                                 "SR9", "SR10", "SR11", "SR12", "SR13", "SR14", "SR15", "SR16",
                                 "UD1", "UD2", "UD3", "UD4", "UD5", "UD6", "UD7", "UD8",
                                 "UD9", "UD10", "UD11", "UD12", "UD13", "UD14", "UD15", "UD16",
                                 "Ua1", "Ua2", "Ua3", "Ua4", "Ua5", "Ua6", "Ua7", "Ua8",
                                 "Ua9", "Ua10", "Ua11", "Ua12", "Ua13", "Ua14", "Ua15", "Ua16"};
 
-const char *noteNames[12]{"C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"};
-const char *seqModname[5]{"Step", "Rand", "Drop", "BitRd", "PotS"};
+const char FLASHMEM *noteNames[12]{"C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"};
+const char FLASHMEM *seqModname[5]{"Step", "Rand", "Drop", "BitRd", "PotS"};
 char _trackname[20];

@@ -82,23 +82,31 @@ extern elapsedMicros msecsclock;
 #define INPUT_FUNCTIONS_FOR_MIXER3 9
 
 
+#define INFO_BOX_WIDTH 200
+#define INFO_BOX_HEIGTH 120
+#define INFOBOX_OFFSET 60
+#define INFOBOX_TEXT_OFFSET 80
+
 extern int pixelTouchX;
 extern int gridTouchY;
 extern byte lastPotRow;
 extern byte encoder_function;
 extern bool change_plugin_row;
+extern uint16_t tftRamInfoBox[INFO_BOX_WIDTH][INFO_BOX_HEIGTH];
+extern unsigned long currentTime;
+extern bool showBox;
 
 extern byte active_track;
 extern byte arrangerpage;
 extern bool otherCtrlButtons;
 
 extern int phraseSegmentLength;
-extern const char *playstate[3];
+extern const char FLASHMEM *playstate[3];
 extern char _trackname[20];
-extern const char *CCnames[129];
-extern const char *channelOutNames[49];
-extern const char *noteNames[12];
-extern  const char *seqModname[5];
+extern const char FLASHMEM *CCnames[129];
+extern const char FLASHMEM *channelOutNames[49];
+extern const char FLASHMEM *noteNames[12];
+extern  const char FLASHMEM *seqModname[5];
 
 
 

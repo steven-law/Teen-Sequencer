@@ -33,12 +33,20 @@ USBHIDParser hid1(myusb);
 // USBHIDParser hid2(myusb);
 MouseController mouse1(myusb);
 // Clock Masterclock(&tft);
+
 //  put function declarations here:
 void sendNoteOn(byte Note, byte Velo, byte Channel);
 void sendNoteOff(byte Note, byte Velo, byte Channel);
 void sendControlChange(byte control, byte value, byte Channel);
 void sendClock();
 void mouse(byte deltaX, byte maxY);
+void get_infobox_background();
+void set_infobox_background();
+void reset_infobox_background(unsigned long int waitingTime);
+void set_infobox_next_line(byte _lineNumber); //_lineNumber must be bigger 0
+void detect_USB_device();
+void detect_mouse();
+
 void setup()
 {
   // while (!Serial){}
@@ -71,10 +79,12 @@ void loop()
   MIDI1.read();
   myusb.Task();
   usbMidi1.read();
-
+  detect_USB_device();
+  //detect_mouse();
   if (millis() % 50 == 0)
   {
-//Serial.println(usbMidi1.idVendor());
+    // Serial.println(usbMidi1.idProduct());
+
     if (encoder_function == INPUT_FUNCTIONS_FOR_ARRANGER)
     {
       mouse(2, 14);
@@ -120,10 +130,11 @@ void sendNoteOff(byte Note, byte Velo, byte Channel)
     MIDI1.sendNoteOff(Note, Velo, Channel);
   if (Channel > 16 && Channel <= 32)
     usbMIDI.sendNoteOff(Note, Velo, Channel - 16);
-  if (Channel > 32 && Channel <= 48){
+  if (Channel > 32 && Channel <= 48)
+  {
     usbMidi1.sendNoteOff(Note, Velo, Channel - 32);
-      //Serial.println(usbMidi1.idVendor());
-      }
+    // Serial.println(usbMidi1.idVendor());
+  }
 }
 void sendControlChange(byte control, byte value, byte Channel)
 {
@@ -150,7 +161,8 @@ void myNoteOn(byte channel, byte note, byte velocity)
     if (allTracks[channel - 1]->get_recordState())
       allTracks[channel - 1]->record_noteOn(note, velocity, allTracks[channel - 1]->parameter[SET_MIDICH_OUT]);
   }
-  //sendNoteOn(note, velocity, channel);
+  if (channel >= 9)
+    sendNoteOn(note, velocity, channel);
   Serial.printf("note: %d, velo: %d, channel: %d\n ", note, velocity, channel);
 }
 void myNoteOff(byte channel, byte note, byte velocity)
@@ -161,15 +173,17 @@ void myNoteOff(byte channel, byte note, byte velocity)
     if (allTracks[channel - 1]->get_recordState())
       allTracks[channel - 1]->record_noteOff(note, velocity, allTracks[channel - 1]->parameter[SET_MIDICH_OUT]);
   }
-  //sendNoteOff(note, velocity, channel);
+  if (channel >= 9)
+    sendNoteOff(note, velocity, channel);
 }
 void mouse(byte deltaX, byte maxY)
 {
+
   if (mouse1.available())
   {
-
     if (mouse1.getButtons() == 4) // left = 1, right = 2, scroll = 4
       buttonPressed[BUTTON_ROW] = true;
+
     // moving
     pixelTouchX = constrain(pixelTouchX + mouse1.getMouseX() * deltaX, 0, 304);
     static int countmouseY;
@@ -258,4 +272,95 @@ void mouse(byte deltaX, byte maxY)
     }
     mouse1.mouseDataClear();
   }
+
+  // show Mouse Infobox
+  
+}
+
+void get_infobox_background()
+{
+  currentTime = millis();
+  for (int w = 0; w < INFO_BOX_WIDTH; w++)
+  {
+    for (int h = 0; h < INFO_BOX_HEIGTH; h++)
+    {
+      tftRamInfoBox[w][h] = tft.readPixel(w + INFOBOX_OFFSET, h + INFOBOX_OFFSET);
+    }
+  }
+}
+void set_infobox_background()
+{
+  showBox = true;
+  tft.fillRoundRect(INFOBOX_OFFSET, INFOBOX_OFFSET, INFO_BOX_WIDTH, INFO_BOX_HEIGTH, 5, ILI9341_BLACK);
+  tft.drawRoundRect(INFOBOX_OFFSET, INFOBOX_OFFSET, INFO_BOX_WIDTH, INFO_BOX_HEIGTH, 5, ILI9341_WHITE);
+  tft.setFont(Arial_10);
+  tft.setTextColor(ILI9341_WHITE);
+  tft.setCursor(INFOBOX_TEXT_OFFSET, INFOBOX_TEXT_OFFSET);
+}
+
+void set_infobox_next_line(byte _lineNumber)
+{
+  tft.setCursor(INFOBOX_TEXT_OFFSET, INFOBOX_TEXT_OFFSET + (20 * _lineNumber));
+}
+void reset_infobox_background(unsigned long int waitingTime)
+{
+  if (showBox && millis() - currentTime >= waitingTime)
+  {
+    showBox = false;
+    for (int w = 0; w < INFO_BOX_WIDTH; w++)
+    {
+      for (int h = 0; h < INFO_BOX_HEIGTH; h++)
+      {
+        tft.drawPixel(w + INFOBOX_OFFSET, h + INFOBOX_OFFSET, tftRamInfoBox[w][h]);
+      }
+    }
+  }
+}
+void detect_USB_device()
+{
+  static bool deviceConnected = false;
+  // if connected
+  if (usbMidi1.idProduct() != 0 && !deviceConnected)
+  {
+    get_infobox_background();
+    set_infobox_background();
+
+    deviceConnected = true;
+    tft.print("USB Device connected: ");
+    set_infobox_next_line(1);
+    tft.printf("%s: %s", usbMidi1.manufacturer(), usbMidi1.product());
+  }
+  // if disconnected
+  else if (usbMidi1.idProduct() == 0 && deviceConnected)
+  {
+    get_infobox_background();
+    set_infobox_background();
+    tft.println("USB Device disconnected");
+    deviceConnected = false;
+
+    // remove infobox
+  }
+
+  reset_infobox_background(2000);
+}
+void detect_mouse()
+{
+  static bool deviceConnected = false;
+  if (mouse1.available() && !deviceConnected)
+  {
+    get_infobox_background();
+    set_infobox_background();
+
+    deviceConnected = true;
+    tft.print("Mouse connected: ");
+  }
+  // if disconnected
+  else if (!mouse1.available() && deviceConnected)
+  {
+    deviceConnected = false;
+    get_infobox_background();
+    set_infobox_background();
+    tft.println("Mouse disconnected");
+  }
+  reset_infobox_background(2000);
 }
