@@ -1,6 +1,8 @@
 #include <Arduino.h>
 #include "project_functions.h"
-
+// #include <fx_List.h>
+#include <Output.h>
+extern Output MasterOut;
 void encoder_SetCursor(byte deltaX, byte maxY)
 {
 
@@ -113,7 +115,7 @@ void buttons_SelectPlugin()
                 active_track = i;
                 show_active_track();
                 change_plugin_row = true;
-                allTracks[active_track]->draw_MIDI_CC_screen();
+                // allTracks[active_track]->draw_MIDI_CC_screen();
                 encoder_function = INPUT_FUNCTIONS_FOR_PLUGIN;
                 // Serial.printf("plugin selected Track: %d on channel: %d\n", i,allTracks[i]->parameter[SET_MIDICH_OUT] );
                 //  buttonPressed[BUTTON_PLUGIN] = false;
@@ -332,7 +334,7 @@ void input_behaviour()
         buttons_set_track_recordState();
         buttons_SetCursor(14);
         buttons_SetNoteOnTick(pixelTouchX, gridTouchY);
-         
+
         if (buttonPressed[BUTTON_ROW])
         {
             change_plugin_row = true;
@@ -397,7 +399,11 @@ void input_behaviour()
     }
     if (encoder_function == INPUT_FUNCTIONS_FOR_PLUGIN)
     {
-        allTracks[active_track]->set_MIDI_CC(lastPotRow);
+
+        if (allTracks[active_track]->parameter[SET_MIDICH_OUT] <= NUM_MIDI_OUTPUTS)
+            allTracks[active_track]->set_MIDI_CC(lastPotRow);
+        else if (allTracks[active_track]->parameter[SET_MIDICH_OUT] > NUM_MIDI_OUTPUTS)
+            MasterOut.set_parameters(active_track, lastPotRow);
         buttonPressed[BUTTON_ROW] = false;
     }
 }
@@ -463,6 +469,78 @@ void drawPot(int XPos, byte YPos, int dvalue, const char *dname)
     circlePos_old[XPos] = circlePos[XPos];
 
     dname_old[XPos] = dname;
+}
+void draw_value(byte index, byte XPos, byte YPos, byte offest_X, int offset_Y, int value, int color, bool drawRect)
+{
+    int xPos = XPos * STEP_FRAME_W;
+    byte yPos = YPos * STEP_FRAME_H;
+    static int old_value[9];
+
+    tft.setFont(Arial_8);
+    tft.setTextColor(ILI9341_DARKGREY);
+    tft.setCursor(xPos + offest_X, yPos + offset_Y);
+    tft.print(old_value[index]);
+
+    if (drawRect)
+        tft.drawRect(xPos, yPos, 2 * STEP_FRAME_W, STEP_FRAME_H, ILI9341_WHITE);
+
+    tft.setTextColor(color);
+    tft.setCursor(xPos + offest_X, yPos + offset_Y);
+    tft.print(value);
+    old_value[index] = value;
+}
+void drawEnvelope(byte YPos, byte attack, byte decay, byte sustain, byte release)
+{
+    // int yPos;
+    int colorA = ILI9341_BLUE;
+    int colorD = ILI9341_RED;
+    int colorS = ILI9341_GREEN;
+    int colorR = ILI9341_WHITE;
+
+    if (YPos != lastPotRow)
+    {
+        colorA = ILI9341_LIGHTGREY;
+        colorD = ILI9341_LIGHTGREY;
+        colorS = ILI9341_LIGHTGREY;
+        colorR = ILI9341_LIGHTGREY;
+    }
+    byte ypos = ((YPos + 1) * 3);
+    int yPos = (ypos + 1) * STEP_FRAME_H;
+    byte envStart = 48;
+    byte envTop = yPos - 32;
+
+    static byte old_attackEnd;
+    static byte old_decayEnd;
+    static byte old_sustainLevel;
+    static byte old_sustainEnd;
+    static byte old_releaseEnd;
+
+    tft.drawLine(envStart, yPos, old_attackEnd, envTop, ILI9341_DARKGREY);
+    tft.drawLine(old_attackEnd, envTop, old_decayEnd + old_attackEnd, old_sustainLevel, ILI9341_DARKGREY);
+    tft.drawLine(old_decayEnd + old_attackEnd, old_sustainLevel, old_decayEnd + old_attackEnd + old_sustainEnd, old_sustainLevel, ILI9341_DARKGREY);
+    tft.drawLine(old_decayEnd + old_attackEnd + old_sustainEnd, old_sustainLevel, old_decayEnd + old_attackEnd + old_sustainEnd + old_releaseEnd, yPos, ILI9341_DARKGREY);
+
+    byte attackEnd = map(attack, 0, 127, 0, 50) + envStart;
+    byte decayEnd = map(decay, 0, 127, 0, 30);
+    byte sustainLevel = yPos - map(sustain, 0, 127, 0, 32);
+    byte sustainEnd = 30;
+    byte releaseEnd = map(release, 0, 127, 0, 50);
+
+    tft.drawLine(envStart, yPos, attackEnd, envTop, colorA);
+    tft.drawLine(attackEnd, envTop, decayEnd + attackEnd, sustainLevel, colorD);
+    tft.drawLine(decayEnd + attackEnd, sustainLevel, decayEnd + attackEnd + sustainEnd, sustainLevel, colorS);
+    tft.drawLine(decayEnd + attackEnd + sustainEnd, sustainLevel, decayEnd + attackEnd + sustainEnd + releaseEnd, yPos, colorR);
+
+    draw_value(0, 14, ypos - 1, 4, 4, attack, colorA, true);
+    draw_value(1, 16, ypos - 1, 4, 4, decay, colorD, true);
+    draw_value(2, 14, ypos, 4, 4, sustain, colorS, true);
+    draw_value(3, 16, ypos, 4, 4, release, colorR, true);
+
+    old_attackEnd = attackEnd;
+    old_decayEnd = decayEnd;
+    old_sustainLevel = sustainLevel;
+    old_sustainEnd = sustainEnd;
+    old_releaseEnd = releaseEnd;
 }
 void draw_Value(byte index, byte lastPRow, byte XPos, byte YPos, byte offest_X, int offset_Y, int value, int color, bool drawRect, bool drawFilling)
 {
@@ -555,6 +633,38 @@ void gridSongMode(int songpageNumber)
     allTracks[active_track]->draw_arranger_parameters(lastPotRow);
 }
 
+void draw_sequencer_option(byte x, const char *nameshort, int value, byte enc, const char *pluginName)
+{
+
+    int color;
+    byte y = 6 + (enc * 2);
+    if (encoder_function == INPUT_FUNCTIONS_FOR_ARRANGER)
+        color = y - 1;
+    else
+        color = active_track;
+
+    // show function
+    tft.setCursor(STEP_FRAME_W * x + 2, STEP_FRAME_H * (y - 1) + 6);
+    tft.setFont(Arial_8);
+    tft.setTextColor(trackColor[color]);
+    tft.setTextSize(1);
+    tft.print(nameshort);
+    // show value
+    tft.drawRect(STEP_FRAME_W * x, STEP_FRAME_H * y, STEP_FRAME_W * 2, STEP_FRAME_H, encoder_colour[enc]);
+    tft.fillRect(STEP_FRAME_W * x + 1, STEP_FRAME_H * y + 1, STEP_FRAME_W * 2 - 2, STEP_FRAME_H - 2, ILI9341_DARKGREY);
+    tft.setCursor(STEP_FRAME_W * x + 8, STEP_FRAME_H * y + 3);
+    tft.setFont(Arial_10);
+    tft.setTextColor(ILI9341_BLACK);
+    tft.setTextSize(1);
+    if (pluginName != 0)
+    {
+        tft.setCursor(STEP_FRAME_W * x + 2, STEP_FRAME_H * y + 4);
+        tft.setFont(Arial_8);
+        tft.print(pluginName);
+    }
+    else
+        tft.print(value);
+}
 void startUpScreen()
 {
 

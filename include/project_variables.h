@@ -22,7 +22,6 @@ extern elapsedMicros msecsclock;
 #define POSITION_START_LOOP_BUTTON 16
 #define POSITION_END_LOOP_BUTTON 18
 
-
 #define STEP_FRAME_W 16
 #define STEP_FRAME_H 16
 #define TRACK_FRAME_H 24
@@ -81,12 +80,22 @@ extern elapsedMicros msecsclock;
 #define INPUT_FUNCTIONS_FOR_MIXER2 8
 #define INPUT_FUNCTIONS_FOR_MIXER3 9
 
-
 #define INFO_BOX_WIDTH 200
 #define INFO_BOX_HEIGTH 120
 #define INFOBOX_OFFSET 60
 #define INFOBOX_TEXT_OFFSET 80
 
+#define NUM_MIDI_OUTPUTS 48
+// plugins
+#define NUM_PLUGINS 2
+#define MIDI_CC_RANGE 127
+#define MIDI_CC_RANGE_FLOAT 127.00
+#define NUM_PLUGIN_PRESETS 8
+#define SAMPLE_ROOT 69
+#define SEQUENCER_OPTIONS_VERY_RIGHT 18
+#define PRESET_ENCODER 3
+
+#define MAX_OUTPUTS NUM_MIDI_OUTPUTS + NUM_PLUGINS
 extern int pixelTouchX;
 extern int gridTouchY;
 extern byte lastPotRow;
@@ -104,11 +113,13 @@ extern int phraseSegmentLength;
 extern const char FLASHMEM *playstate[3];
 extern char _trackname[20];
 extern const char FLASHMEM *CCnames[129];
-extern const char FLASHMEM *channelOutNames[49];
+
+extern const char FLASHMEM *channelOutNames[MAX_OUTPUTS+1];
 extern const char FLASHMEM *noteNames[12];
-extern  const char FLASHMEM *seqModname[5];
+extern const char FLASHMEM *seqModname[5];
 
-
-
-
+// plugins
+extern float *note_frequency;
+extern int tuning;
+extern const char *filterName[4];
 #endif // GLOBAL_STUFF_H

@@ -27,13 +27,15 @@ void input_behaviour();
 
 void clearWorkSpace();
 void drawPot(int XPos, byte YPos, int dvalue, const char *dname);
+void drawEnvelope(byte YPos, byte attack, byte decay, byte sustain, byte release);
 void draw_Value(byte index, byte lastPRow, byte XPos, byte YPos, byte offest_X, int offset_Y, int value, int color, bool drawRect, bool drawFilling);
 void draw_Text(byte index, byte lastPRow, byte XPos, byte YPos, byte offest_X, int offset_Y,  const char *name, int color, bool drawRect, bool drawFilling);
 void show_active_track();
 void show_active_songpage();
 void drawsongmodepageselector();
 void gridSongMode(int songpageNumber);
-
+void draw_value(byte index, byte XPos, byte YPos, byte offest_X, int offset_Y, int value, int color, bool drawRect);
+void draw_sequencer_option(byte x, const char *nameshort, int value, byte enc, const char *pluginName);
 
 void startUpScreen();
 #endif

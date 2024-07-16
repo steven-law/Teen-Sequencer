@@ -24,7 +24,7 @@ void Track::set_stepSequencer_parameters(byte row)
         break;
     case 2:
         set_stepSequencer_parameter_text(ENCODER_SEQ_MODE, 2, "sMod", seqModname[parameter[SET_SEQ_MODE]], 0, 4);
-        set_stepSequencer_parameter_text(ENCODER_MIDICH_OUT, 2, "MCh",channelOutNames[parameter[SET_MIDICH_OUT]], 0, 48);
+        set_stepSequencer_parameter_text(ENCODER_MIDICH_OUT, 2, "MCh",channelOutNames[parameter[SET_MIDICH_OUT]], 0, MAX_OUTPUTS);
         set_stepSequencer_parameter_value(ENCODER_CLIP2_EDIT, 2, "Clip", 0, NUM_USER_CLIPS);
 
         break;

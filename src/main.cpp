@@ -23,7 +23,18 @@ done: look what takes so long to load the song screen
 #include "project_variables.h"
 #include "cursor.h"
 #include "Track.h"
+#include <plugin_List.h>
+#include <fx_List.h>
 #include "clock.h"
+#include "Output.h"
+Plugin_2 plugin_2("1OSC", 18);
+Plugin_3 plugin_3("2FM", 19);
+PluginControll *allPlugins[NUM_PLUGINS] = {&plugin_2, &plugin_3};
+FX_1 fx_1("Rev", 1);
+FX_2 fx_2("Bit", 2);
+FX_3 fx_3("Nix", 3);
+Output MasterOut(3);
+
 MIDI_CREATE_INSTANCE(HardwareSerial, Serial1, MIDI1);
 USBHost myusb;
 USBHub hub1(myusb);
@@ -63,7 +74,13 @@ void setup()
   MIDI1.setHandleNoteOff(myNoteOff);
   usbMidi1.setHandleNoteOn(myNoteOn);
   usbMidi1.setHandleNoteOff(myNoteOff);
-
+  AudioMemory(200);
+  MasterOut.setup();
+  note_frequency = new float[128];
+  for (int r = 0; r < 128; r++)
+  {
+    note_frequency[r] = pow(2.0, ((double)(r - SAMPLE_ROOT) / 12.0));
+  }
   // MIDI1.setHandleControlChange(myControlChange);
   startUpScreen();
   tft.updateScreenAsync();
@@ -80,7 +97,7 @@ void loop()
   myusb.Task();
   usbMidi1.read();
   detect_USB_device();
-  //detect_mouse();
+  // detect_mouse();
   if (millis() % 50 == 0)
   {
     // Serial.println(usbMidi1.idProduct());
@@ -122,6 +139,8 @@ void sendNoteOn(byte Note, byte Velo, byte Channel)
     usbMIDI.sendNoteOn(Note, Velo, Channel - 16);
   if (Channel > 32 && Channel <= 48)
     usbMidi1.sendNoteOn(Note, Velo, Channel - 32);
+  if (Channel > 48 && Channel <= 48 + NUM_PLUGINS)
+    MasterOut.noteOn(Note, Velo, Channel - (48 + NUM_PLUGINS), 0);
 }
 void sendNoteOff(byte Note, byte Velo, byte Channel)
 {
@@ -131,10 +150,9 @@ void sendNoteOff(byte Note, byte Velo, byte Channel)
   if (Channel > 16 && Channel <= 32)
     usbMIDI.sendNoteOff(Note, Velo, Channel - 16);
   if (Channel > 32 && Channel <= 48)
-  {
     usbMidi1.sendNoteOff(Note, Velo, Channel - 32);
-    // Serial.println(usbMidi1.idVendor());
-  }
+  if (Channel > 48 && Channel <= 48 + NUM_PLUGINS)
+    MasterOut.noteOff(Note, Velo, Channel - (48 + NUM_PLUGINS), 0);
 }
 void sendControlChange(byte control, byte value, byte Channel)
 {
@@ -274,7 +292,6 @@ void mouse(byte deltaX, byte maxY)
   }
 
   // show Mouse Infobox
-  
 }
 
 void get_infobox_background()
