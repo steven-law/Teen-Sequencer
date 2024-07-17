@@ -140,7 +140,7 @@ void sendNoteOn(byte Note, byte Velo, byte Channel)
   if (Channel > 32 && Channel <= 48)
     usbMidi1.sendNoteOn(Note, Velo, Channel - 32);
   if (Channel > 48 && Channel <= 48 + NUM_PLUGINS)
-    MasterOut.noteOn(Note, Velo, Channel - (48 + NUM_PLUGINS), 0);
+    MasterOut.noteOn(Note, Velo, Channel - (48+1), 0);
 }
 void sendNoteOff(byte Note, byte Velo, byte Channel)
 {
@@ -152,7 +152,7 @@ void sendNoteOff(byte Note, byte Velo, byte Channel)
   if (Channel > 32 && Channel <= 48)
     usbMidi1.sendNoteOff(Note, Velo, Channel - 32);
   if (Channel > 48 && Channel <= 48 + NUM_PLUGINS)
-    MasterOut.noteOff(Note, Velo, Channel - (48 + NUM_PLUGINS), 0);
+    MasterOut.noteOff(Note, Velo, Channel - (48+1), 0);
 }
 void sendControlChange(byte control, byte value, byte Channel)
 {

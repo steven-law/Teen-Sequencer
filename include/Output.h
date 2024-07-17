@@ -51,25 +51,25 @@ public:
     }
     void noteOn(byte note, byte velo, byte _channel, byte voice)
     {
-        Serial.println("recieve NoteON");
+        Serial.printf("recieve NoteON channel:%d\n", _channel);
         allPlugins[_channel]->noteOn(note, 1, voice);
     }
     void noteOff(byte note, byte velo, byte _channel, byte voice)
     {
-        Serial.println("recieve NoteOFF");
+        Serial.printf("recieve NoteOFF channel:%d\n", _channel);
         allPlugins[_channel]->noteOff(note, voice);
     }
 
     void set_parameters(byte trackID, byte row)
     {
         //Serial.printf("set parameters track: %d, channel: %d\n", trackID, plugin_channel[trackID]);
-        allPlugins[plugin_channel[trackID]]->set_parameters(row);
+        allPlugins[trackID]->set_parameters(row);
     }
     void draw_plugin(byte trackID, byte channel)
     {
         Serial.printf("draw plugin track: %d, channel: %d\n", trackID, plugin_channel[trackID]);
         change_plugin_row = true;
-        allPlugins[plugin_channel[trackID]]->draw_plugin();
+        allPlugins[trackID]->draw_plugin();
     }
     void set_active_plugin_for_track(byte trackID, byte channel)
     {
