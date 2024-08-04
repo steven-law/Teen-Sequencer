@@ -9,7 +9,7 @@ elapsedMicros msecsclock;
 int pixelTouchX = 0;
 int gridTouchY = 0;
 byte lastPotRow = 0;
-byte encoder_function = 0;
+byte activeScreen = 0;
 bool change_plugin_row = false;
 uint16_t tftRamInfoBox[200][120];
 unsigned long currentTime=0;
@@ -19,7 +19,15 @@ byte active_track;
 byte arrangerpage;
 bool otherCtrlButtons = true;
 
-int trackColor[9]{6150246, 8256638, 1095334, 12643941, 2583100, 9365295, 12943157, 5678954, ILI9341_WHITE};
+
+byte trellisScreen=0;
+int trackColor[9]{ILI9341_RED, ILI9341_PINK, ILI9341_OLIVE, ILI9341_YELLOW, ILI9341_BLUE, 9365295, ILI9341_CYAN, ILI9341_GREEN, ILI9341_WHITE};
+int trellisTrackColor[9]{TRELLIS_RED, TRELLIS_PURPLE, TRELLIS_OLIVE,TRELLIS_YELLOW,TRELLIS_BLUE,8,TRELLIS_TEAL,TRELLIS_GREEN,900909};
+
+int trellisLedBuffer[X_DIM*Y_DIM];
+bool trellisPressed[X_DIM * Y_DIM];
+bool trellisReleased[X_DIM * Y_DIM];
+bool trellisShowClockPixel[Y_DIM];
 int encoder_colour[NUM_ENCODERS] = {ILI9341_BLUE, ILI9341_RED, ILI9341_GREEN, ILI9341_WHITE};
 // songmode
 int phraseSegmentLength = 16;

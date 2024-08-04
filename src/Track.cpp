@@ -8,10 +8,10 @@ void Track::update(int PixelX, byte gridY)
     // MIDI1.read();
     if (PixelX > SEQ_GRID_LEFT && PixelX < 14 * STEP_FRAME_W && gridY >= 1 && gridY < 13)
     {
-        note2set = (gridY - SEQ_GRID_TOP) + (parameter[SET_OCTAVE] * NOTES_PER_OCTAVE);
-        tickStart = (PixelX - SEQ_GRID_LEFT) / 2;
-        pixelOn_X = PixelX;
-        pixelOn_Y = gridY;
+        // note2set = (gridY - SEQ_GRID_TOP) + (parameter[SET_OCTAVE] * NOTES_PER_OCTAVE);
+        // tickStart = (PixelX - SEQ_GRID_LEFT) / 2;
+        // pixelOn_X = PixelX;
+        // pixelOn_Y = gridY;
     }
     bar_to_edit = ((PixelX - SEQ_GRID_LEFT) / STEP_FRAME_W) + (BARS_PER_PAGE * (arrangerpage));
     gridX_4_save = PixelX / STEP_FRAME_W;
@@ -184,6 +184,8 @@ void Track::play_sequencer_mode(byte cloock, byte start, byte end)
     {
         internal_clock++;
         internal_clock_is_on = true;
+       // if (internal_clock % 6 == 0)
+            //trellis_show_clockbar(MIDI_channel_in, internal_clock / 6);
     }
     else
         internal_clock_is_on = false;
@@ -251,7 +253,7 @@ void Track::draw_sequencer_modes(byte mode)
 
 void Track::noteOn(byte Note, byte Velo, byte Channel)
 {
-    Serial.printf("sending noteOn: %d, velo: %d channel: %d\n", Note, Velo, Channel);
+    // Serial.printf("sending noteOn: %d, velo: %d channel: %d\n", Note, Velo, Channel);
     sendNoteOn(Note, Velo, Channel);
     // MIDI1.sendNoteOn(Note, Velo, Channel);
     // usbMIDI.sendNoteOn(Note, Velo, Channel);
@@ -259,7 +261,7 @@ void Track::noteOn(byte Note, byte Velo, byte Channel)
 }
 void Track::noteOff(byte Note, byte Velo, byte Channel)
 {
-    Serial.printf("sending noteOff: %d, velo: %d channel: %d\n", Note, Velo, Channel);
+    // Serial.printf("sending noteOff: %d, velo: %d channel: %d\n", Note, Velo, Channel);
     sendNoteOff(Note, Velo, Channel);
     // MIDI1.sendNoteOn(Note, Velo, Channel);
     // usbMIDI.sendNoteOn(Note, Velo, Channel);
@@ -300,14 +302,13 @@ void Track::draw_arranger_parameters(byte lastProw)
             // drawOctaveNumber();
             // draw_velocity(3, 0);
         }
-          if (lastProw == 1)
+        if (lastProw == 1)
         {
             draw_barVelocity(0, 1);
-
         }
         if (lastProw == 2)
         {
-            //draw_barVelocity(0, 1);
+            // draw_barVelocity(0, 1);
             draw_play_presetNr_ccChannel(2, 2);
             draw_play_presetNr_ccValue(3, 2);
             // drawOctaveNumber();

@@ -1,8 +1,15 @@
 #include <Arduino.h>
 #include "project_functions.h"
+#include <neotrellis.h>
 // #include <fx_List.h>
 #include <Output.h>
+#include <myClock.h>
 extern Output MasterOut;
+void trellis_static();
+void trellis_start_clock();
+void trellis_stop_clock();
+void trellis_set_potRow();
+void trellis_SetCursor(byte maxY);
 void encoder_SetCursor(byte deltaX, byte maxY)
 {
 
@@ -47,13 +54,16 @@ void buttons_SetPlayStatus()
 {
     if (buttonPressed[BUTTON_PLAY]) //..set Play status to play
     {
-        Masterclock.setPlayStatus(true);
+        myClock.set_start();
+        //Masterclock.setPlayStatus(true);
         Serial.println("Play");
         buttonPressed[BUTTON_PLAY] = false;
     }
     if (buttonPressed[BUTTON_STOP]) //..set Play status to stop
     {
-        Masterclock.setPlayStatus(false);
+        myClock.set_stop();
+        sendClock();
+        //Masterclock.setPlayStatus(false);
         for (int i = 0; i < NUM_TRACKS; i++)
         {
             allTracks[i]->internal_clock = 0;
@@ -76,7 +86,7 @@ void buttons_SelectTrack()
             {
                 active_track = i;
                 show_active_track();
-                encoder_function = INPUT_FUNCTIONS_FOR_SEQUENCER;
+                activeScreen = INPUT_FUNCTIONS_FOR_SEQUENCER;
                 change_plugin_row = true;
                 allTracks[active_track]->drawStepSequencerStatic();
                 allTracks[active_track]->draw_stepSequencer_parameters(lastPotRow);
@@ -96,7 +106,7 @@ void buttons_SelectSequencerMode()
             {
                 show_active_track();
                 allTracks[i]->draw_sequencer_modes(allTracks[i]->parameter[SET_SEQ_MODE]);
-                encoder_function = INPUT_FUNCTIONS_FOR_SEQUENCER_MODES;
+                activeScreen = INPUT_FUNCTIONS_FOR_SEQUENCER_MODES;
                 Serial.println("SeqMode selected");
                 // buttonPressed[BUTTON_PLUGIN] = false;
                 buttonPressed[i] = false;
@@ -116,7 +126,7 @@ void buttons_SelectPlugin()
                 show_active_track();
                 change_plugin_row = true;
                 // allTracks[active_track]->draw_MIDI_CC_screen();
-                encoder_function = INPUT_FUNCTIONS_FOR_PLUGIN;
+                activeScreen = INPUT_FUNCTIONS_FOR_PLUGIN;
                 // Serial.printf("plugin selected Track: %d on channel: %d\n", i,allTracks[i]->parameter[SET_MIDICH_OUT] );
                 //  buttonPressed[BUTTON_PLUGIN] = false;
                 buttonPressed[i] = false;
@@ -191,7 +201,7 @@ void buttons_SelectArranger()
 {
     if (buttonPressed[BUTTON_SONG])
     {
-        encoder_function = INPUT_FUNCTIONS_FOR_ARRANGER;
+        activeScreen = INPUT_FUNCTIONS_FOR_ARRANGER;
         unsigned long currentTime = millis();
         if (currentTime - buttonPressStartTime[BUTTON_SONG] >= longPressDuration)
         {
@@ -288,23 +298,19 @@ void buttons_SetNoteOnTick(int x, byte y)
         if (buttonPressed[BUTTON_ENTER])
         {
 
-            allTracks[active_track]->set_note_on_tick();
+            allTracks[active_track]->set_note_on_tick((pixelTouchX - SEQ_GRID_LEFT) / 2, gridTouchY);
+            
             buttonPressed[BUTTON_ENTER] = false;
         }
     }
 }
-void clock_to_notes()
+void clock_to_notes(int _tick)
 {
-    if (Masterclock.is_playing())
+
+    // Serial.println(Masterclock.MIDItick);
+    for (int t = 0; t < NUM_TRACKS; t++)
     {
-        if (Masterclock.clock_is_on_tick)
-        {
-            // Serial.println(Masterclock.MIDItick);
-            for (int t = 0; t < NUM_TRACKS; t++)
-            {
-                allTracks[t]->play_sequencer_mode(Masterclock.MIDItick, Masterclock.start_of_loop, Masterclock.end_of_loop);
-            }
-        }
+        allTracks[t]->play_sequencer_mode(_tick, myClock.startOfLoop, myClock.endOfLoop);
     }
 }
 void input_behaviour()
@@ -314,7 +320,9 @@ void input_behaviour()
                         buttonPressed[BUTTON_SONG] ||
                         buttonPressed[BUTTON_MIXER] ||
                         buttonPressed[BUTTON_FX]);
-
+trellis_start_clock();
+trellis_stop_clock();
+ trellis_set_potRow();
     buttons_SelectTrack();
     buttons_SelectArranger();
     buttons_SelectSequencerMode();
@@ -327,11 +335,12 @@ void input_behaviour()
         buttons_SetPlayStatus();
     }
     // if we are in one of the sequencer pages
-    if (encoder_function == INPUT_FUNCTIONS_FOR_SEQUENCER)
+    if (activeScreen == INPUT_FUNCTIONS_FOR_SEQUENCER)
     {
         buttons_save_track();
         buttons_load_track();
         buttons_set_track_recordState();
+        trellis_SetCursor(14);
         buttons_SetCursor(14);
         buttons_SetNoteOnTick(pixelTouchX, gridTouchY);
 
@@ -345,7 +354,7 @@ void input_behaviour()
         allTracks[active_track]->set_stepSequencer_parameters(lastPotRow);
     }
     // if we are in one of the Arrangerpages
-    if (encoder_function == INPUT_FUNCTIONS_FOR_ARRANGER)
+    if (activeScreen == INPUT_FUNCTIONS_FOR_ARRANGER)
     {
         if (buttonPressed[BUTTON_ROW])
         {
@@ -355,6 +364,7 @@ void input_behaviour()
         }
         buttons_save_all();
         buttons_load_all();
+        trellis_SetCursor(8);
         buttons_SetCursor(8);
 
         switch (lastPotRow)
@@ -367,7 +377,7 @@ void input_behaviour()
             break;
         case 1:
             allTracks[gridTouchY - 1]->set_barVelocity(0, pixelTouchX);
-            Masterclock.set_tempo(1);         // Encoder: 1
+            myClock.set_tempo(1);
             Masterclock.set_start_of_loop(2); // Encoder: 2
             Masterclock.set_end_of_loop(3);   // Encoder: 3
             break;
@@ -380,7 +390,7 @@ void input_behaviour()
             break;
         }
     }
-    if (encoder_function == INPUT_FUNCTIONS_FOR_SEQUENCER_MODES)
+    if (activeScreen == INPUT_FUNCTIONS_FOR_SEQUENCER_MODES)
     {
         if (buttonPressed[BUTTON_ROW])
         {
@@ -397,13 +407,13 @@ void input_behaviour()
             allTracks[active_track]->set_seq_mode_parameters(lastPotRow);
         }
     }
-    if (encoder_function == INPUT_FUNCTIONS_FOR_PLUGIN)
+    if (activeScreen == INPUT_FUNCTIONS_FOR_PLUGIN)
     {
 
         if (allTracks[active_track]->parameter[SET_MIDICH_OUT] <= NUM_MIDI_OUTPUTS)
             allTracks[active_track]->set_MIDI_CC(lastPotRow);
         else if (allTracks[active_track]->parameter[SET_MIDICH_OUT] > NUM_MIDI_OUTPUTS)
-            MasterOut.set_parameters(allTracks[active_track]->parameter[SET_MIDICH_OUT]-49, lastPotRow);
+            MasterOut.set_parameters(allTracks[active_track]->parameter[SET_MIDICH_OUT] - 49, lastPotRow);
         buttonPressed[BUTTON_ROW] = false;
     }
 }
@@ -513,10 +523,10 @@ void drawEnvelope(byte YPos, byte attack, byte decay, byte sustain, byte release
     tft.drawLine(decayEnd + attackEnd, sustainLevel, decayEnd + attackEnd + sustainEnd, sustainLevel, colorS);
     tft.drawLine(decayEnd + attackEnd + sustainEnd, sustainLevel, decayEnd + attackEnd + sustainEnd + releaseEnd, yPos, colorR);
 
-    draw_Value(0,YPos, 14, ypos - 1, 4, 4, attack, colorA, true, false);
-    draw_Value(1,YPos, 16, ypos - 1, 4, 4, decay, colorD, true, false);
-    draw_Value(2,YPos, 14, ypos, 4, 4, sustain, colorS, true, false);
-    draw_Value(3,YPos, 16, ypos, 4, 4, release, colorR, true, false);
+    draw_Value(0, YPos, 14, ypos - 1, 4, 4, attack, colorA, true, false);
+    draw_Value(1, YPos, 16, ypos - 1, 4, 4, decay, colorD, true, false);
+    draw_Value(2, YPos, 14, ypos, 4, 4, sustain, colorS, true, false);
+    draw_Value(3, YPos, 16, ypos, 4, 4, release, colorR, true, false);
 
     old_attackEnd = attackEnd;
     old_decayEnd = decayEnd;
@@ -533,7 +543,7 @@ void draw_Value(byte index, byte lastPRow, byte XPos, byte YPos, byte offest_X, 
     tft.setFont(Arial_8);
     tft.setTextColor(ILI9341_DARKGREY);
     tft.setCursor(xPos + offest_X, yPos + offset_Y);
-    tft.fillRect(xPos+offest_X, yPos+offset_Y, 2 * STEP_FRAME_W, STEP_FRAME_H, ILI9341_DARKGREY);
+    tft.fillRect(xPos + offest_X, yPos + offset_Y, 2 * STEP_FRAME_W, STEP_FRAME_H, ILI9341_DARKGREY);
     // tft.print(old_value[index]);
     if (lastPotRow != lastPRow)
         color = ILI9341_LIGHTGREY;
@@ -555,7 +565,7 @@ void draw_Text(byte index, byte lastPRow, byte XPos, byte YPos, byte offest_X, i
     tft.setFont(Arial_8);
     tft.setTextColor(ILI9341_DARKGREY);
     tft.setCursor(xPos + offest_X, yPos + offset_Y);
-    tft.fillRect(xPos+offest_X, yPos+offset_Y, 2 * STEP_FRAME_W, STEP_FRAME_H, ILI9341_DARKGREY);
+    tft.fillRect(xPos + offest_X, yPos + offset_Y, 2 * STEP_FRAME_W, STEP_FRAME_H, ILI9341_DARKGREY);
     // tft.print(old_value[index]);
     if (lastPotRow != lastPRow)
         color = ILI9341_LIGHTGREY;
@@ -620,7 +630,7 @@ void draw_sequencer_option(byte x, const char *nameshort, int value, byte enc, c
 
     int color;
     byte y = 6 + (enc * 2);
-    if (encoder_function == INPUT_FUNCTIONS_FOR_ARRANGER)
+    if (activeScreen == INPUT_FUNCTIONS_FOR_ARRANGER)
         color = y - 1;
     else
         color = active_track;

@@ -96,10 +96,46 @@ extern elapsedMicros msecsclock;
 #define PRESET_ENCODER 3
 
 #define MAX_OUTPUTS NUM_MIDI_OUTPUTS + NUM_PLUGINS
+// trellis
+#define Y_DIM 8  // number of rows of key
+#define X_DIM 24 // number of columns of keys
+#define TRELLIS_1 9
+#define TRELLIS_2 579
+// See https://www.w3schools.com/colors/colors_picker.asp
+#define TRELLIS_RED 0xFF0000
+#define TRELLIS_ORANGE 0xB34700
+#define TRELLIS_YELLOW 0xFFFF00
+#define TRELLIS_OLIVE 0x66DD00
+#define TRELLIS_GREEN 0x008000
+#define TRELLIS_AQUA 0x00FF66
+#define TRELLIS_TEAL 0x00BFFF
+#define TRELLIS_BLUE 0x0080FF
+#define TRELLIS_NAVY 0x000080
+#define TRELLIS_MAROON 0x800000
+#define TRELLIS_PURPLE 0x800080
+#define TRELLIS_PINK 0xFF66B3
+#define TRELLIS_WHITE 0xFFFFFF
+#define TRELLIS_BLACK 0x000000
+#define TRELLIS_SHOW_SEQMODE 71
+#define TRELLIS_SHOW_SONGMODE 92
+#define TRELLIS_SHOW_PLUGIN 94
+#define TRELLIS_SHOW_SEQUENCER 95
+#define TRELLIS_BUTTON_LEFT 44
+#define TRELLIS_BUTTON_RIGHT 45
+#define TRELLIS_BUTTON_UP 46
+#define TRELLIS_BUTTON_DOWN 47
+#define TRELLIS_POTROW 20
+#define TRELLIS_RECORD 21
+#define TRELLIS_START_CLOCK 22
+#define TRELLIS_STOP_CLOCK 23
+#define TRELLIS_SCREEN_SEQUENCER 0
+#define TRELLIS_SCREEN_SONGPAGE_SELECTION 1
+#define TRELLIS_SCREEN_SONGPAGE_1 10
+#define TRELLIS_SCREEN_SONGPAGE_2 11
 extern int pixelTouchX;
 extern int gridTouchY;
 extern byte lastPotRow;
-extern byte encoder_function;
+extern byte activeScreen;
 extern bool change_plugin_row;
 extern uint16_t tftRamInfoBox[INFO_BOX_WIDTH][INFO_BOX_HEIGTH];
 extern unsigned long currentTime;
@@ -111,10 +147,18 @@ extern bool otherCtrlButtons;
 
 extern int phraseSegmentLength;
 extern const char FLASHMEM *playstate[3];
+extern byte trellisScreen;
+extern int controlColors[16];
+extern int trackColor[9];
+extern int trellisTrackColor[9];
+extern int trellisLedBuffer[X_DIM * Y_DIM];
+extern bool trellisPressed[X_DIM * Y_DIM];
+extern bool trellisReleased[X_DIM * Y_DIM];
+extern bool trellisShowClockPixel[Y_DIM];
 extern char _trackname[20];
 extern const char FLASHMEM *CCnames[129];
 
-extern const char FLASHMEM *channelOutNames[MAX_OUTPUTS+1];
+extern const char FLASHMEM *channelOutNames[MAX_OUTPUTS + 1];
 extern const char FLASHMEM *noteNames[12];
 extern const char FLASHMEM *seqModname[5];
 

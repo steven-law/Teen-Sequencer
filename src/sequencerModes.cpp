@@ -12,7 +12,7 @@ void Track::play_seq_mode0(byte cloock)
         {
             if (!note_is_on[v])
             {
-                Serial.println("send Note");
+                //Serial.println("send Note");
                 noteToPlay[v] = get_active_note(clip_to_play[internal_clock_bar], cloock, v) + noteOffset[internal_clock_bar];
                 byte Velo = get_active_velo(clip_to_play[internal_clock_bar], cloock, v) * (barVelocity[internal_clock_bar] / 127.00);
                 byte StepFX = get_active_stepFX(clip_to_play[internal_clock_bar], cloock, v);

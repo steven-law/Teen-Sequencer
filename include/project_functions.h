@@ -22,7 +22,7 @@ void buttons_load_all();
 void buttons_SelectArranger();
 void buttons_Set_potRow();
 void buttons_SetNoteOnTick(int x, byte y);
-void clock_to_notes();
+void clock_to_notes(int _tick);
 void input_behaviour();
 
 void clearWorkSpace();

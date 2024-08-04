@@ -12,7 +12,7 @@ void Track::set_stepSequencer_parameters(byte row)
         set_coordinateX(0, 0);
         set_coordinateY(1, 0);
 
-        set_stepSequencer_parameter_value(ENCODER_STEP_FX, 0, CCnames[setStepFX], 0, 127);
+        set_stepSequencer_parameter_value(ENCODER_STEP_FX, 0, CCnames[setStepFX], 0, 128);
         set_stepSequencer_parameter_value(3, 0, "Velo", 1, 128);
         break;
     case 1:
@@ -331,20 +331,25 @@ byte Track::get_active_stepFX(byte _clip, byte _tick, byte _voice)
 {
     return this->clip[_clip].tick[_tick].stepFX;
 }
-void Track::set_note_on_tick()
+void Track::set_note_on_tick(int x, int y)
 {
     for (int i = 0; i < parameter[SET_STEP_LENGTH]; i++)
     {
-        sTick = tickStart + i;
+        sTick = x + i;
+        pixelOn_X = (y - SEQ_GRID_TOP);
+        note2set = (y - SEQ_GRID_TOP) + (parameter[SET_OCTAVE] * NOTES_PER_OCTAVE);
         this->check_for_free_voices(sTick, note2set);
-        this->clear_notes_on_tick(sTick);
-        this->draw_note_on_tick(sTick);
+        if (activeScreen == INPUT_FUNCTIONS_FOR_SEQUENCER)
+        {
+            this->clear_notes_on_tick(sTick);
+            this->draw_note_on_tick(sTick);
+        }
     }
 }
 void Track::check_for_free_voices(byte onTick, byte newNote)
 {
-    Serial.printf("newNote: %d\n", newNote);
-    search_free_voice = pixelOn_Y - 1;
+    Serial.printf("newNote: %d onTick: %d\n", newNote, onTick);
+    search_free_voice = pixelOn_X;
     /*
     for (int i = 0; i < MAX_VOICES; i++)
     {
@@ -364,6 +369,7 @@ void Track::check_for_free_voices(byte onTick, byte newNote)
 
         if (get_active_note(parameter[SET_CLIP2_EDIT], onTick, search_free_voice) == newNote)
         {
+
             set_active_note(parameter[SET_CLIP2_EDIT], onTick, search_free_voice, NO_NOTE);
             set_active_velo(parameter[SET_CLIP2_EDIT], onTick, search_free_voice, 0);
             set_active_stepFX(parameter[SET_CLIP2_EDIT], onTick, search_free_voice, 0);
@@ -379,6 +385,7 @@ void Track::check_for_free_voices(byte onTick, byte newNote)
         // setzen neuer Note
         else if (get_active_note(parameter[SET_CLIP2_EDIT], onTick, search_free_voice) == NO_NOTE)
         {
+
             // if (old_cnote != newNote)
             // search_free_voice++;
             set_active_note(parameter[SET_CLIP2_EDIT], onTick, search_free_voice, newNote);
@@ -416,6 +423,26 @@ void Track::check_for_free_voices(byte onTick, byte newNote)
                 }
                 */
     }
+    int color;
+    for (int v = 0; v < MAX_VOICES; v++)
+    {
+
+        if (get_active_note(parameter[SET_CLIP2_EDIT], onTick, v) == NO_NOTE)
+        {
+            color = TRELLIS_BLACK;
+            break;
+        }
+    }
+    for (int v = 0; v < MAX_VOICES; v++)
+    {
+        if (get_active_note(parameter[SET_CLIP2_EDIT], onTick, v) < NO_NOTE)
+        {
+            color = trellisTrackColor[MIDI_channel_in - 1];
+            break;
+        }
+    }
+    trellis_set_buffer(((sTick / 6) + ((MIDI_channel_in - 1) * X_DIM)), color);
+    trellis_show();
     // if (search_free_voice >= MAX_VOICES)
     // search_free_voice = 0;
     // old_cnote = array[parameter[SET_CLIP2_EDIT]][onTick][search_free_voice];
