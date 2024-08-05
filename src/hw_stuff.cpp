@@ -74,17 +74,17 @@ void readMainButtons()
 }
 
 // encoder
-Encoder Enc1(31, 32);
-Encoder Enc2(27, 28);
-Encoder Enc3(24, 25);
-Encoder Enc4(2, 3);
+Encoder Enc1(4, 3);
+Encoder Enc2(29, 28);
+Encoder Enc3(26, 25);
+Encoder Enc4(31, 32);
 Encoder *allEncoders[NUM_ENCODERS]{&Enc1, &Enc2, &Enc3, &Enc4};
 bool enc_moved[NUM_ENCODERS]{0, 0, 0, 0};
 int encoded[NUM_ENCODERS];
 bool enc_button[NUM_ENCODERS];
 long oldEnc[4] = {-999, -999, -999, -999};
 // Encoder Buttons
-const uint8_t BUTTON_PINS[NUM_ENCODERS] = {30, 29, 26, 4};
+const uint8_t BUTTON_PINS[NUM_ENCODERS] = {2, 27, 24, 30};
 Bounce *encButtons = new Bounce[NUM_ENCODERS];
 void encoder_setup(int dly)
 {

@@ -31,7 +31,7 @@ done: look what takes so long to load the song screen
 #include "clock.h"
 #include "Output.h"
 #include "myClock.h"
-#define INT_PIN 33
+#define INT_PIN 41
 #define MIDI_CLOCK 0xF8
 #define MIDI_START 0xFA
 #define MIDI_STOP 0xFC
@@ -107,7 +107,7 @@ void trellis_SetCursor(byte maxY);
 void trellis_show_arranger(int _key);
 void setup()
 {
-  while (!Serial)
+  // while (!Serial)
   {
   }
   //   put your setup code here, to run once:
@@ -557,7 +557,6 @@ void trellis_setup()
     }
   }
 
-
   trellis_static();
 }
 void trellis_set_buffer(int _nr, int color)
@@ -606,7 +605,6 @@ void trellis_static()
 
   trellis.show();
   Serial.println("trellis setup done");
-
 }
 void trellis_show_sequencer(int _key)
 {
@@ -733,7 +731,11 @@ void trellis_set_solo(int _key)
 void trellis_setStepsequencer(int _key)
 {
   if (trellisPressed[TRELLIS_SHOW_SEQUENCER])
+  {
     trellisScreen = TRELLIS_SCREEN_SEQUENCER;
+    if (activeScreen == INPUT_FUNCTIONS_FOR_SEQUENCER)
+      buttonPressed[BUTTON_ENTER] = true;
+  }
   if (trellisScreen == TRELLIS_SCREEN_SEQUENCER)
   {
     if (_key % X_DIM < 16)
