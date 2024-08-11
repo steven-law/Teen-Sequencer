@@ -97,8 +97,7 @@ extern elapsedMicros msecsclock;
 
 #define MAX_OUTPUTS NUM_MIDI_OUTPUTS + NUM_PLUGINS
 // trellis
-#define Y_DIM 8  // number of rows of key
-#define X_DIM 24 // number of columns of keys
+
 #define TRELLIS_1 9
 #define TRELLIS_2 579
 // See https://www.w3schools.com/colors/colors_picker.asp
@@ -120,18 +119,18 @@ extern elapsedMicros msecsclock;
 #define TRELLIS_SHOW_SONGMODE 92
 #define TRELLIS_SHOW_PLUGIN 94
 #define TRELLIS_SHOW_SEQUENCER 95
-#define TRELLIS_BUTTON_LEFT 44
-#define TRELLIS_BUTTON_RIGHT 45
-#define TRELLIS_BUTTON_UP 46
-#define TRELLIS_BUTTON_DOWN 47
-#define TRELLIS_POTROW 20
-#define TRELLIS_RECORD 21
-#define TRELLIS_START_CLOCK 22
-#define TRELLIS_STOP_CLOCK 23
+
 #define TRELLIS_SCREEN_SEQUENCER 0
 #define TRELLIS_SCREEN_SONGPAGE_SELECTION 1
-#define TRELLIS_SCREEN_SONGPAGE_1 10
-#define TRELLIS_SCREEN_SONGPAGE_2 11
+#define TRELLIS_SCREEN_PIANO 2
+#define TRELLIS_SCREEN_ARRANGER_1 10
+#define TRELLIS_SCREEN_ARRANGER_2 11
+#define TRELLIS_SCREEN_STARTUP 99
+#define TRELLIS_CONTROL_X_DIM 4
+#define TRELLIS_CONTROL_Y_DIM 4
+#define TRELLIS_PANEL_Y_DIM 8
+#define TRELLIS_PADS_X_DIM 16
+#define TRELLIS_PADS_Y_DIM 8
 extern int pixelTouchX;
 extern int gridTouchY;
 extern byte lastPotRow;
@@ -151,10 +150,16 @@ extern byte trellisScreen;
 extern int controlColors[16];
 extern int trackColor[9];
 extern int trellisTrackColor[9];
-extern int trellisLedBuffer[X_DIM * Y_DIM];
+extern int trellisControllBuffer[TRELLIS_CONTROL_X_DIM][TRELLIS_CONTROL_Y_DIM];
+extern int trellisPanelBuffer[TRELLIS_CONTROL_X_DIM][TRELLIS_PANEL_Y_DIM];
+extern int trellisArrangerBuffer1[SONGMODE_PAGE_16+1][TRELLIS_PADS_X_DIM][TRELLIS_PADS_Y_DIM];
+extern int trellisStepSeqBuffer[TRELLIS_PADS_X_DIM][TRELLIS_PADS_Y_DIM];
+extern int trellisPianoBuffer[TRELLIS_PADS_X_DIM][TRELLIS_PADS_Y_DIM];
 extern bool trellisPressed[X_DIM * Y_DIM];
 extern bool trellisReleased[X_DIM * Y_DIM];
+extern bool trellisRecall;
 extern bool trellisShowClockPixel[Y_DIM];
+extern byte trellisPianoTrack;
 extern char _trackname[20];
 extern const char FLASHMEM *CCnames[129];
 

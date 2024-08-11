@@ -22,6 +22,20 @@ extern ILI9341_t3n tft;
 extern uint16_t tft_frame_buffer[ILI9341_TFTWIDTH * ILI9341_TFTHEIGHT];
 #define ENABLE_ILI9341_FRAMEBUFFER
 extern void tft_setup(int dly);
+//trellis
+#define Y_DIM 8  // number of rows of key
+#define X_DIM 24 // number of columns of keys
+#define TRELLIS_BUTTON_LEFT 44
+#define TRELLIS_BUTTON_RIGHT 45
+#define TRELLIS_BUTTON_UP 46
+#define TRELLIS_BUTTON_DOWN 47
+#define TRELLIS_POTROW 20
+#define TRELLIS_BUTTON_RECORD 21
+#define TRELLIS_START_CLOCK 22
+#define TRELLIS_STOP_CLOCK 23
+#define TRELLIS_BUTTON_ENTER 68
+#define TRELLIS_BUTTON_SHIFT 69
+#define TRELLIS_BUTTON_PIANO 70
 
 // buttons
 #define ROWS 4 // four rows
@@ -30,6 +44,7 @@ extern void tft_setup(int dly);
 extern char keys[ROWS][COLS];
 extern byte rowPins[ROWS]; // connect to the row pinouts of the keypad
 extern byte colPins[COLS]; // connect to the column pinouts of the keypad
+extern bool trellisPressed[X_DIM * Y_DIM];
 extern Adafruit_Keypad kpd;
 #define BUTTON_LEFT 0
 #define BUTTON_RIGHT 1

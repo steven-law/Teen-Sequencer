@@ -73,7 +73,7 @@ void Plugin_2::noteOff(byte notePlayed, byte voice)
 void Plugin_2::set_parameters(byte row)
 {
     draw_plugin();
-    if (!buttonPressed[BUTTON_SHIFT])
+    if (!trellisPressed[TRELLIS_BUTTON_SHIFT])
     {
         if (row == 0)
         {
@@ -103,7 +103,7 @@ void Plugin_2::set_parameters(byte row)
             // set_envelope_release(3, 3, "Release", 0, 2000);
         }
     }
-    if (buttonPressed[BUTTON_SHIFT])
+    if (trellisPressed[TRELLIS_BUTTON_SHIFT])
     {
         set_presetNr();
     }

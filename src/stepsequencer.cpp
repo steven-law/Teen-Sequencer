@@ -138,7 +138,7 @@ void Track::draw_MIDI_CC(byte XPos, byte YPos)
 void Track::set_MIDI_CC(byte row)
 {
     draw_MIDI_CC_screen();
-    if (!buttonPressed[BUTTON_SHIFT] && !buttonPressed[BUTTON_ENTER])
+    if (!trellisPressed[TRELLIS_BUTTON_SHIFT] && !trellisPressed[TRELLIS_BUTTON_ENTER])
     {
         if (row == 0)
         {
@@ -169,7 +169,7 @@ void Track::set_MIDI_CC(byte row)
             set_CCvalue(3, 3);
         }
     }
-    if (buttonPressed[BUTTON_SHIFT])
+    if (trellisPressed[TRELLIS_BUTTON_SHIFT])
     {
         if (row == 0)
         {
@@ -200,7 +200,7 @@ void Track::set_MIDI_CC(byte row)
             set_CCchannel(3, 3);
         }
     }
-    if (buttonPressed[BUTTON_ENTER])
+    if (trellisPressed[TRELLIS_BUTTON_ENTER])
     {
         set_edit_presetNr_ccChannel(2, 0);
         set_edit_presetNr_ccValue(3, 0);
@@ -441,8 +441,8 @@ void Track::check_for_free_voices(byte onTick, byte newNote)
             break;
         }
     }
-    trellis_set_buffer(((sTick / 6) + ((MIDI_channel_in - 1) * X_DIM)), color);
-    trellis_show();
+    trellis_set_stepSeq_buffer((sTick / 6) , (MIDI_channel_in - 1) , color);
+    //trellis_show();
     // if (search_free_voice >= MAX_VOICES)
     // search_free_voice = 0;
     // old_cnote = array[parameter[SET_CLIP2_EDIT]][onTick][search_free_voice];

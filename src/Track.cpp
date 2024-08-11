@@ -23,7 +23,7 @@ void Track::save_track()
 {
     SD.begin(BUILTIN_SDCARD);
     // Serial.println("in save mode:");
-    buttonPressed[BUTTON_ENTER] = false;
+    trellisPressed[TRELLIS_BUTTON_ENTER] = false;
 
     sprintf(_trackname, "track%d.txt\0", MIDI_channel_in);
     // Serial.println(_trackname);
@@ -201,7 +201,7 @@ void Track::play_sequencer_mode(byte cloock, byte start, byte end)
     //  Serial.println(internal_clock_bar);
     if (internal_clock_is_on)
     {
-        if (!muted || soloed)
+        if (!muted && !muteThruSolo)
         {
             if (parameter[SET_SEQ_MODE] == 0)
             {

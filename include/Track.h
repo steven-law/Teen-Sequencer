@@ -72,7 +72,7 @@ void sendNoteOn(byte Note, byte Velo, byte Channel);
 void sendNoteOff(byte Note, byte Velo, byte Channel);
 void sendControlChange(byte control, byte value, byte channel);
 void trellis_show_clockbar(byte trackNr, byte step);
-void trellis_set_buffer(int _nr, int color);
+void trellis_set_stepSeq_buffer(int _x, int _y, int color);
 void trellis_show();
 // extern midi::MidiInterface<midi::SerialMIDI<HardwareSerial>> MIDI1;
 class Track
@@ -84,8 +84,10 @@ public:
     byte parameter[16]{0, 0, 128, 99, 96, 1, 3, 4, 0, 0, 0, 0};
     bool muted;
     bool soloed;
+    bool muteThruSolo;
     int internal_clock = 0;
     int internal_clock_bar = 0;
+    byte clip_to_play[256];
     Track(ILI9341_t3n *display, byte Y)
     {
         // MIDI1.setHandleNoteOn(myNoteOn);
@@ -156,6 +158,8 @@ public:
     void save_track();
     void load_track();
     // songmode
+    void draw_clip_to_play(byte n, byte b);
+    void draw_arrangment_line(byte n, byte b);
     void draw_arrangment_lines(byte n, byte b);
     void draw_arranger_parameters(byte lastProw);
     void set_clip_to_play(byte n, byte b);
@@ -204,7 +208,7 @@ private:
     int pixelOn_Y;
     int gridX_4_save;
     byte gridY_4_save;
-    byte clip_to_play[256];
+    
     int noteOffset[256];
     byte barVelocity[256];
     byte sTick;
@@ -303,11 +307,11 @@ private:
 
     // clip to play
 
-    void draw_clip_to_play(byte n, byte b);
+    
     void drawsongmodepageselector();
     void gridSongMode(int songpageNumber);
 
-    void draw_arrangment_line(byte n, byte b);
+    
     void draw_clipNr_arranger(byte n, byte b);
     byte get_clip_to_play(byte when);
     // note offset / note transpose
