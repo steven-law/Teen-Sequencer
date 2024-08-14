@@ -25,7 +25,7 @@ int trellisTrackColor[9]{TRELLIS_RED, TRELLIS_PURPLE, TRELLIS_OLIVE, TRELLIS_YEL
 int trellisControllBuffer[TRELLIS_CONTROL_X_DIM][TRELLIS_CONTROL_Y_DIM];
 int trellisPanelBuffer[TRELLIS_CONTROL_X_DIM][TRELLIS_PANEL_Y_DIM];
 int trellisArrangerBuffer1[SONGMODE_PAGE_16+1][TRELLIS_PADS_X_DIM][TRELLIS_PADS_Y_DIM];
-int trellisStepSeqBuffer[TRELLIS_PADS_X_DIM][TRELLIS_PADS_Y_DIM];
+int trellisStepSeqBuffer[8][TRELLIS_PADS_X_DIM][TRELLIS_PADS_Y_DIM];
 int trellisPianoBuffer[TRELLIS_PADS_X_DIM][TRELLIS_PADS_Y_DIM];
 bool trellisPressed[X_DIM * Y_DIM];
 bool trellisReleased[X_DIM * Y_DIM];
@@ -56,7 +56,8 @@ const char FLASHMEM *channelOutNames[MAX_OUTPUTS + 1]{"none", "SR1", "SR2", "SR3
                                                       "UD1", "UD2", "UD3", "UD4", "UD5", "UD6", "UD7", "UD8",
                                                       "UD9", "UD10", "UD11", "UD12", "UD13", "UD14", "UD15", "UD16",
                                                       "Ua1", "Ua2", "Ua3", "Ua4", "Ua5", "Ua6", "Ua7", "Ua8",
-                                                      "Ua9", "Ua10", "Ua11", "Ua12", "Ua13", "Ua14", "Ua15", "Ua16", "1OSC", "FM2"};
+                                                      "Ua9", "Ua10", "Ua11", "Ua12", "Ua13", "Ua14", "Ua15", "Ua16", 
+                                                      "Strg","1OSC", "FM2","mDrm","Drum","Draw", "Boom", "dTun"};
 
 const char FLASHMEM *noteNames[12]{"C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"};
 const char FLASHMEM *seqModname[5]{"Step", "Rand", "Drop", "BitRd", "PotS"};

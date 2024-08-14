@@ -40,38 +40,8 @@ bool buttonPressed[NUM_BUTTONS];
 unsigned long buttonPressStartTime[NUM_BUTTONS] = {0}; // Zeitpunkt, zu dem jeder Button gedrückt wurde
 const unsigned long longPressDuration = 600;           // 1 Sekunde in Millisekunden
 
-void button_setup(int dly)
-{
-    kpd.begin();
-    Serial.println("Initializing Keypad");
-    tft.println("Initializing Keypad");
-    tft.updateScreenAsync();
-    delay(dly);
-}
-void readMainButtons()
-{
-    kpd.tick();
-    while (kpd.available())
-    {
-        if (millis() % 10 == 0)
-        {
-            keypadEvent key = kpd.read();
-            if (key.bit.EVENT == KEY_JUST_PRESSED)
-            {
-                int pressedKey = (int)(key.bit.KEY - 65);
-                buttonPressed[pressedKey] = true;
-                buttonPressStartTime[pressedKey] = millis();
-                Serial.printf("pressed Key: %d\n", pressedKey);
-            }
 
-            if (key.bit.EVENT == KEY_JUST_RELEASED)
-            {
-                int pressedKey = (int)(key.bit.KEY - 65);
-                buttonPressed[pressedKey] = false;
-            }
-        }
-    }
-}
+
 
 // encoder
 Encoder Enc1(4, 3);
@@ -144,7 +114,7 @@ void readEncoders()
     }
     if (encButtons[0].rose())
     {
-        //trellisPressed[TRELLIS_BUTTON_ENTER] = false;
+        trellisPressed[TRELLIS_BUTTON_ENTER] = false;
         // Serial.printf("EncButton: %d\n", i);
     }
 }

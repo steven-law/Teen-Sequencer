@@ -55,14 +55,14 @@ public:
         //patchCord[pci++] = new AudioConnection(plugin_3.modulator[0], 0, peak3, 0);
         //patchCord[pci++] = new AudioConnection(plugin_2.waveform[0], 0, peak2, 0);
 
-        //patchCord[pci++] = new AudioConnection(plugin_1.SongVol, 0, dry_1, 0);
+        patchCord[pci++] = new AudioConnection(plugin_1.SongVol, 0, dry_1, 0);
         patchCord[pci++] = new AudioConnection(plugin_2.SongVol, 0, dry_2, 0);
         patchCord[pci++] = new AudioConnection(plugin_3.SongVol, 0, dry_3, 0);
-        //patchCord[pci++] = new AudioConnection(plugin_4.SongVol, 0, dry_4, 0);
-        //patchCord[pci++] = new AudioConnection(plugin_5.SongVol, 0, dry_5, 0);
-        //patchCord[pci++] = new AudioConnection(plugin_6.SongVol, 0, dry_6, 0);
-        //patchCord[pci++] = new AudioConnection(plugin_7.SongVol, 0, dry_7, 0);
-        //patchCord[pci++] = new AudioConnection(plugin_8.SongVol, 0, dry_8, 0);
+        patchCord[pci++] = new AudioConnection(plugin_4.SongVol, 0, dry_4, 0);
+        patchCord[pci++] = new AudioConnection(plugin_5.SongVol, 0, dry_5, 0);
+        patchCord[pci++] = new AudioConnection(plugin_6.SongVol, 0, dry_6, 0);
+        patchCord[pci++] = new AudioConnection(plugin_7.SongVol, 0, dry_7, 0);
+        patchCord[pci++] = new AudioConnection(plugin_8.SongVol, 0, dry_8, 0);
         patchCord[pci++] = new AudioConnection(dry_1, 0, dry_mixer, 0);
         patchCord[pci++] = new AudioConnection(dry_2, 0, dry_mixer, 1);
         patchCord[pci++] = new AudioConnection(dry_3, 0, dry_mixer, 2);
@@ -86,6 +86,9 @@ public:
         dry_mixer.gain(2, 1);
         dry_mixer.gain(3, 1);
         dry_mixer.gain(4, 1);
+        dry_mixer.gain(5, 1);
+        dry_mixer.gain(6, 1);
+        dry_mixer.gain(7, 1);
 
         endmixer.gain(0, 1);
         endmixer.gain(1, 1);

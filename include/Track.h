@@ -73,6 +73,7 @@ void sendNoteOff(byte Note, byte Velo, byte Channel);
 void sendControlChange(byte control, byte value, byte channel);
 void trellis_show_clockbar(byte trackNr, byte step);
 void trellis_set_stepSeq_buffer(int _x, int _y, int color);
+void trellis_set_arranger_buffer(int _page, int _x, int _y, int color);
 void trellis_show();
 // extern midi::MidiInterface<midi::SerialMIDI<HardwareSerial>> MIDI1;
 class Track
@@ -82,6 +83,16 @@ public:
     // Stepsequencer
     bool recordState = false;
     byte parameter[16]{0, 0, 128, 99, 96, 1, 3, 4, 0, 0, 0, 0};
+     byte mixGainPot=127;
+    float mixGain = 1;
+    byte mixDryPot;
+    float mixDry = 1;
+    byte mixFX1Pot;
+    float mixFX1 = 0;
+    byte mixFX2Pot;
+    float mixFX2 = 0;
+    byte mixFX3Pot;
+    float mixFX3 = 0;
     bool muted;
     bool soloed;
     bool muteThruSolo;

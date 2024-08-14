@@ -25,18 +25,33 @@ extern void tft_setup(int dly);
 //trellis
 #define Y_DIM 8  // number of rows of key
 #define X_DIM 24 // number of columns of keys
-#define TRELLIS_BUTTON_LEFT 44
-#define TRELLIS_BUTTON_RIGHT 45
-#define TRELLIS_BUTTON_UP 46
-#define TRELLIS_BUTTON_DOWN 47
 #define TRELLIS_POTROW 20
 #define TRELLIS_BUTTON_RECORD 21
 #define TRELLIS_START_CLOCK 22
 #define TRELLIS_STOP_CLOCK 23
+
+#define TRELLIS_BUTTON_LEFT 44
+#define TRELLIS_BUTTON_RIGHT 45
+#define TRELLIS_BUTTON_UP 46
+#define TRELLIS_BUTTON_DOWN 47
+
 #define TRELLIS_BUTTON_ENTER 68
 #define TRELLIS_BUTTON_SHIFT 69
 #define TRELLIS_BUTTON_PIANO 70
+#define TRELLIS_BUTTON_SEQMODE 71
 
+#define TRELLIS_BUTTON_ARRANGER 92
+#define TRELLIS_BUTTON_MIXER 93
+#define TRELLIS_BUTTON_PLUGIN 94
+#define TRELLIS_BUTTON_SEQUENCER 95
+
+#define TRELLIS_SCREEN_SEQUENCER 0
+#define TRELLIS_SCREEN_SONGPAGE_SELECTION 1
+#define TRELLIS_SCREEN_PIANO 2
+#define TRELLIS_SCREEN_MIXER 3
+#define TRELLIS_SCREEN_ARRANGER_1 10
+#define TRELLIS_SCREEN_ARRANGER_2 11
+#define TRELLIS_SCREEN_STARTUP 99
 // buttons
 #define ROWS 4 // four rows
 #define COLS 4 // four columns
@@ -68,8 +83,6 @@ extern bool buttonPressed[NUM_BUTTONS];
 extern unsigned long buttonPressStartTime[NUM_BUTTONS] ;  // Zeitpunkt, zu dem jeder Button gedrückt wurde
 extern const unsigned long longPressDuration;  // 1 Sekunde in Millisekunden
 
-extern void button_setup(int dly);
-extern void readMainButtons();
 
 // encoder
 #define NUM_ENCODERS 4

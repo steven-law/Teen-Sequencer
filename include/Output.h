@@ -48,6 +48,7 @@ public:
         {
             allPlugins[i]->setup();
         }
+        Serial.println("masterOut setup done");
     }
     void noteOn(byte note, byte velo, byte _channel, byte voice)
     {

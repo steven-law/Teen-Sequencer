@@ -130,6 +130,16 @@ void Track::load_track()
                 this->clip[c].tick[t].stepFX = myFile.read();
             }
         }
+        for (int i = 0; i < MAX_TICKS; i++)
+        {
+            for (int v = 0; v < MAX_VOICES; v++)
+            {
+                if (clip[parameter[SET_CLIP2_EDIT]].tick[i].voice[v] < NO_NOTE)
+                {
+                    trellis_set_stepSeq_buffer((i / 6), (MIDI_channel_in - 1), trellisTrackColor[MIDI_channel_in - 1]);
+                }
+            }
+        }
         for (int t = 0; t <= MAX_TICKS; t++)
         {
             Serial.printf("load track: %d, tick: %d, note: %d, channel out; %d\n", MIDI_channel_in, t, this->clip[0].tick[t].voice[0], parameter[SET_MIDICH_OUT]);
@@ -143,6 +153,8 @@ void Track::load_track()
             barVelocity[i] = myFile.read();
             play_presetNr_ccChannel[i] = myFile.read();
             play_presetNr_ccValue[i] = myFile.read();
+            if (clip_to_play[i] <= NUM_USER_CLIPS)
+                trellis_set_arranger_buffer((i / 16), i % 16, (MIDI_channel_in - 1), trellisTrackColor[MIDI_channel_in - 1]+ (clip_to_play[i] * 20));
         }
         // Serial.println("song loaded:");
 
@@ -184,8 +196,8 @@ void Track::play_sequencer_mode(byte cloock, byte start, byte end)
     {
         internal_clock++;
         internal_clock_is_on = true;
-       // if (internal_clock % 6 == 0)
-            //trellis_show_clockbar(MIDI_channel_in, internal_clock / 6);
+        // if (internal_clock % 6 == 0)
+        // trellis_show_clockbar(MIDI_channel_in, internal_clock / 6);
     }
     else
         internal_clock_is_on = false;
@@ -285,6 +297,7 @@ void Track::record_noteOff(byte Note, byte Velo, byte Channel)
         {
             clip[parameter[SET_CLIP2_EDIT]].tick[i].voice[recordVoice] = Note;
             clip[parameter[SET_CLIP2_EDIT]].tick[i].velo[recordVoice] = recordVelocity[recordVoice];
+            trellis_set_stepSeq_buffer((i / 6), (MIDI_channel_in - 1), trellisTrackColor[MIDI_channel_in - 1]);
         }
     }
 }

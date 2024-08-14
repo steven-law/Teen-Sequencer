@@ -39,14 +39,14 @@ public:
     {
         int pci = 0; // used only for adding new patchcords
 
-        //patchCord[pci++] = new AudioConnection(plugin_1.SongVol, 0, pl_1, 0);
+        patchCord[pci++] = new AudioConnection(plugin_1.SongVol, 0, pl_1, 0);
         patchCord[pci++] = new AudioConnection(plugin_2.SongVol, 0, pl_2, 0);
         patchCord[pci++] = new AudioConnection(plugin_3.SongVol, 0, pl_3, 0);
-        //patchCord[pci++] = new AudioConnection(plugin_4.SongVol, 0, pl_4, 0);
-        //patchCord[pci++] = new AudioConnection(plugin_5.SongVol, 0, pl_5, 0);
-        //patchCord[pci++] = new AudioConnection(plugin_6.SongVol, 0, pl_6, 0);
-        //patchCord[pci++] = new AudioConnection(plugin_7.SongVol, 0, pl_7, 0);
-        //patchCord[pci++] = new AudioConnection(plugin_8.SongVol, 0, pl_8, 0);
+        patchCord[pci++] = new AudioConnection(plugin_4.SongVol, 0, pl_4, 0);
+        patchCord[pci++] = new AudioConnection(plugin_5.SongVol, 0, pl_5, 0);
+        patchCord[pci++] = new AudioConnection(plugin_6.SongVol, 0, pl_6, 0);
+        patchCord[pci++] = new AudioConnection(plugin_7.SongVol, 0, pl_7, 0);
+        patchCord[pci++] = new AudioConnection(plugin_8.SongVol, 0, pl_8, 0);
         patchCord[pci++] = new AudioConnection(pl_1, 0, FX_mixer, 0);
         patchCord[pci++] = new AudioConnection(pl_2, 0, FX_mixer, 1);
         patchCord[pci++] = new AudioConnection(pl_3, 0, FX_mixer, 2);

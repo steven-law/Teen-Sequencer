@@ -28,6 +28,7 @@ byte PluginControll::get_Potentiometer(byte XPos, byte YPos, const char *name)
     int n = XPos + (YPos * NUM_ENCODERS);
     potentiometer[presetNr][n] = constrain(potentiometer[presetNr][n] + encoded[XPos], 0, MIDI_CC_RANGE);
     drawPot(XPos, YPos, potentiometer[presetNr][n], name);
+    //Serial.println(potentiometer[presetNr][n]);
     return potentiometer[presetNr][n];
 }
 

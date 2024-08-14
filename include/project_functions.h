@@ -34,6 +34,7 @@ void show_active_track();
 void show_active_songpage();
 void drawsongmodepageselector();
 void gridSongMode(int songpageNumber);
+void drawActiveRect(int xPos, byte yPos, byte xsize, byte ysize, bool state, const char *name, int color);
 void draw_sequencer_option(byte x, const char *nameshort, int value, byte enc, const char *pluginName);
 
 void startUpScreen();
