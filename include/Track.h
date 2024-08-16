@@ -63,7 +63,7 @@ extern bool enc_moved[4];
 extern int encoded[4];
 extern int encoder_colour[4];
 extern bool change_plugin_row;
-extern byte encoder_function;
+extern byte activeScreen;
 extern int pixelTouchX;
 extern int gridTouchY;
 extern byte active_track;
@@ -71,6 +71,10 @@ extern byte arrangerpage;
 void sendNoteOn(byte Note, byte Velo, byte Channel);
 void sendNoteOff(byte Note, byte Velo, byte Channel);
 void sendControlChange(byte control, byte value, byte channel);
+void trellis_show_clockbar(byte trackNr, byte step);
+void trellis_set_stepSeq_buffer(int _x, int _y, int color);
+void trellis_set_arranger_buffer(int _page, int _x, int _y, int color);
+void trellis_show();
 // extern midi::MidiInterface<midi::SerialMIDI<HardwareSerial>> MIDI1;
 class Track
 {
@@ -79,9 +83,22 @@ public:
     // Stepsequencer
     bool recordState = false;
     byte parameter[16]{0, 0, 128, 99, 96, 1, 3, 4, 0, 0, 0, 0};
+     byte mixGainPot=127;
+    float mixGain = 1;
+    byte mixDryPot;
+    float mixDry = 1;
+    byte mixFX1Pot;
+    float mixFX1 = 0;
+    byte mixFX2Pot;
+    float mixFX2 = 0;
+    byte mixFX3Pot;
+    float mixFX3 = 0;
     bool muted;
+    bool soloed;
+    bool muteThruSolo;
     int internal_clock = 0;
     int internal_clock_bar = 0;
+    byte clip_to_play[256];
     Track(ILI9341_t3n *display, byte Y)
     {
         // MIDI1.setHandleNoteOn(myNoteOn);
@@ -136,7 +153,7 @@ public:
     void set_stepSequencer_parameters(byte row);
     void draw_stepSequencer_parameters(byte row);
 
-    void set_note_on_tick();
+    void set_note_on_tick(int x, int y);
     void draw_notes_in_grid();
     void draw_sequencer_modes(byte mode);
     void set_recordState(bool _status);
@@ -152,6 +169,8 @@ public:
     void save_track();
     void load_track();
     // songmode
+    void draw_clip_to_play(byte n, byte b);
+    void draw_arrangment_line(byte n, byte b);
     void draw_arrangment_lines(byte n, byte b);
     void draw_arranger_parameters(byte lastProw);
     void set_clip_to_play(byte n, byte b);
@@ -162,6 +181,8 @@ public:
     //
     void play_sequencer_mode(byte cloock, byte start, byte end);
     void set_seq_mode_parameters(byte row);
+
+    byte get_active_note(byte _clip, byte _tick, byte _voice);
 
 private:
     void play_seq_mode0(byte cloock);
@@ -198,7 +219,7 @@ private:
     int pixelOn_Y;
     int gridX_4_save;
     byte gridY_4_save;
-    byte clip_to_play[256];
+    
     int noteOffset[256];
     byte barVelocity[256];
     byte sTick;
@@ -243,7 +264,7 @@ private:
 
     byte mute_norm_solo_pot = 1;
 
-    bool soloed;
+    
 
     // sequencer Modes
 
@@ -274,7 +295,7 @@ private:
 
     // sequencer note input stuff
     void set_active_note(byte _clip, byte _tick, byte _voice, byte _note);
-    byte get_active_note(byte _clip, byte _tick, byte _voice);
+    
     void set_active_velo(byte _clip, byte _tick, byte _voice, byte _velo);
     byte get_active_velo(byte _clip, byte _tick, byte _voice);
     void set_active_stepFX(byte _clip, byte _tick, byte _voice, byte _stepFX);
@@ -297,11 +318,11 @@ private:
 
     // clip to play
 
-    void draw_clip_to_play(byte n, byte b);
+    
     void drawsongmodepageselector();
     void gridSongMode(int songpageNumber);
 
-    void draw_arrangment_line(byte n, byte b);
+    
     void draw_clipNr_arranger(byte n, byte b);
     byte get_clip_to_play(byte when);
     // note offset / note transpose

@@ -37,54 +37,24 @@ byte rowPins[ROWS] = {37, 36, 35, 34}; // connect to the row pinouts of the keyp
 byte colPins[COLS] = {41, 38, 39, 40}; // connect to the column pinouts of the keypad
 Adafruit_Keypad kpd = Adafruit_Keypad(makeKeymap(keys), rowPins, colPins, ROWS, COLS);
 bool buttonPressed[NUM_BUTTONS];
-unsigned long buttonPressStartTime[NUM_BUTTONS] = {0};  // Zeitpunkt, zu dem jeder Button gedrückt wurde
-const unsigned long longPressDuration = 600;  // 1 Sekunde in Millisekunden
+unsigned long buttonPressStartTime[NUM_BUTTONS] = {0}; // Zeitpunkt, zu dem jeder Button gedrückt wurde
+const unsigned long longPressDuration = 600;           // 1 Sekunde in Millisekunden
 
-void button_setup(int dly)
-{
-    kpd.begin();
-    Serial.println("Initializing Keypad");
-    tft.println("Initializing Keypad");
-    tft.updateScreenAsync();
-    delay(dly);
-}
-void readMainButtons()
-{
-    kpd.tick();
-    while (kpd.available())
-    {
-        if (millis() % 10 == 0)
-        {
-            keypadEvent key = kpd.read();
-            if (key.bit.EVENT == KEY_JUST_PRESSED)
-            {
-                int pressedKey = (int)(key.bit.KEY - 65);
-                buttonPressed[pressedKey] = true;
-                buttonPressStartTime[pressedKey] = millis();
-                Serial.printf("pressed Key: %d\n", pressedKey);
-            }
 
-            if (key.bit.EVENT == KEY_JUST_RELEASED)
-            {
-                int pressedKey = (int)(key.bit.KEY - 65);
-                buttonPressed[pressedKey] = false;
-            }
-        }
-    }
-}
+
 
 // encoder
-Encoder Enc1(31, 32);
-Encoder Enc2(27, 28);
-Encoder Enc3(24, 25);
-Encoder Enc4(2, 3);
+Encoder Enc1(4, 3);
+Encoder Enc2(29, 28);
+Encoder Enc3(26, 25);
+Encoder Enc4(31, 32);
 Encoder *allEncoders[NUM_ENCODERS]{&Enc1, &Enc2, &Enc3, &Enc4};
 bool enc_moved[NUM_ENCODERS]{0, 0, 0, 0};
 int encoded[NUM_ENCODERS];
 bool enc_button[NUM_ENCODERS];
 long oldEnc[4] = {-999, -999, -999, -999};
 // Encoder Buttons
-const uint8_t BUTTON_PINS[NUM_ENCODERS] = {30, 29, 26, 4};
+const uint8_t BUTTON_PINS[NUM_ENCODERS] = {2, 27, 24, 30};
 Bounce *encButtons = new Bounce[NUM_ENCODERS];
 void encoder_setup(int dly)
 {
@@ -127,15 +97,25 @@ void readEncoders()
             enc_moved[i] = true;
             encoded[i] = encMultiplier[i];
             oldEnc[i] = newEnc[i];
-            //Serial.printf("Encoder%d: %d mult: %d\n", i, encoded[i], encMultiplier[i]);
+            // Serial.printf("Encoder%d: %d mult: %d\n", i, encoded[i], encMultiplier[i]);
         }
         if (newEnc[i] < oldEnc[i])
         {
             enc_moved[i] = true;
             encoded[i] = -encMultiplier[i];
             oldEnc[i] = newEnc[i];
-            //Serial.printf("Encoder%d: %d mult: %d\n", i, encoded[i], encMultiplier[i]);
+            // Serial.printf("Encoder%d: %d mult: %d\n", i, encoded[i], encMultiplier[i]);
         }
+    }
+    if (encButtons[0].fell())
+    {
+        trellisPressed[TRELLIS_BUTTON_ENTER] = true;
+        // Serial.printf("EncButton: %d\n", i);
+    }
+    if (encButtons[0].rose())
+    {
+        trellisPressed[TRELLIS_BUTTON_ENTER] = false;
+        // Serial.printf("EncButton: %d\n", i);
     }
 }
 
@@ -154,4 +134,3 @@ void readMIDI()
 {
     usbMIDI.read();
 }
-

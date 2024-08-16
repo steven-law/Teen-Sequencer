@@ -8,10 +8,10 @@ void Track::update(int PixelX, byte gridY)
     // MIDI1.read();
     if (PixelX > SEQ_GRID_LEFT && PixelX < 14 * STEP_FRAME_W && gridY >= 1 && gridY < 13)
     {
-        note2set = (gridY - SEQ_GRID_TOP) + (parameter[SET_OCTAVE] * NOTES_PER_OCTAVE);
-        tickStart = (PixelX - SEQ_GRID_LEFT) / 2;
-        pixelOn_X = PixelX;
-        pixelOn_Y = gridY;
+        // note2set = (gridY - SEQ_GRID_TOP) + (parameter[SET_OCTAVE] * NOTES_PER_OCTAVE);
+        // tickStart = (PixelX - SEQ_GRID_LEFT) / 2;
+        // pixelOn_X = PixelX;
+        // pixelOn_Y = gridY;
     }
     bar_to_edit = ((PixelX - SEQ_GRID_LEFT) / STEP_FRAME_W) + (BARS_PER_PAGE * (arrangerpage));
     gridX_4_save = PixelX / STEP_FRAME_W;
@@ -23,7 +23,7 @@ void Track::save_track()
 {
     SD.begin(BUILTIN_SDCARD);
     // Serial.println("in save mode:");
-    buttonPressed[BUTTON_ENTER] = false;
+    trellisPressed[TRELLIS_BUTTON_ENTER] = false;
 
     sprintf(_trackname, "track%d.txt\0", MIDI_channel_in);
     // Serial.println(_trackname);
@@ -130,6 +130,16 @@ void Track::load_track()
                 this->clip[c].tick[t].stepFX = myFile.read();
             }
         }
+        for (int i = 0; i < MAX_TICKS; i++)
+        {
+            for (int v = 0; v < MAX_VOICES; v++)
+            {
+                if (clip[parameter[SET_CLIP2_EDIT]].tick[i].voice[v] < NO_NOTE)
+                {
+                    trellis_set_stepSeq_buffer((i / 6), (MIDI_channel_in - 1), trellisTrackColor[MIDI_channel_in - 1]);
+                }
+            }
+        }
         for (int t = 0; t <= MAX_TICKS; t++)
         {
             Serial.printf("load track: %d, tick: %d, note: %d, channel out; %d\n", MIDI_channel_in, t, this->clip[0].tick[t].voice[0], parameter[SET_MIDICH_OUT]);
@@ -143,6 +153,8 @@ void Track::load_track()
             barVelocity[i] = myFile.read();
             play_presetNr_ccChannel[i] = myFile.read();
             play_presetNr_ccValue[i] = myFile.read();
+            if (clip_to_play[i] <= NUM_USER_CLIPS)
+                trellis_set_arranger_buffer((i / 16), i % 16, (MIDI_channel_in - 1), trellisTrackColor[MIDI_channel_in - 1]+ (clip_to_play[i] * 20));
         }
         // Serial.println("song loaded:");
 
@@ -184,6 +196,8 @@ void Track::play_sequencer_mode(byte cloock, byte start, byte end)
     {
         internal_clock++;
         internal_clock_is_on = true;
+        // if (internal_clock % 6 == 0)
+        // trellis_show_clockbar(MIDI_channel_in, internal_clock / 6);
     }
     else
         internal_clock_is_on = false;
@@ -199,7 +213,7 @@ void Track::play_sequencer_mode(byte cloock, byte start, byte end)
     //  Serial.println(internal_clock_bar);
     if (internal_clock_is_on)
     {
-        if (!muted || soloed)
+        if (!muted && !muteThruSolo)
         {
             if (parameter[SET_SEQ_MODE] == 0)
             {
@@ -251,7 +265,7 @@ void Track::draw_sequencer_modes(byte mode)
 
 void Track::noteOn(byte Note, byte Velo, byte Channel)
 {
-    Serial.printf("sending noteOn: %d, velo: %d channel: %d\n", Note, Velo, Channel);
+    // Serial.printf("sending noteOn: %d, velo: %d channel: %d\n", Note, Velo, Channel);
     sendNoteOn(Note, Velo, Channel);
     // MIDI1.sendNoteOn(Note, Velo, Channel);
     // usbMIDI.sendNoteOn(Note, Velo, Channel);
@@ -259,7 +273,7 @@ void Track::noteOn(byte Note, byte Velo, byte Channel)
 }
 void Track::noteOff(byte Note, byte Velo, byte Channel)
 {
-    Serial.printf("sending noteOff: %d, velo: %d channel: %d\n", Note, Velo, Channel);
+    // Serial.printf("sending noteOff: %d, velo: %d channel: %d\n", Note, Velo, Channel);
     sendNoteOff(Note, Velo, Channel);
     // MIDI1.sendNoteOn(Note, Velo, Channel);
     // usbMIDI.sendNoteOn(Note, Velo, Channel);
@@ -283,6 +297,7 @@ void Track::record_noteOff(byte Note, byte Velo, byte Channel)
         {
             clip[parameter[SET_CLIP2_EDIT]].tick[i].voice[recordVoice] = Note;
             clip[parameter[SET_CLIP2_EDIT]].tick[i].velo[recordVoice] = recordVelocity[recordVoice];
+            trellis_set_stepSeq_buffer((i / 6), (MIDI_channel_in - 1), trellisTrackColor[MIDI_channel_in - 1]);
         }
     }
 }
@@ -300,14 +315,13 @@ void Track::draw_arranger_parameters(byte lastProw)
             // drawOctaveNumber();
             // draw_velocity(3, 0);
         }
-          if (lastProw == 1)
+        if (lastProw == 1)
         {
             draw_barVelocity(0, 1);
-
         }
         if (lastProw == 2)
         {
-            //draw_barVelocity(0, 1);
+            // draw_barVelocity(0, 1);
             draw_play_presetNr_ccChannel(2, 2);
             draw_play_presetNr_ccValue(3, 2);
             // drawOctaveNumber();

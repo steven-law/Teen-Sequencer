@@ -22,7 +22,6 @@ extern elapsedMicros msecsclock;
 #define POSITION_START_LOOP_BUTTON 16
 #define POSITION_END_LOOP_BUTTON 18
 
-
 #define STEP_FRAME_W 16
 #define STEP_FRAME_H 16
 #define TRACK_FRAME_H 24
@@ -80,17 +79,69 @@ extern elapsedMicros msecsclock;
 #define INPUT_FUNCTIONS_FOR_MIXER1 7
 #define INPUT_FUNCTIONS_FOR_MIXER2 8
 #define INPUT_FUNCTIONS_FOR_MIXER3 9
-
+#define INPUT_FUNCTIONS_FOR_FX1 10
+#define INPUT_FUNCTIONS_FOR_FX2 11
+#define INPUT_FUNCTIONS_FOR_FX3 12
 
 #define INFO_BOX_WIDTH 200
 #define INFO_BOX_HEIGTH 120
 #define INFOBOX_OFFSET 60
 #define INFOBOX_TEXT_OFFSET 80
 
+#define NUM_MIDI_OUTPUTS 48
+// plugins
+#define CH_PLUGIN_1 NUM_MIDI_OUTPUTS+1
+#define CH_PLUGIN_2 NUM_MIDI_OUTPUTS+2
+#define CH_PLUGIN_3 NUM_MIDI_OUTPUTS+3
+#define CH_PLUGIN_4 NUM_MIDI_OUTPUTS+4
+#define CH_PLUGIN_5 NUM_MIDI_OUTPUTS+5
+#define CH_PLUGIN_6 NUM_MIDI_OUTPUTS+6
+#define CH_PLUGIN_7 NUM_MIDI_OUTPUTS+7
+#define CH_PLUGIN_8 NUM_MIDI_OUTPUTS+8
+
+#define NUM_PLUGINS 8
+#define MIDI_CC_RANGE 127
+#define MIDI_CC_RANGE_FLOAT 127.00
+#define NUM_PLUGIN_PRESETS 8
+#define SAMPLE_ROOT 69
+#define MAX_RESONANCE 5.00
+#define MAX_FILTERSWEEP 7.00
+#define SEQUENCER_OPTIONS_VERY_RIGHT 18
+#define PRESET_ENCODER 3
+
+#define MAX_OUTPUTS NUM_MIDI_OUTPUTS + NUM_PLUGINS
+// trellis
+
+#define TRELLIS_1 9
+#define TRELLIS_2 579
+// See https://www.w3schools.com/colors/colors_picker.asp
+#define TRELLIS_RED 0xFF0000
+#define TRELLIS_ORANGE 0xB34700
+#define TRELLIS_YELLOW 0xFFFF00
+#define TRELLIS_OLIVE 0x66DD00
+#define TRELLIS_GREEN 0x008000
+#define TRELLIS_AQUA 0x00FF66
+#define TRELLIS_TEAL 0x00BFFF
+#define TRELLIS_BLUE 0x0080FF
+#define TRELLIS_NAVY 0x000080
+#define TRELLIS_MAROON 0x800000
+#define TRELLIS_PURPLE 0x800080
+#define TRELLIS_PINK 0xFF66B3
+#define TRELLIS_WHITE 0xFFFFFF
+#define TRELLIS_BLACK 0x000000
+
+
+
+
+#define TRELLIS_CONTROL_X_DIM 4
+#define TRELLIS_CONTROL_Y_DIM 4
+#define TRELLIS_PANEL_Y_DIM 8
+#define TRELLIS_PADS_X_DIM 16
+#define TRELLIS_PADS_Y_DIM 8
 extern int pixelTouchX;
 extern int gridTouchY;
 extern byte lastPotRow;
-extern byte encoder_function;
+extern byte activeScreen;
 extern bool change_plugin_row;
 extern uint16_t tftRamInfoBox[INFO_BOX_WIDTH][INFO_BOX_HEIGTH];
 extern unsigned long currentTime;
@@ -102,13 +153,29 @@ extern bool otherCtrlButtons;
 
 extern int phraseSegmentLength;
 extern const char FLASHMEM *playstate[3];
+extern byte trellisScreen;
+extern int controlColors[16];
+extern int trackColor[9];
+extern int trellisTrackColor[9];
+extern int trellisControllBuffer[TRELLIS_CONTROL_X_DIM][TRELLIS_CONTROL_Y_DIM];
+extern int trellisPanelBuffer[TRELLIS_CONTROL_X_DIM][TRELLIS_PANEL_Y_DIM];
+extern int trellisArrangerBuffer1[SONGMODE_PAGE_16+1][TRELLIS_PADS_X_DIM][TRELLIS_PADS_Y_DIM];
+extern int trellisStepSeqBuffer[8][TRELLIS_PADS_X_DIM][TRELLIS_PADS_Y_DIM];
+extern int trellisPianoBuffer[TRELLIS_PADS_X_DIM][TRELLIS_PADS_Y_DIM];
+extern bool trellisPressed[X_DIM * Y_DIM];
+extern bool trellisReleased[X_DIM * Y_DIM];
+extern bool trellisRecall;
+extern bool trellisShowClockPixel[Y_DIM];
+extern byte trellisPianoTrack;
 extern char _trackname[20];
 extern const char FLASHMEM *CCnames[129];
-extern const char FLASHMEM *channelOutNames[49];
+
+extern const char FLASHMEM *channelOutNames[MAX_OUTPUTS + 1];
 extern const char FLASHMEM *noteNames[12];
-extern  const char FLASHMEM *seqModname[5];
+extern const char FLASHMEM *seqModname[5];
 
-
-
-
+// plugins
+extern float *note_frequency;
+extern int tuning;
+extern const char *filterName[4];
 #endif // GLOBAL_STUFF_H
