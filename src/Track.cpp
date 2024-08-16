@@ -136,7 +136,7 @@ void Track::load_track()
             {
                 if (clip[parameter[SET_CLIP2_EDIT]].tick[i].voice[v] < NO_NOTE)
                 {
-                    trellis_set_stepSeq_buffer((i / 6), (MIDI_channel_in - 1), trellisTrackColor[MIDI_channel_in - 1]);
+                    trellis_set_main_buffer(parameter[SET_CLIP2_EDIT],(i / 6), (MIDI_channel_in - 1), trellisTrackColor[MIDI_channel_in - 1]);
                 }
             }
         }
@@ -153,9 +153,10 @@ void Track::load_track()
             barVelocity[i] = myFile.read();
             play_presetNr_ccChannel[i] = myFile.read();
             play_presetNr_ccValue[i] = myFile.read();
-            if (clip_to_play[i] <= NUM_USER_CLIPS)
-                trellis_set_arranger_buffer((i / 16), i % 16, (MIDI_channel_in - 1), trellisTrackColor[MIDI_channel_in - 1]+ (clip_to_play[i] * 20));
-        }
+            if (clip_to_play[i] <= NUM_USER_CLIPS){
+                Serial.println((i / 16)+TRELLIS_SCREEN_ARRANGER_1);
+                trellis_set_main_buffer((i / 16)+TRELLIS_SCREEN_ARRANGER_1, i % 16, (MIDI_channel_in - 1), trellisTrackColor[MIDI_channel_in - 1]+ (clip_to_play[i] * 20));
+        }}
         // Serial.println("song loaded:");
 
         for (int p = 0; p < NUM_PRESETS + 1; p++)
@@ -297,7 +298,7 @@ void Track::record_noteOff(byte Note, byte Velo, byte Channel)
         {
             clip[parameter[SET_CLIP2_EDIT]].tick[i].voice[recordVoice] = Note;
             clip[parameter[SET_CLIP2_EDIT]].tick[i].velo[recordVoice] = recordVelocity[recordVoice];
-            trellis_set_stepSeq_buffer((i / 6), (MIDI_channel_in - 1), trellisTrackColor[MIDI_channel_in - 1]);
+            trellis_set_main_buffer(parameter[SET_CLIP2_EDIT],(i / 6), (MIDI_channel_in - 1), trellisTrackColor[MIDI_channel_in - 1]);
         }
     }
 }

@@ -116,11 +116,7 @@ void clock_to_notes(int _tick)
 }
 void input_behaviour()
 {
-    otherCtrlButtons = (buttonPressed[BUTTON_TRACK] ||
-                        buttonPressed[BUTTON_PLUGIN] ||
-                        buttonPressed[BUTTON_SONG] ||
-                        buttonPressed[BUTTON_MIXER] ||
-                        buttonPressed[BUTTON_FX]);
+   
     trellis_start_clock();
     trellis_stop_clock();
     trellis_set_potRow();

@@ -441,7 +441,7 @@ void Track::check_for_free_voices(byte onTick, byte newNote)
             break;
         }
     }
-    trellis_set_stepSeq_buffer((sTick / 6) , (MIDI_channel_in - 1) , color);
+    trellis_set_main_buffer(parameter[SET_CLIP2_EDIT],(sTick / 6) , (MIDI_channel_in - 1) , color);
     //trellis_show();
     // if (search_free_voice >= MAX_VOICES)
     // search_free_voice = 0;
