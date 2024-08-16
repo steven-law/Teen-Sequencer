@@ -280,7 +280,7 @@ void loop()
   if (trellisCurrentMillis - trellisPreviousMillis >= trellisInterval)
   {
     trellisPreviousMillis = trellisCurrentMillis;
-    // Serial.printf("LoopTime= %d\n", loopEndTime - loopStartTime);
+     Serial.printf("LoopTime= %d\n", loopEndTime - loopStartTime);
   }
   if (loopEndTime - loopStartTime > 500)
   {
