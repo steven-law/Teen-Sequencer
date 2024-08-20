@@ -98,8 +98,9 @@ extern elapsedMicros msecsclock;
 #define CH_PLUGIN_6 NUM_MIDI_OUTPUTS+6
 #define CH_PLUGIN_7 NUM_MIDI_OUTPUTS+7
 #define CH_PLUGIN_8 NUM_MIDI_OUTPUTS+8
+#define CH_PLUGIN_9 NUM_MIDI_OUTPUTS+9
 
-#define NUM_PLUGINS 8
+#define NUM_PLUGINS 9
 #define MIDI_CC_RANGE 127
 #define MIDI_CC_RANGE_FLOAT 127.00
 #define NUM_PLUGIN_PRESETS 8
@@ -143,7 +144,8 @@ extern int gridTouchY;
 extern byte lastPotRow;
 extern byte activeScreen;
 extern bool change_plugin_row;
-extern uint16_t tftRamInfoBox[INFO_BOX_WIDTH][INFO_BOX_HEIGTH];
+extern int tftRamInfoBox[INFO_BOX_WIDTH][INFO_BOX_HEIGTH];
+//extern int **tftRamInfoBox;
 extern unsigned long currentTime;
 extern bool showBox;
 
@@ -157,14 +159,15 @@ extern byte trellisScreen;
 extern int controlColors[16];
 extern int trackColor[9];
 extern int trellisTrackColor[9];
-extern int trellisControllBuffer[TRELLIS_CONTROL_X_DIM][TRELLIS_CONTROL_Y_DIM];
-extern int trellisPanelBuffer[TRELLIS_CONTROL_X_DIM][TRELLIS_PANEL_Y_DIM];
-extern int trellisMainGridBuffer[TRELLIS_MAX_PAGES][TRELLIS_PADS_X_DIM][TRELLIS_PADS_Y_DIM];
-//extern int trellisArrangerBuffer1[SONGMODE_PAGE_16+1][TRELLIS_PADS_X_DIM][TRELLIS_PADS_Y_DIM];
-//extern int trellisStepSeqBuffer[8][TRELLIS_PADS_X_DIM][TRELLIS_PADS_Y_DIM];
-//extern int trellisPianoBuffer[TRELLIS_PADS_X_DIM][TRELLIS_PADS_Y_DIM];
-extern bool trellisPressed[X_DIM * Y_DIM];
-extern bool trellisReleased[X_DIM * Y_DIM];
+//extern int trellisControllBuffer[TRELLIS_CONTROL_X_DIM][TRELLIS_CONTROL_Y_DIM];
+//extern int trellisPanelBuffer[TRELLIS_CONTROL_X_DIM][TRELLIS_PANEL_Y_DIM];
+//extern int trellisMainGridBuffer[TRELLIS_MAX_PAGES][TRELLIS_PADS_X_DIM][TRELLIS_PADS_Y_DIM];
+//extern bool trellisPressed[X_DIM * Y_DIM];
+extern int ***trellisMainGridBuffer;
+extern int **trellisControllBuffer;
+extern int **trellisPanelBuffer;
+extern bool *trellisPressed;
+
 extern bool trellisRecall;
 extern bool trellisShowClockPixel[Y_DIM];
 extern byte trellisPianoTrack;

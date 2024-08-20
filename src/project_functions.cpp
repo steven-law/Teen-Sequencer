@@ -1,9 +1,9 @@
 #include <Arduino.h>
 #include "project_functions.h"
-#include <neotrellis.h>
+
 // #include <fx_List.h>
-#include <Output.h>
-#include <myClock.h>
+#include <FX/Output.h>
+#include <ownLibs/myClock.h>
 extern Output MasterOut;
 void draw_mixer();
 void set_mixer(byte row);
@@ -542,3 +542,5 @@ void startUpScreen()
     tft.setCursor(STEP_FRAME_W * POSITION_LOAD_BUTTON + 4, 3);
     tft.print("L");
 }
+
+

@@ -4,7 +4,7 @@
 #include <Arduino.h>
 #include "project_variables.h"
 #include "Track.h"
-#include "clock.h"
+#include "ownLibs/clock.h"
 
 void encoder_SetCursor(byte deltaX, byte maxY);
 void buttons_SetCursor(byte maxY);
@@ -38,4 +38,7 @@ void drawActiveRect(int xPos, byte yPos, byte xsize, byte ysize, bool state, con
 void draw_sequencer_option(byte x, const char *nameshort, int value, byte enc, const char *pluginName);
 
 void startUpScreen();
+
+
+
 #endif

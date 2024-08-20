@@ -26,22 +26,15 @@ void tft_setup(int dly)
     delay(dly);
 }
 
-// buttons
-// define the cymbols on the buttons of the keypads
-char keys[ROWS][COLS] = {
-    {'P', 'H', 'O', 'G'},
-    {'M', 'F', 'N', 'E'},
-    {'L', 'C', 'K', 'D'},
-    {'J', 'A', 'I', 'B'}};
-byte rowPins[ROWS] = {37, 36, 35, 34}; // connect to the row pinouts of the keypad
-byte colPins[COLS] = {41, 38, 39, 40}; // connect to the column pinouts of the keypad
-Adafruit_Keypad kpd = Adafruit_Keypad(makeKeymap(keys), rowPins, colPins, ROWS, COLS);
-bool buttonPressed[NUM_BUTTONS];
-unsigned long buttonPressStartTime[NUM_BUTTONS] = {0}; // Zeitpunkt, zu dem jeder Button gedrückt wurde
+
 const unsigned long longPressDuration = 600;           // 1 Sekunde in Millisekunden
 
-
-
+const byte gateOutputPin[8]{22,40,38,37,36,35,34,33};
+void gate_setup(){
+    for (int i=0;i<8;i++){
+        pinMode(gateOutputPin[i], OUTPUT);
+    }
+}
 
 // encoder
 Encoder Enc1(4, 3);
@@ -124,7 +117,7 @@ void midi_setup(byte dly)
 {
     usbMIDI.setHandleNoteOff(myNoteOff);
     usbMIDI.setHandleNoteOn(myNoteOn);
-    usbMIDI.begin(); // Launch MIDI and listen to channel 4
+    usbMIDI.begin(); // Launch MIDI
     Serial.println("Initializing MIDI");
     tft.println("Initializing MIDI");
     tft.updateScreenAsync();

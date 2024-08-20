@@ -95,6 +95,7 @@ public:
     bool muted;
     bool soloed;
     bool muteThruSolo;
+    bool performIsActive = false;
     int internal_clock = 0;
     int internal_clock_bar = 0;
     byte clip_to_play[256];
