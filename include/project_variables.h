@@ -139,13 +139,16 @@ extern elapsedMicros msecsclock;
 #define TRELLIS_PANEL_Y_DIM 8
 #define TRELLIS_PADS_X_DIM 16
 #define TRELLIS_PADS_Y_DIM 8
+
+
+
 extern int pixelTouchX;
 extern int gridTouchY;
 extern byte lastPotRow;
 extern byte activeScreen;
 extern bool change_plugin_row;
-extern int tftRamInfoBox[INFO_BOX_WIDTH][INFO_BOX_HEIGTH];
-//extern int **tftRamInfoBox;
+//extern int tftRamInfoBox[INFO_BOX_WIDTH][INFO_BOX_HEIGTH];
+extern int **tftRamInfoBox;
 extern unsigned long currentTime;
 extern bool showBox;
 

@@ -96,9 +96,14 @@ public:
     bool soloed;
     bool muteThruSolo;
     bool performIsActive = false;
+    bool cvNoteOn;
+bool cvNoteOff;
+byte cvNote;
+
     int internal_clock = 0;
     int internal_clock_bar = 0;
     byte clip_to_play[256];
+
     Track(ILI9341_t3n *display, byte Y)
     {
         // MIDI1.setHandleNoteOn(myNoteOn);

@@ -97,6 +97,8 @@ void set_mixer_FX1(byte XPos, byte YPos, const char *name, byte trackn);
 void set_mixer_FX2(byte XPos, byte YPos, const char *name, byte trackn);
 void set_mixer_FX3(byte XPos, byte YPos, const char *name, byte trackn);
 
+void sendNoteOn_CV_Gate();
+void sendNoteOff_CV_Gate();
 void sendNoteOn(byte Note, byte Velo, byte Channel);
 void sendNoteOff(byte Note, byte Velo, byte Channel);
 void sendControlChange(byte control, byte value, byte Channel);
@@ -126,7 +128,7 @@ void trellis_set_main_buffer(int _page, int _x, int _y, int color);
 void trellis_recall_main_buffer(int _page);
 int trellis_get_main_buffer(int _page, int _x, int _y);
 
-void trellis_setStepsequencer(int _key);
+void trellis_setStepsequencer();
 
 void draw_clock_option(byte x, byte v);
 void drawstepPosition(int current);
@@ -158,7 +160,7 @@ void trellis_perform();
 
 void setup()
 {
-  while (!Serial)
+  // while (!Serial)
   {
   }
   //   put your setup code here, to run once:
@@ -179,26 +181,26 @@ void setup()
   }
 
   Serial.println("DAWtrellis started");
-/*
-  // Try to initialize!
-  if (!mcp.begin(0x64, &Wire1))
-  {
-    Serial.println("Failed to find MCP4728 chip");
-    while (1)
+  
+    // Try to initialize!
+    if (!mcp.begin(0x64, &Wire1))
     {
-      delay(10);
+      Serial.println("Failed to find MCP4728 chip");
+      while (1)
+      {
+        delay(10);
+      }
     }
-  }
-  // Try to initialize!
-  if (!mcp2.begin(0x67, &Wire1))
-  {
-    Serial.println("Failed to find MCP4728 chip2");
-    while (1)
+    // Try to initialize!
+    if (!mcp2.begin(0x67, &Wire1))
     {
-      delay(10);
+      Serial.println("Failed to find MCP4728 chip2");
+      while (1)
+      {
+        delay(10);
+      }
     }
-  }
-  */
+    
   Serial.println("DAC´s started");
   trellisMainGridBuffer = new int **[TRELLIS_MAX_PAGES];
   for (int i = 0; i < TRELLIS_MAX_PAGES; i++)
@@ -251,20 +253,20 @@ void setup()
       trellisPanelBuffer[j][k] = TRELLIS_BLACK;
     }
   }
-/*
-  tftRamInfoBox = new int *[INFO_BOX_WIDTH];
-  for (int j = 0; j < INFO_BOX_WIDTH; j++)
-  {
-    tftRamInfoBox[j] = new int[INFO_BOX_HEIGTH];
-  }
-  for (int j = 0; j < INFO_BOX_WIDTH; j++)
-  {
-    for (int k = 0; k < INFO_BOX_HEIGTH; k++)
+  
+    tftRamInfoBox = new int *[INFO_BOX_WIDTH];
+    for (int j = 0; j < INFO_BOX_WIDTH; j++)
     {
-      tftRamInfoBox[j][k] = TRELLIS_BLACK;
+      tftRamInfoBox[j] = new int[INFO_BOX_HEIGTH];
     }
-  }
-  */
+    for (int j = 0; j < INFO_BOX_WIDTH; j++)
+    {
+      for (int k = 0; k < INFO_BOX_HEIGTH; k++)
+      {
+        tftRamInfoBox[j][k] = TRELLIS_BLACK;
+      }
+    }
+    
   gate_setup();
   myClock.setup();
   MIDI1.setHandleNoteOn(myNoteOn);
@@ -298,6 +300,8 @@ void loop()
   MIDI1.read();
   myusb.Task();
   usbMidi1.read();
+  sendNoteOn_CV_Gate();
+  sendNoteOff_CV_Gate();
   detect_USB_device();
   if (!digitalRead(INT_PIN))
   {
@@ -313,9 +317,10 @@ void loop()
   // trellis.show();
   for (int i = 0; i < X_DIM * Y_DIM; i++)
   {
-    trellis_setStepsequencer(i);
+
     trellis_set_arranger(i);
   }
+  trellis_setStepsequencer();
   trellis_show_arranger();
   trellis_show_tft_sequencer();
   trellis_show_tft_seqMode();
@@ -373,8 +378,8 @@ void loop()
   if (trellisCurrentMillis - trellisPreviousMillis >= trellisInterval)
   {
     trellisPreviousMillis = trellisCurrentMillis;
-     Serial.printf("LoopTime= %d\n", loopEndTime - loopStartTime);
-   //  Serial.println(trellisScreen);
+    // Serial.printf("LoopTime= %d\n", loopEndTime - loopStartTime);
+    //   Serial.println(trellisScreen);
   }
 
   if (loopEndTime - loopStartTime > 500 || millis() % 300000 == 0)
@@ -681,6 +686,87 @@ void set_mixer_FX3(byte XPos, byte YPos, const char *name, byte trackn)
   }
 }
 
+void sendNoteOn_CV_Gate()
+{
+  if (allTracks[0]->parameter[SET_MIDICH_OUT] == 0)
+  {
+    if (allTracks[0]->cvNoteOn)
+    {
+      allTracks[0]->cvNoteOn = false;
+      //byte _cvNoteValue=4095 / 64 * allTracks[0]->cvNote;
+      mcp.setChannelValue(MCP4728_CHANNEL_A, 4095 / 64 * allTracks[0]->cvNote);
+      digitalWrite(gateOutputPin[0], true);
+      Serial.printf("cv Note On: %d\n",allTracks[0]->cvNote );
+    }
+  }
+
+  if (allTracks[1]->parameter[SET_MIDICH_OUT] == 0)
+  {
+    if (allTracks[1]->cvNoteOn)
+    {
+      allTracks[1]->cvNoteOn = false;
+      mcp.setChannelValue(MCP4728_CHANNEL_B, 4095 / 64 * allTracks[1]->cvNote);
+      digitalWrite(gateOutputPin[1], true);
+      
+    }
+  }
+  if (allTracks[2]->parameter[SET_MIDICH_OUT] == 0)
+  {
+    if (allTracks[2]->cvNoteOn)
+    {
+      allTracks[2]->cvNoteOn = false;
+      mcp.setChannelValue(MCP4728_CHANNEL_C, 4095 / 64 * allTracks[2]->cvNote);
+      digitalWrite(gateOutputPin[2], true);
+    }
+  }
+  if (allTracks[3]->parameter[SET_MIDICH_OUT] == 0)
+  {
+    if (allTracks[3]->cvNoteOn)
+    {
+      allTracks[3]->cvNoteOn = false;
+      mcp.setChannelValue(MCP4728_CHANNEL_D, 4095 / 64 * allTracks[3]->cvNote);
+      digitalWrite(gateOutputPin[3], true);
+    }
+  }
+  if (allTracks[4]->parameter[SET_MIDICH_OUT] == 0)
+  {
+
+    if (allTracks[4]->cvNoteOn)
+    {
+      allTracks[4]->cvNoteOn = false;
+      mcp2.setChannelValue(MCP4728_CHANNEL_A, 4095 / 64 * allTracks[4]->cvNote);
+      digitalWrite(gateOutputPin[4], true);
+    }
+  }
+  if (allTracks[5]->parameter[SET_MIDICH_OUT] == 0)
+  {
+    if (allTracks[5]->cvNoteOn)
+    {
+      allTracks[5]->cvNoteOn = false;
+      mcp2.setChannelValue(MCP4728_CHANNEL_B, 4095 / 64 * allTracks[5]->cvNote);
+      digitalWrite(gateOutputPin[5], true);
+    }
+  }
+  if (allTracks[6]->parameter[SET_MIDICH_OUT] == 0)
+  {
+    if (allTracks[6]->cvNoteOn)
+    {
+      allTracks[6]->cvNoteOn = false;
+      mcp2.setChannelValue(MCP4728_CHANNEL_C, 4095 / 64 * allTracks[6]->cvNote);
+      digitalWrite(gateOutputPin[6], true);
+    }
+  }
+  if (allTracks[7]->parameter[SET_MIDICH_OUT] == 0)
+  {
+    if (allTracks[7]->cvNoteOn)
+    {
+      allTracks[7]->cvNoteOn = false;
+      mcp2.setChannelValue(MCP4728_CHANNEL_D, 4095 / 64 * allTracks[7]->cvNote);
+      digitalWrite(gateOutputPin[7], true);
+    }
+  }
+}
+
 // put function definitions here:
 void sendNoteOn(byte Note, byte Velo, byte Channel)
 {
@@ -692,52 +778,24 @@ void sendNoteOn(byte Note, byte Velo, byte Channel)
     usbMidi1.sendNoteOn(Note, Velo, Channel - 32);
   if (Channel > 48 && Channel <= 48 + NUM_PLUGINS)
     MasterOut.noteOn(Note, Velo, Channel - (48 + 1), Note % 12);
-  if (Note <= 64)
-  {/*
-    if (Channel % 16 == 1)
-    {
-      mcp.setChannelValue(MCP4728_CHANNEL_A, 4095 / 64 * Note);
-      //digitalWrite(gateOutputPin[0], true);
-    }
-    if (Channel % 16 == 2)
-    {
-      mcp.setChannelValue(MCP4728_CHANNEL_B, 4095 / 64 * Note);
-      //digitalWrite(gateOutputPin[1], true);
-    }
-    if (Channel % 16 == 3)
-    {
-      mcp.setChannelValue(MCP4728_CHANNEL_C, 4095 / 64 * Note);
-      //digitalWrite(gateOutputPin[2], true);
-    }
-    if (Channel % 16 == 4)
-    {
-      mcp.setChannelValue(MCP4728_CHANNEL_D, 4095 / 64 * Note);
-      //digitalWrite(gateOutputPin[3], true);
-    }
+}
 
-    if (Channel % 16 == 5)
+void sendNoteOff_CV_Gate()
+{
+  for (int i = 0; i < NUM_TRACKS; i++)
+  {
+    if (allTracks[i]->parameter[SET_MIDICH_OUT] == 0)
     {
-      mcp2.setChannelValue(MCP4728_CHANNEL_A, 4095 / 64 * Note);
-     // digitalWrite(gateOutputPin[4], true);
+      if (allTracks[i]->cvNoteOff)
+      {
+        allTracks[i]->cvNoteOff = false;
+        digitalWrite(gateOutputPin[i], false);
+        Serial.println("cv Note Off");
+      }
     }
-    if (Channel % 16 == 6)
-    {
-      mcp2.setChannelValue(MCP4728_CHANNEL_B, 4095 / 64 * Note);
-      //digitalWrite(gateOutputPin[5], true);
-    }
-    if (Channel % 16 == 7)
-    {
-      mcp2.setChannelValue(MCP4728_CHANNEL_C, 4095 / 64 * Note);
-      //digitalWrite(gateOutputPin[6], true);
-    }
-    if (Channel % 16 == 8)
-    {
-      mcp2.setChannelValue(MCP4728_CHANNEL_D, 4095 / 64 * Note);
-      //digitalWrite(gateOutputPin[7], true);
-    }
-    */
   }
 }
+
 void sendNoteOff(byte Note, byte Velo, byte Channel)
 {
 
@@ -749,42 +807,6 @@ void sendNoteOff(byte Note, byte Velo, byte Channel)
     usbMidi1.sendNoteOff(Note, Velo, Channel - 32);
   if (Channel > 48 && Channel <= 48 + NUM_PLUGINS)
     MasterOut.noteOff(Note, Velo, Channel - (48 + 1), 0);
-  if (Note <= 64)
-  {
-    if (Channel % 16 == 1)
-    {
-      digitalWrite(gateOutputPin[0], false);
-    }
-    if (Channel % 16 == 2)
-    {
-      digitalWrite(gateOutputPin[1], false);
-    }
-    if (Channel % 16 == 3)
-    {
-      digitalWrite(gateOutputPin[2], false);
-    }
-    if (Channel % 16 == 4)
-    {
-      digitalWrite(gateOutputPin[3], false);
-    }
-
-    if (Channel % 16 == 5)
-    {
-      digitalWrite(gateOutputPin[4], false);
-    }
-    if (Channel % 16 == 6)
-    {
-      digitalWrite(gateOutputPin[5], false);
-    }
-    if (Channel % 16 == 7)
-    {
-      digitalWrite(gateOutputPin[6], false);
-    }
-    if (Channel % 16 == 8)
-    {
-      digitalWrite(gateOutputPin[7], false);
-    }
-  }
 }
 void sendControlChange(byte control, byte value, byte Channel)
 {
@@ -1145,39 +1167,38 @@ int trellis_get_main_buffer(int _page, int _x, int _y)
   return trellisMainGridBuffer[_page][_x][_y];
 }
 
-void trellis_setStepsequencer(int _key)
+void trellis_setStepsequencer()
 {
   if (trellisPressed[TRELLIS_BUTTON_SEQUENCER])
   {
     trellisRecall = true;
     trellisScreen = TRELLIS_SCREEN_SEQUENCER_CLIP_0;
-    //trellisPressed[TRELLIS_BUTTON_SEQUENCER]=false;
+    // trellisPressed[TRELLIS_BUTTON_SEQUENCER]=false;
   }
   if (trellisScreen < TRELLIS_SCREEN_SEQUENCER_CLIP_8)
   {
-    if (_key % X_DIM < 16 && !trellisPressed[TRELLIS_BUTTON_ARRANGER])
+    for (int x = 0; x < NUM_STEPS; x++)
     {
-      byte trellisNote;
-      byte track = _key / X_DIM;
-      byte step = _key % X_DIM;
-      int keyTick = (step * 6);
-      while (trellisPressed[_key])
+      for (int y = 0; y < NUM_TRACKS; y++)
       {
-
-        // gridTouchY = 1;
-        // trellisPressed[TRELLIS_BUTTON_ENTER] = true;
-        if (gridTouchY > 0 && gridTouchY <= 12)
+        byte _nr = x + (y * X_DIM);
+        if (trellisPressed[_nr])
         {
+          byte trellisNote;
+          byte track = y;
+          byte step = x;
+          int keyTick = (step * 6);
+          // gridTouchY = 1;
+          // trellisPressed[TRELLIS_BUTTON_ENTER] = true;
+          if (gridTouchY > 0 && gridTouchY <= 12)
+          {
 
-          trellisNote = gridTouchY;
-        }
-        else
-          trellisNote = 1;
-
-        // if (!trellisPressed[_key])
-        {
-          trellisPressed[_key] = false;
-          trellisPressed[TRELLIS_BUTTON_SEQUENCER]=false;
+            trellisNote = gridTouchY;
+          }
+          else
+            trellisNote = 1;
+          trellisPressed[_nr] = false;
+          trellisPressed[TRELLIS_BUTTON_SEQUENCER] = false;
           allTracks[track]->set_note_on_tick(keyTick, trellisNote);
           Serial.printf("step: %d, tick: %d, track: %D \n", step, keyTick, track);
           /*
@@ -1446,7 +1467,7 @@ void trellis_start_clock()
     myClock.set_start();
     // Serial.println("Play");
     trellisPressed[TRELLIS_START_CLOCK] = false;
-    enc_button[2]=false;
+    enc_button[2] = false;
   }
 }
 void trellis_stop_clock()
@@ -1456,7 +1477,7 @@ void trellis_stop_clock()
     myClock.set_stop();
     // Serial.println("Stop");
     trellisPressed[TRELLIS_STOP_CLOCK] = false;
-    enc_button[3]=false;
+    enc_button[3] = false;
     for (int i = 0; i < NUM_TRACKS; i++)
     {
       allTracks[i]->internal_clock = 0;
