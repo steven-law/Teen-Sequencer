@@ -150,7 +150,7 @@ void input_behaviour()
         trellis_SetCursor(8);
 
         switch (lastPotRow)
-        {
+        {change_plugin_row = true;
         case 0:
             // gridTouchY = 0;
             encoder_SetCursor(STEP_FRAME_W, 8); // Encoder: 0,1

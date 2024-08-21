@@ -159,6 +159,7 @@ byte cvNote;
     void draw_stepSequencer_parameters(byte row);
 
     void set_note_on_tick(int x, int y);
+    void clear_notes_in_grid();
     void draw_notes_in_grid();
     void draw_sequencer_modes(byte mode);
     void set_recordState(bool _status);
@@ -308,7 +309,7 @@ private:
     void check_for_free_voices(byte onTick, byte cnote);
     void clear_notes_on_tick(byte cl_X);
     void draw_note_on_tick(byte dr_X);
-    void clear_notes_in_grid();
+    
 
     // stepsequencer
 

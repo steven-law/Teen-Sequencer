@@ -113,8 +113,7 @@ extern elapsedMicros msecsclock;
 #define MAX_OUTPUTS NUM_MIDI_OUTPUTS + NUM_PLUGINS
 // trellis
 
-#define TRELLIS_1 9
-#define TRELLIS_2 579
+
 // See https://www.w3schools.com/colors/colors_picker.asp
 #define TRELLIS_RED 0xFF0000
 #define TRELLIS_ORANGE 0xB34700
@@ -130,7 +129,10 @@ extern elapsedMicros msecsclock;
 #define TRELLIS_PINK 0xFF66B3
 #define TRELLIS_WHITE 0xFFFFFF
 #define TRELLIS_BLACK 0x000000
+//#define TRELLIS_LIGHTBLUE #ADD8E6
 
+#define TRELLIS_1 0x000066
+#define TRELLIS_2 579
 
 
 #define TRELLIS_MAX_PAGES TRELLIS_SCREEN_ARRANGER_1+SONGMODE_PAGE_16+1

@@ -441,11 +441,11 @@ void Track::check_for_free_voices(byte onTick, byte newNote)
             break;
         }
     }
-    trellis_set_main_buffer(parameter[SET_CLIP2_EDIT],(sTick / 6) , (MIDI_channel_in - 1) , color);
-    //trellis_show();
-    // if (search_free_voice >= MAX_VOICES)
-    // search_free_voice = 0;
-    // old_cnote = array[parameter[SET_CLIP2_EDIT]][onTick][search_free_voice];
+    trellis_set_main_buffer(parameter[SET_CLIP2_EDIT], (sTick / 6), (MIDI_channel_in - 1), color);
+    // trellis_show();
+    //  if (search_free_voice >= MAX_VOICES)
+    //  search_free_voice = 0;
+    //  old_cnote = array[parameter[SET_CLIP2_EDIT]][onTick][search_free_voice];
 }
 void Track::clear_notes_on_tick(byte cl_X)
 {
@@ -498,8 +498,10 @@ void Track::clear_notes_in_grid()
 }
 void Track::draw_notes_in_grid()
 {
+    //clear_notes_in_grid();
     for (int i = 0; i < MAX_TICKS; i++)
     {
+        // clear_notes_on_tick(i);
         draw_note_on_tick(i);
     }
 }

@@ -204,7 +204,7 @@ void Track::play_sequencer_mode(byte cloock, byte start, byte end)
     }
     else
         internal_clock_is_on = false;
-    if (internal_clock == parameter[SET_SEQUENCE_LENGTH])
+    if (internal_clock >= parameter[SET_SEQUENCE_LENGTH])
     {
         internal_clock = 0;
         internal_clock_bar++;
@@ -274,7 +274,7 @@ void Track::noteOn(byte Note, byte Velo, byte Channel)
     {
         cvNoteOn = true;
         cvNote = Note;
-        Serial.printf("Tracks frees cv note: %d\n", cvNote);
+        //Serial.printf("Tracks frees cv note: %d\n", cvNote);
         // sendNoteOn_CV_Gate(Note, Channel);
     }
     // MIDI1.sendNoteOn(Note, Velo, Channel);
