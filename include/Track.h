@@ -8,6 +8,7 @@
 #include <SD.h>
 #include "project_variables.h"
 #include "project_functions.h"
+#include "Plugins/plugin_List.h"
 // void draw_sequencer_option(byte x, const char *nameshort, int value, byte enc, const char *pluginName);
 #define SEQ_GRID_LEFT 30
 #define SEQ_GRID_RIGHT (18 * STEP_FRAME_W) - 2
@@ -31,7 +32,7 @@
 #define MAX_CLIPS 9
 #define NUM_USER_CLIPS 7
 #define NUM_PRESETS 8
-#define MAX_VOICES 12
+
 // potrow 0
 #define ENCODER_STEP_FX 2
 // potrow 1
@@ -102,6 +103,7 @@ byte cvNote;
 
     int internal_clock = 0;
     int internal_clock_bar = 0;
+    byte external_clock_bar = 0;
     byte clip_to_play[256];
 
     Track(ILI9341_t3n *display, byte Y)

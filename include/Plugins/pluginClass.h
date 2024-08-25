@@ -1,6 +1,6 @@
 #ifndef PLUGIN_CLASS
 #define PLUGIN_CLASS
-
+#include <SD.h>
 #include <project_variables.h>
 extern bool enc_moved[4];
 extern int encoded[4];
@@ -19,7 +19,11 @@ public:
     {
         name = Name;
         myID = ID;
-
+        for (int p=0;p<NUM_PLUGIN_PRESETS;p++){
+            for (int i=0;i<16;i++){
+                potentiometer[p][i]=1;
+            }
+        }
     }
     virtual ~PluginControll() = default;
     virtual const char *get_Name() { return name; }
@@ -32,7 +36,8 @@ public:
     virtual void draw_plugin() = 0;
 
     virtual void set_presetNr();
+    virtual void save_plugin();
+    virtual void load_plugin();
     virtual byte get_Potentiometer(byte XPos, byte YPos, const char *name);
-    
 };
 #endif // PLUGIN_CLASS

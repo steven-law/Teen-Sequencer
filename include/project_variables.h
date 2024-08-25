@@ -3,6 +3,8 @@
 
 #include <Arduino.h>
 #include "hw_stuff.h"
+#include "SD.h"
+extern File myFile;
 
 extern elapsedMicros msecsclock;
 // Startscreen
@@ -27,9 +29,15 @@ extern elapsedMicros msecsclock;
 #define TRACK_FRAME_H 24
 #define GRID_LENGTH_HOR 256
 #define GRID_LENGTH_VERT 192
+
+#define SONG_POSITION_POINTER_Y 228
+#define BAR_POSITION_POINTER_Y 232
+#define STEP_POSITION_POINTER_Y 236
 #define POSITION_POINTER_THICKNESS 3
+
 #define NUM_STEPS 16
 #define MAX_TICKS 96
+#define MAX_VOICES 12
 // active Tracks
 #define ACTIVE_TRACK_1 0
 #define ACTIVE_TRACK_2 1

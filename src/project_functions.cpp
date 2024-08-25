@@ -113,6 +113,7 @@ void clock_to_notes(int _tick)
     {
         allTracks[t]->play_sequencer_mode(_tick, myClock.startOfLoop, myClock.endOfLoop);
     }
+    //Serial.printf("LoopStart: %d, LoopEnd: %d\n", myClock.startOfLoop, myClock.endOfLoop);
 }
 void input_behaviour()
 {
@@ -150,7 +151,7 @@ void input_behaviour()
         trellis_SetCursor(8);
 
         switch (lastPotRow)
-        {change_plugin_row = true;
+        {
         case 0:
             // gridTouchY = 0;
             encoder_SetCursor(STEP_FRAME_W, 8); // Encoder: 0,1
@@ -160,8 +161,8 @@ void input_behaviour()
         case 1:
             allTracks[gridTouchY - 1]->set_barVelocity(0, pixelTouchX);
             myClock.set_tempo(1);
-            Masterclock.set_start_of_loop(2); // Encoder: 2
-            Masterclock.set_end_of_loop(3);   // Encoder: 3
+            myClock.set_start_of_loop(2); // Encoder: 2
+            myClock.set_end_of_loop(3);   // Encoder: 3
             break;
         case 2:
             allTracks[gridTouchY - 1]->set_play_presetNr_ccChannel(2, 2);

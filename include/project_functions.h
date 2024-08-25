@@ -4,7 +4,7 @@
 #include <Arduino.h>
 #include "project_variables.h"
 #include "Track.h"
-#include "ownLibs/clock.h"
+//#include "ownLibs/clock.h"
 
 void encoder_SetCursor(byte deltaX, byte maxY);
 void buttons_SetCursor(byte maxY);

@@ -4,6 +4,7 @@ ILI9341_t3n *MyClock::tft = nullptr; // Hier wird der Display-Pointer auf `nullp
 byte MyClock::tempo = 120;
 byte MyClock::startOfLoop = 0;
 byte MyClock::endOfLoop = 4;
+
 byte MyClock::barTick = 0;
 MyClock *MyClock::instance = nullptr;
 
@@ -29,6 +30,8 @@ void MyClock::onSync24Callback(uint32_t tick) // The callback function wich will
     // Serial.write(MIDI_CLOCK);
     tick = tick % MAX_TICKS;
     // Serial.printf("tick: %d\n", tick);
+
+       
     sendClock();
     clock_to_notes(tick);
 }
@@ -136,5 +139,27 @@ void MyClock::drawbarPosition(byte _bar)
     // Serial.println("bar");
     tft->updateScreenAsync();
 }
+void MyClock::set_start_of_loop(byte n)
+{
+    if (enc_moved[n])
+    {
+        startOfLoop = constrain(startOfLoop + encoded[n], 0, 254);
 
+        draw_clock_option(POSITION_START_LOOP_BUTTON, startOfLoop);
+
+        enc_moved[n] = false;
+    }
+}
+
+void MyClock::set_end_of_loop(byte n)
+{
+    if (enc_moved[n])
+    {
+        endOfLoop = constrain(endOfLoop + encoded[n], 2, 255);
+
+        draw_clock_option(POSITION_END_LOOP_BUTTON, endOfLoop);
+
+        enc_moved[n] = false;
+    }
+}
 // MyClock myClock(&tft);

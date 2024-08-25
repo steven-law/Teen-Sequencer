@@ -1,8 +1,8 @@
 #include <Arduino.h>
 #include "Track.h"
-File myFile;
-// MIDI_CREATE_INSTANCE(HardwareSerial, Serial1, MIDI1);
-//  midi::MidiInterface<midi::SerialMIDI<HardwareSerial>> *midi_out_serial = &MIDI1;
+// File myFile;
+//  MIDI_CREATE_INSTANCE(HardwareSerial, Serial1, MIDI1);
+//   midi::MidiInterface<midi::SerialMIDI<HardwareSerial>> *midi_out_serial = &MIDI1;
 void Track::update(int PixelX, byte gridY)
 {
     // MIDI1.read();
@@ -26,7 +26,7 @@ void Track::save_track()
     trellisPressed[TRELLIS_BUTTON_ENTER] = false;
 
     sprintf(_trackname, "track%d.txt\0", MIDI_channel_in);
-    // Serial.println(_trackname);
+    Serial.println(_trackname);
 
     // delete the file:
     // Serial.println("Removing:");
@@ -58,7 +58,7 @@ void Track::save_track()
         }
         for (int t = 0; t <= MAX_TICKS; t++)
         {
-            Serial.printf("save track: %d, tick: %d, note: %d, channel out; %d\n", MIDI_channel_in, t, this->clip[0].tick[t].voice[0], parameter[SET_MIDICH_OUT]);
+            // Serial.printf("save track: %d, tick: %d, note: %d, channel out; %d\n", MIDI_channel_in, t, this->clip[0].tick[t].voice[0], parameter[SET_MIDICH_OUT]);
         }
         // Serial.println("array saved:");
         for (int i = 0; i < 256; i++)
@@ -86,10 +86,15 @@ void Track::save_track()
             myFile.print((char)SeqMod2Value[i]);
             myFile.print((char)SeqMod3Value[i]);
             myFile.print((char)SeqMod4Value[i]);
+            Serial.printf("save parameter %d = %d\n", i, parameter[i]);
         }
         // Serial.println("settings & seqmodes saved:");
         myFile.print((char)setStepFX);
-
+        myFile.print((char)mixGainPot);
+        myFile.print((char)mixDryPot);
+        myFile.print((char)mixFX1Pot);
+        myFile.print((char)mixFX2Pot);
+        myFile.print((char)mixFX3Pot);
         // close the file:
         myFile.close();
         // Serial.println("all saved:");
@@ -99,8 +104,13 @@ void Track::save_track()
         // if the file didn't open, print an error:
         Serial.println("error:");
     }
-    // Serial.println("saving Done:");
-    startUpScreen();
+    if (parameter[SET_MIDICH_OUT] > NUM_MIDI_OUTPUTS)
+    {
+        allPlugins[parameter[SET_MIDICH_OUT] - (NUM_MIDI_OUTPUTS + 1)]->save_plugin();
+    }
+
+    Serial.println("track saving Done:");
+    // startUpScreen();
 }
 void Track::load_track()
 {
@@ -108,7 +118,7 @@ void Track::load_track()
     SD.begin(BUILTIN_SDCARD);
     // Serial.println("in load mode");
     sprintf(_trackname, "track%d.txt\0", MIDI_channel_in);
-    // Serial.println(_trackname);
+    Serial.println(_trackname);
     //  open the file for reading:
     myFile = SD.open(_trackname, FILE_READ);
     // Serial.println(_trackname);
@@ -142,7 +152,7 @@ void Track::load_track()
         }
         for (int t = 0; t <= MAX_TICKS; t++)
         {
-            Serial.printf("load track: %d, tick: %d, note: %d, channel out; %d\n", MIDI_channel_in, t, this->clip[0].tick[t].voice[0], parameter[SET_MIDICH_OUT]);
+            // Serial.printf("load track: %d, tick: %d, note: %d, channel out; %d\n", MIDI_channel_in, t, this->clip[0].tick[t].voice[0], parameter[SET_MIDICH_OUT]);
         }
         // Serial.println("array loaded:");
 
@@ -178,13 +188,18 @@ void Track::load_track()
             SeqMod2Value[i] = myFile.read();
             SeqMod3Value[i] = myFile.read();
             SeqMod4Value[i] = myFile.read();
+            Serial.printf("load parameter %d = %d\n", i, parameter[i]);
         }
         setStepFX = myFile.read();
+        mixGainPot = myFile.read();
+        mixDryPot = myFile.read();
+        mixFX1Pot = myFile.read();
+        mixFX2Pot = myFile.read();
+        mixFX3Pot = myFile.read();
         // Serial.println("settings loaded:");
-        Serial.println("Loading done");
 
-        startUpScreen();
-        // close the file:
+        // startUpScreen();
+        //  close the file:
         myFile.close();
     }
     else
@@ -192,9 +207,18 @@ void Track::load_track()
         // if the file didn't open, print an error:
         Serial.println("error:");
     }
+    if (parameter[SET_MIDICH_OUT] > NUM_MIDI_OUTPUTS)
+    {
+        allPlugins[parameter[SET_MIDICH_OUT] - (NUM_MIDI_OUTPUTS + 1)]->load_plugin();
+    }
+    Serial.println("track Loading done");
 }
 void Track::play_sequencer_mode(byte cloock, byte start, byte end)
 {
+    if (cloock % 96 == 0)
+        external_clock_bar++;
+    if (external_clock_bar == end)
+        external_clock_bar = start;
     if (cloock % parameter[SET_STEP_DIVIVISION] == 0)
     {
         internal_clock++;
@@ -204,6 +228,7 @@ void Track::play_sequencer_mode(byte cloock, byte start, byte end)
     }
     else
         internal_clock_is_on = false;
+
     if (internal_clock >= parameter[SET_SEQUENCE_LENGTH])
     {
         internal_clock = 0;
@@ -274,8 +299,8 @@ void Track::noteOn(byte Note, byte Velo, byte Channel)
     {
         cvNoteOn = true;
         cvNote = Note;
-        //Serial.printf("Tracks frees cv note: %d\n", cvNote);
-        // sendNoteOn_CV_Gate(Note, Channel);
+        // Serial.printf("Tracks frees cv note: %d\n", cvNote);
+        //  sendNoteOn_CV_Gate(Note, Channel);
     }
     // MIDI1.sendNoteOn(Note, Velo, Channel);
     // usbMIDI.sendNoteOn(Note, Velo, Channel);
@@ -362,10 +387,13 @@ void Track::set_clip_to_play(byte n, byte b)
     {
         if (enc_moved[n])
         {
-            clip_to_play[bar_to_edit] = constrain(clip_to_play[bar_to_edit] + encoded[n], 0, NUM_USER_CLIPS + 1);
-            draw_clip_to_play(n, bar_to_edit);
-            draw_arrangment_line(n, bar_to_edit);
 
+            for (int i = 0; i < parameter[SET_STEP_DIVIVISION]; i++)
+            {
+                clip_to_play[bar_to_edit + i] = constrain(clip_to_play[bar_to_edit + i] + encoded[n], 0, NUM_USER_CLIPS + 1);
+                draw_arrangment_line(n, bar_to_edit + i);
+            }
+            draw_clip_to_play(n, bar_to_edit);
             enc_moved[n] = false;
         }
     }
@@ -426,6 +454,7 @@ void Track::draw_arrangment_line(byte n, byte b) // b= 0-255; which bar
         {
             tft->drawFastHLine(((b - (16 * arrangerpage)) * STEP_FRAME_W + STEP_FRAME_W * 2) + 1, ((my_Arranger_Y_axis)*TRACK_FRAME_H + thickness) + 12, STEP_FRAME_W - 1, ILI9341_DARKGREY); //(x-start, y, length, color)
         }
+        trellis_set_main_buffer(arrangerpage + TRELLIS_SCREEN_ARRANGER_1, (b % 16), my_Arranger_Y_axis - 1, TRELLIS_BLACK);
     }
     else
     {
@@ -434,6 +463,8 @@ void Track::draw_arrangment_line(byte n, byte b) // b= 0-255; which bar
         {
             tft->drawFastHLine(((b - (16 * arrangerpage)) * STEP_FRAME_W + STEP_FRAME_W * 2) + 1, ((my_Arranger_Y_axis)*TRACK_FRAME_H + thickness) + 12, STEP_FRAME_W - 1, trackColor[my_Arranger_Y_axis - 1] + (clip_to_play[b] * 20)); //(x-start, y, length, color)
         }
+        trellis_set_main_buffer(arrangerpage + TRELLIS_SCREEN_ARRANGER_1, (b % 16), my_Arranger_Y_axis - 1, trellisTrackColor[my_Arranger_Y_axis - 1] + (clip_to_play[b] * 20));
+
         draw_clipNr_arranger(n, b);
         draw_offset_arranger(n, b);
     }
@@ -458,9 +489,14 @@ void Track::set_note_offset(byte n, int b)
         byte when = ((b - SEQ_GRID_LEFT) / STEP_FRAME_W) + (BARS_PER_PAGE * arrangerpage);
         if (enc_moved[n])
         {
-            noteOffset[when] = constrain(noteOffset[when] + encoded[n], -99, +99);
+            int _tempOffset = constrain(noteOffset[when] + encoded[n], -99, +99);
+
             draw_noteOffset(n, when);
-            draw_arrangment_line(n, when);
+            for (int i = 0; i < parameter[SET_STEP_DIVIVISION]; i++)
+            {
+                noteOffset[when + i] = _tempOffset;
+                draw_arrangment_line(n, when + i);
+            }
             enc_moved[n] = false;
         }
     }
@@ -481,7 +517,11 @@ void Track::set_barVelocity(byte n, int b)
         {
             barVelocity[when] = constrain(barVelocity[when] + encoded[n], 0, 127);
             draw_barVelocity(n, when);
-            draw_arrangment_line(n, when);
+            for (int i = 0; i < parameter[SET_STEP_DIVIVISION]; i++)
+            {
+
+                draw_arrangment_line(n, when + i);
+            }
             enc_moved[n] = false;
         }
     }

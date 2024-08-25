@@ -2,9 +2,9 @@
 
 #include <Arduino.h>
 #include "project_variables.h"
-
+#include "SD.h"
 elapsedMicros msecsclock;
-
+File myFile;
 
 
 // extern Clock Masterclock;

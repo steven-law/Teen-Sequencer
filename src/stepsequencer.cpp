@@ -12,7 +12,7 @@ void Track::set_stepSequencer_parameters(byte row)
         set_coordinateX(0, 0);
         set_coordinateY(1, 0);
 
-        set_stepSequencer_parameter_value(ENCODER_STEP_FX, 0, CCnames[setStepFX], 0, 128);
+        set_stepSequencer_parameter_value(ENCODER_STEP_FX, 0, CCnames[setStepFX], 0, 129);
         set_stepSequencer_parameter_value(3, 0, "Velo", 1, 128);
         break;
     case 1:

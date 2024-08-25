@@ -8,10 +8,11 @@
 #include <SD.h>
 #include <SerialFlash.h>
 #include "ownLibs/mixers.h"
+#include "ownLibs/filter_ladderlite.h"
 #include "project_variables.h"
 #include "project_functions.h"
 #include <Plugins/pluginClass.h>
-#include "ownLibs/filter_ladderlite.h"
+
 // TeensyDAW: begin automatically generated code
 // Name: dTune
 // Description: 2VCO Detuned Subtractive Synthesizer
@@ -105,22 +106,22 @@ public:
     void set_envelope_decay(byte XPos, byte YPos, const char *name, int min, int max);
     void set_envelope_sustain(byte XPos, byte YPos, const char *name);
     void set_envelope_release(byte XPos, byte YPos, const char *name, int min, int max);
-    void assign_voice1_waveform(byte value) ; // make virtual in baseclass but override
-    void assign_voice1_amplitude(byte value) ;
-    //void set_voice1_detune(byte XPos, byte YPos, const char *name);
-    void assign_voice2_waveform(byte value) ; // make virtual in baseclass but override
-    void assign_voice2_amplitude(byte value) ;
+    void assign_voice1_waveform(byte value); // make virtual in baseclass but override
+    void assign_voice1_amplitude(byte value);
+    // void set_voice1_detune(byte XPos, byte YPos, const char *name);
+    void assign_voice2_waveform(byte value); // make virtual in baseclass but override
+    void assign_voice2_amplitude(byte value);
     void set_voice2_detune(byte XPos, byte YPos, const char *name);
 
-    void assign_filter_frequency(byte value) ;
-    void assign_filter_resonance(byte value) ;
-    void assign_filter_sweep(byte value) ;
-    void assign_filter_type(byte mixerchannel) ;
+    void assign_filter_frequency(byte value);
+    void assign_filter_resonance(byte value);
+    void assign_filter_sweep(byte value);
+    void assign_filter_type(byte mixerchannel);
 
-    void assign_envelope1_attack(byte value, int max) ;
-    void assign_envelope1_decay(byte value, int max) ;
-    void assign_envelope1_sustain(byte value) ;
-    void assign_envelope1_release(byte value, int max) ;
+    void assign_envelope1_attack(byte value, int max);
+    void assign_envelope1_decay(byte value, int max);
+    void assign_envelope1_sustain(byte value);
+    void assign_envelope1_release(byte value, int max);
     void set_envelope1_ADSR(byte YPos, int maxA, int maxD, int maxR);
     
 };

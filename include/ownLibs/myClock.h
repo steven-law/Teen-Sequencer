@@ -35,6 +35,9 @@ public:
     void draw_clock_option(byte x, byte v);
     static void drawstepPosition(int current);
     static void drawbarPosition(byte _bar);
+      void set_start_of_loop(byte n);
+
+  void set_end_of_loop(byte n);
 };
 extern MyClock myClock;
 #endif

@@ -5,7 +5,8 @@
 #include <SD.h>
 #include <SerialFlash.h>
 #include "ownLibs/mixers.h"
-
+#include "project_variables.h"
+#include "project_functions.h"
 #include <Plugins/Plugin_8.h>
 
 extern bool enc_moved[4];
@@ -59,7 +60,7 @@ void Plugin_8::noteOn(byte notePlayed, float velocity, byte voice)
 {
     waveform.frequency((note_frequency[notePlayed] + detune1) * tuning);
     waveform1.frequency((note_frequency[notePlayed] + detune2) * tuning);
-    Serial.println(detune1);
+    //Serial.printf("pl8 detune1: %d\n", detune1);
     Fenv.noteOn();
     Aenv.noteOn();
 }
