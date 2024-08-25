@@ -132,7 +132,7 @@ void MyClock::drawbarPosition(byte _bar)
     if (_bar == 0)
     {
         // pixelphrase = 0;
-        tft->fillRect(STEP_FRAME_W * 17, BAR_POSITION_POINTER_Y, STEP_FRAME_W, 4, ILI9341_DARKGREY);
+        tft->fillRect(STEP_FRAME_W * (endOfLoop+2), BAR_POSITION_POINTER_Y, STEP_FRAME_W, POSITION_POINTER_THICKNESS+1, ILI9341_DARKGREY);
         // tft->fillRect(STEP_FRAME_W * 2, GRID_POSITION_POINTER_Y, STEP_FRAME_W * 1, 4, ILI9341_GREEN);
     }
     // Serial.println(step_tick);

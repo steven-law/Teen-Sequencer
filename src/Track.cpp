@@ -215,16 +215,12 @@ void Track::load_track()
 }
 void Track::play_sequencer_mode(byte cloock, byte start, byte end)
 {
-    if (cloock % 96 == 0)
+    if (cloock % MAX_TICKS == 0)
         external_clock_bar++;
-    if (external_clock_bar == end)
-        external_clock_bar = start;
     if (cloock % parameter[SET_STEP_DIVIVISION] == 0)
     {
         internal_clock++;
         internal_clock_is_on = true;
-        // if (internal_clock % 6 == 0)
-        // trellis_show_clockbar(MIDI_channel_in, internal_clock / 6);
     }
     else
         internal_clock_is_on = false;
@@ -235,7 +231,10 @@ void Track::play_sequencer_mode(byte cloock, byte start, byte end)
         internal_clock_bar++;
         change_presets();
     }
-    if (internal_clock_bar == end)
+
+    if (external_clock_bar >= end)
+        external_clock_bar = start;
+    if (internal_clock_bar >= end)
         internal_clock_bar = start;
     // Serial.printf("bar: %d, tick: %d\n", internal_clock_bar, internal_clock);
     //  Serial.println(internal_clock_bar);
@@ -243,6 +242,8 @@ void Track::play_sequencer_mode(byte cloock, byte start, byte end)
     {
         if (!muted && !muteThruSolo)
         {
+            // Serial.printf("internalbar=%d, externalbar= %d\n",internal_clock_bar,external_clock_bar );
+            // Serial.printf("internalClock=%d, externalClock= %d\n",internal_clock,cloock );
             if (parameter[SET_SEQ_MODE] == 0)
             {
                 play_seq_mode0(internal_clock);

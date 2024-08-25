@@ -101,7 +101,7 @@ public:
 bool cvNoteOff;
 byte cvNote;
 
-    int internal_clock = 0;
+    int internal_clock = -1;
     int internal_clock_bar = 0;
     byte external_clock_bar = 0;
     byte clip_to_play[256];
@@ -127,8 +127,8 @@ byte cvNote;
                 for (int v = 0; v < MAX_VOICES; v++)
                 {
                     clip[c].tick[t].voice[v] = NO_NOTE;
-                    clip[c].tick[t].velo[v] = 7;
-                    clip[c].tick[t].stepFX = 0;
+                    clip[c].tick[t].velo[v] = 0;
+                    clip[c].tick[t].stepFX = 128;
                 }
             }
         }

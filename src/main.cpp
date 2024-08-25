@@ -204,6 +204,7 @@ void setup()
   }
 
   Serial.println("DAC´s started");
+  
   trellisMainGridBuffer = new int **[TRELLIS_MAX_PAGES];
   for (int i = 0; i < TRELLIS_MAX_PAGES; i++)
   {
@@ -786,14 +787,18 @@ void sendNoteOn_CV_Gate()
 // put function definitions here:
 void sendNoteOn(byte Note, byte Velo, byte Channel)
 {
-  if (Channel > 0 && Channel <= 16)
-    MIDI1.sendNoteOn(Note, Velo, Channel);
-  if (Channel > 16 && Channel <= 32)
-    usbMIDI.sendNoteOn(Note, Velo, Channel - 16);
-  if (Channel > 32 && Channel <= 48)
-    usbMidi1.sendNoteOn(Note, Velo, Channel - 32);
-  if (Channel > 48 && Channel <= 48 + NUM_PLUGINS)
-    MasterOut.noteOn(Note, Velo, Channel - (48 + 1), Note % 12);
+  if (Note < NO_NOTE)
+  {
+    if (Channel > 0 && Channel <= 16)
+      MIDI1.sendNoteOn(Note, Velo, Channel);
+    if (Channel > 16 && Channel <= 32)
+      usbMIDI.sendNoteOn(Note, Velo, Channel - 16);
+    if (Channel > 32 && Channel <= 48)
+      usbMidi1.sendNoteOn(Note, Velo, Channel - 32);
+    if (Channel > 48 && Channel <= 48 + NUM_PLUGINS)
+      MasterOut.noteOn(Note, Velo, Channel - (48 + 1), Note % 12);
+   // Serial.printf("Note ON: channel:%d, Note: %d, Velo: %d\n", Channel, Note, Velo);
+  }
 }
 
 void sendNoteOff_CV_Gate()
@@ -1451,6 +1456,8 @@ void trellis_select_trackClips()
           trellis_set_control_buffer(3, 3, trellisTrackColor[active_track]);
 
           trellisScreen = x;
+          //trellisScreen = 0;
+
 
           break;
         }
@@ -1466,6 +1473,8 @@ void trellis_select_trackClips()
           trellisRecall = true;
           activeScreen = INPUT_FUNCTIONS_FOR_SEQUENCER;
           trellisScreen = allTracks[active_track]->parameter[SET_CLIP2_EDIT];
+          //trellisScreen = 0;
+
           allTracks[active_track]->drawStepSequencerStatic();
           allTracks[active_track]->draw_stepSequencer_parameters(lastPotRow);
           // allTracks[active_track]->clear_notes_in_grid();
@@ -1659,9 +1668,9 @@ void trellis_stop_clock()
     enc_button[3] = false;
     for (int i = 0; i < NUM_TRACKS; i++)
     {
-      allTracks[i]->internal_clock = 0;
+      allTracks[i]->internal_clock = -1;
       allTracks[i]->internal_clock_bar = 0;
-      allTracks[i]->external_clock_bar = 0;
+      allTracks[i]->external_clock_bar = 255;
     }
   }
 }

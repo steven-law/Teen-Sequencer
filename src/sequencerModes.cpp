@@ -18,6 +18,8 @@ void Track::play_seq_mode0(byte cloock)
                 byte StepFX = get_active_stepFX(clip_to_play[internal_clock_bar], cloock, v);
                 note_is_on[v] = true;
                 sendControlChange(setStepFX, StepFX, parameter[SET_MIDICH_OUT]);
+                
+               // Serial.printf("get_note: %d + offset %d = %d\n", get_active_note(clip_to_play[internal_clock_bar], cloock, v),noteOffset[external_clock_bar],  noteToPlay[v] );
                 noteOn(noteToPlay[v], Velo, parameter[SET_MIDICH_OUT]);
             }
         }
