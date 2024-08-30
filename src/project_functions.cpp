@@ -22,7 +22,12 @@ void trellis_stop_clock();
 void trellis_set_potRow();
 void trellis_set_track_record();
 void trellis_SetCursor(byte maxY);
+void set_perform_page(byte lastPotRow);
+
+
+
 void encoder_SetCursor(byte deltaX, byte maxY)
+
 {
 
     if (enc_moved[0])
@@ -44,8 +49,8 @@ void buttons_save_track()
     {
         if (pixelTouchX >= 13 * STEP_FRAME_W && pixelTouchX <= 14 * STEP_FRAME_W && gridTouchY == 0)
         {
-            allTracks[active_track]->save_track();
-            // Serial.println("saved track");
+            // allTracks[active_track]->save_track();
+            //  Serial.println("saved track");
             trellisPressed[TRELLIS_BUTTON_ENTER] = false;
         }
     }
@@ -57,8 +62,8 @@ void buttons_load_track()
         if (pixelTouchX >= 15 * STEP_FRAME_W && gridTouchY == 0)
         {
 
-            allTracks[active_track]->load_track();
-            // Serial.println("loaded track");
+            // allTracks[active_track]->load_track();
+            //  Serial.println("loaded track");
             trellisPressed[TRELLIS_BUTTON_ENTER] = false;
         }
     }
@@ -71,9 +76,9 @@ void buttons_save_all()
         if (pixelTouchX >= 13 * STEP_FRAME_W && pixelTouchX <= 14 * STEP_FRAME_W && gridTouchY == 0)
         {
             for (int i = 0; i < NUM_TRACKS; i++)
-                allTracks[i]->save_track();
-            // Serial.println("saved track");
-            trellisPressed[TRELLIS_BUTTON_ENTER] = false;
+                //  allTracks[i]->save_track();
+                // Serial.println("saved track");
+                trellisPressed[TRELLIS_BUTTON_ENTER] = false;
         }
     }
 }
@@ -84,13 +89,12 @@ void buttons_load_all()
         if (pixelTouchX >= 15 * STEP_FRAME_W && gridTouchY == 0)
         {
             for (int i = 0; i < NUM_TRACKS; i++)
-                allTracks[i]->load_track();
-            // Serial.println("loaded track");
-            trellisPressed[TRELLIS_BUTTON_ENTER] = false;
+                // allTracks[i]->load_track();
+                // Serial.println("loaded track");
+                trellisPressed[TRELLIS_BUTTON_ENTER] = false;
         }
     }
 }
-
 
 void buttons_SetNoteOnTick(int x, byte y)
 {
@@ -113,11 +117,11 @@ void clock_to_notes(int _tick)
     {
         allTracks[t]->play_sequencer_mode(_tick, myClock.startOfLoop, myClock.endOfLoop);
     }
-    //Serial.printf("LoopStart: %d, LoopEnd: %d\n", myClock.startOfLoop, myClock.endOfLoop);
+    // Serial.printf("LoopStart: %d, LoopEnd: %d\n", myClock.startOfLoop, myClock.endOfLoop);
 }
 void input_behaviour()
 {
-   
+
     trellis_start_clock();
     trellis_stop_clock();
     trellis_set_potRow();
@@ -200,15 +204,17 @@ void input_behaviour()
         trellisPressed[TRELLIS_POTROW] = false;
     }
     if (activeScreen == INPUT_FUNCTIONS_FOR_MIXER1)
-    set_mixer(lastPotRow);
-  if (activeScreen == INPUT_FUNCTIONS_FOR_MIXER2)
-    set_mixer_FX_page1(lastPotRow);
-  if (activeScreen == INPUT_FUNCTIONS_FOR_MIXER3)
-    set_mixer_FX_page2(lastPotRow);
-  if (activeScreen == INPUT_FUNCTIONS_FOR_FX1)
-    fx_1.set_parameters(lastPotRow);
-  if (activeScreen == INPUT_FUNCTIONS_FOR_FX2)
-    fx_2.set_parameters(lastPotRow);
+        set_mixer(lastPotRow);
+    if (activeScreen == INPUT_FUNCTIONS_FOR_MIXER2)
+        set_mixer_FX_page1(lastPotRow);
+    if (activeScreen == INPUT_FUNCTIONS_FOR_MIXER3)
+        set_mixer_FX_page2(lastPotRow);
+    if (activeScreen == INPUT_FUNCTIONS_FOR_FX1)
+        fx_1.set_parameters(lastPotRow);
+    if (activeScreen == INPUT_FUNCTIONS_FOR_FX2)
+        fx_2.set_parameters(lastPotRow);
+    if (activeScreen == INPUT_FUNCTIONS_FOR_PERFORM)
+        set_perform_page(lastPotRow);
 }
 
 void clearWorkSpace()
@@ -421,24 +427,24 @@ void gridSongMode(int songpageNumber)
 
 void drawActiveRect(int xPos, byte yPos, byte xsize, byte ysize, bool state, const char *name, int color)
 {
-  if (state)
-  {
-    tft.fillRect(STEP_FRAME_W * xPos, STEP_FRAME_H * yPos, STEP_FRAME_W * xsize, STEP_FRAME_W * ysize, color);
-    tft.drawRect(STEP_FRAME_W * xPos, STEP_FRAME_H * yPos, STEP_FRAME_W * xsize, STEP_FRAME_W * ysize, color);
-    tft.setFont(Arial_8);
-    tft.setTextColor(ILI9341_BLACK);
-    tft.setCursor(STEP_FRAME_W * xPos + 4, STEP_FRAME_H * yPos + 3);
-    tft.print(name);
-  }
-  if (!state)
-  {
-    tft.fillRect(STEP_FRAME_W * xPos, STEP_FRAME_H * yPos, STEP_FRAME_W * xsize, STEP_FRAME_W * ysize, ILI9341_DARKGREY);
-    tft.drawRect(STEP_FRAME_W * xPos, STEP_FRAME_H * yPos, STEP_FRAME_W * xsize, STEP_FRAME_W * ysize, color);
-    tft.setFont(Arial_8);
-    tft.setTextColor(ILI9341_BLACK);
-    tft.setCursor(STEP_FRAME_W * xPos + 4, STEP_FRAME_H * yPos + 3);
-    tft.print(name);
-  }
+    if (state)
+    {
+        tft.fillRect(STEP_FRAME_W * xPos, STEP_FRAME_H * yPos, STEP_FRAME_W * xsize, STEP_FRAME_W * ysize, color);
+        tft.drawRect(STEP_FRAME_W * xPos, STEP_FRAME_H * yPos, STEP_FRAME_W * xsize, STEP_FRAME_W * ysize, color);
+        tft.setFont(Arial_8);
+        tft.setTextColor(ILI9341_BLACK);
+        tft.setCursor(STEP_FRAME_W * xPos + 4, STEP_FRAME_H * yPos + 3);
+        tft.print(name);
+    }
+    if (!state)
+    {
+        tft.fillRect(STEP_FRAME_W * xPos, STEP_FRAME_H * yPos, STEP_FRAME_W * xsize, STEP_FRAME_W * ysize, ILI9341_DARKGREY);
+        tft.drawRect(STEP_FRAME_W * xPos, STEP_FRAME_H * yPos, STEP_FRAME_W * xsize, STEP_FRAME_W * ysize, color);
+        tft.setFont(Arial_8);
+        tft.setTextColor(ILI9341_BLACK);
+        tft.setCursor(STEP_FRAME_W * xPos + 4, STEP_FRAME_H * yPos + 3);
+        tft.print(name);
+    }
 }
 void draw_sequencer_option(byte x, const char *nameshort, int value, byte enc, const char *pluginName)
 {
@@ -543,5 +549,3 @@ void startUpScreen()
     tft.setCursor(STEP_FRAME_W * POSITION_LOAD_BUTTON + 4, 3);
     tft.print("L");
 }
-
-

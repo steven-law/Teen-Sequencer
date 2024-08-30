@@ -19,13 +19,13 @@ void Track::update(int PixelX, byte gridY)
     // save_track();
     // load_track();
 }
-void Track::save_track()
+void Track::save_track(byte songNr)
 {
     SD.begin(BUILTIN_SDCARD);
     // Serial.println("in save mode:");
     trellisPressed[TRELLIS_BUTTON_ENTER] = false;
 
-    sprintf(_trackname, "track%d.txt\0", MIDI_channel_in);
+    sprintf(_trackname, "%dtrack%d.txt\0", songNr, MIDI_channel_in);
     Serial.println(_trackname);
 
     // delete the file:
@@ -95,6 +95,8 @@ void Track::save_track()
         myFile.print((char)mixFX1Pot);
         myFile.print((char)mixFX2Pot);
         myFile.print((char)mixFX3Pot);
+        byte _tempOffset =performNoteOffset+64;
+        myFile.print((char)_tempOffset);
         // close the file:
         myFile.close();
         // Serial.println("all saved:");
@@ -112,12 +114,18 @@ void Track::save_track()
     Serial.println("track saving Done:");
     // startUpScreen();
 }
-void Track::load_track()
+void Track::load_track(byte songNr)
 {
-
+    for (int p = 0; p < TRELLIS_MAX_PAGES; p++)
+    {
+        for (int i = 0; i < NUM_STEPS; i++)
+        {
+            trellis_set_main_buffer(p, i, (MIDI_channel_in - 1), TRELLIS_BLACK);
+        }
+    }
     SD.begin(BUILTIN_SDCARD);
     // Serial.println("in load mode");
-    sprintf(_trackname, "track%d.txt\0", MIDI_channel_in);
+    sprintf(_trackname, "%dtrack%d.txt\0", songNr, MIDI_channel_in);
     Serial.println(_trackname);
     //  open the file for reading:
     myFile = SD.open(_trackname, FILE_READ);
@@ -196,6 +204,8 @@ void Track::load_track()
         mixFX1Pot = myFile.read();
         mixFX2Pot = myFile.read();
         mixFX3Pot = myFile.read();
+        int _tempOffset =myFile.read();
+        performNoteOffset = _tempOffset-64;
         // Serial.println("settings loaded:");
 
         // startUpScreen();

@@ -38,6 +38,7 @@ extern elapsedMicros msecsclock;
 #define NUM_STEPS 16
 #define MAX_TICKS 96
 #define MAX_VOICES 12
+#define MAX_SONGS 9
 // active Tracks
 #define ACTIVE_TRACK_1 0
 #define ACTIVE_TRACK_2 1
@@ -90,6 +91,7 @@ extern elapsedMicros msecsclock;
 #define INPUT_FUNCTIONS_FOR_FX1 10
 #define INPUT_FUNCTIONS_FOR_FX2 11
 #define INPUT_FUNCTIONS_FOR_FX3 12
+#define INPUT_FUNCTIONS_FOR_PERFORM 13
 
 #define INFO_BOX_WIDTH 200
 #define INFO_BOX_HEIGTH 120
@@ -165,6 +167,7 @@ extern bool showBox;
 extern byte active_track;
 extern byte arrangerpage;
 extern bool otherCtrlButtons;
+extern const char FLASHMEM *songNames[MAX_SONGS];
 
 extern int phraseSegmentLength;
 extern const char FLASHMEM *playstate[3];
@@ -184,6 +187,7 @@ extern bool *trellisPressed;
 extern bool trellisRecall;
 extern bool trellisShowClockPixel[Y_DIM];
 extern byte trellisPianoTrack;
+extern byte performCC[16];
 extern char _trackname[20];
 extern const char FLASHMEM *CCnames[129];
 

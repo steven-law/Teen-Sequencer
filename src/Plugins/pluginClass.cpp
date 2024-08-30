@@ -38,7 +38,8 @@ void PluginControll::save_plugin()
     // Serial.println("in save mode:");
     trellisPressed[TRELLIS_BUTTON_ENTER] = false;
 
-    sprintf(_trackname, "plugin%d.txt\0", myID);
+    sprintf(_trackname, "%dplugin%d.txt\0", gridTouchY, myID);
+
     Serial.println(_trackname);
 
     // delete the file:
@@ -83,7 +84,7 @@ void PluginControll::load_plugin()
     SD.begin(BUILTIN_SDCARD);
     // Serial.println("in save mode:");
 
-    sprintf(_trackname, "plugin%d.txt\0", myID);
+    sprintf(_trackname, "%dplugin%d.txt\0", gridTouchY, myID);
     Serial.println(_trackname);
 
     // open the file.

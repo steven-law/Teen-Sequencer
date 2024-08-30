@@ -16,7 +16,7 @@ MyClock::MyClock(ILI9341_t3n *display)
 void MyClock::setup()
 {
     // Set the clock BPM to 120 BPM
-    uClock.setTempo(120);
+    uClock.setTempo(tempo);
     uClock.init();                        // Inits the clock
     uClock.setOnSync24(onSync24Callback); // Set the callback function for the clock output to send MIDI Sync message.
     uClock.setOnStep(onStepCallback);     // Set the callback function for the step sequencer on 16ppqn
@@ -31,7 +31,6 @@ void MyClock::onSync24Callback(uint32_t tick) // The callback function wich will
     tick = tick % MAX_TICKS;
     // Serial.printf("tick: %d\n", tick);
 
-       
     sendClock();
     clock_to_notes(tick);
 }
@@ -46,10 +45,10 @@ void MyClock::onStepCallback(uint32_t tick) // Each call represents exactly one 
     }
     // Serial.printf("Bar: %d\n", tick);
     drawstepPosition(tick);
-    drawbarPosition(barTick );
-    for (int i= 0; i < NUM_TRACKS; i++)
+    drawbarPosition(barTick);
+    for (int i = 0; i < NUM_TRACKS; i++)
     {
-       trellisShowClockPixel[i]=true;
+        trellisShowClockPixel[i] = true;
     }
 }
 
@@ -132,7 +131,7 @@ void MyClock::drawbarPosition(byte _bar)
     if (_bar == 0)
     {
         // pixelphrase = 0;
-        tft->fillRect(STEP_FRAME_W * (endOfLoop+2), BAR_POSITION_POINTER_Y, STEP_FRAME_W, POSITION_POINTER_THICKNESS+1, ILI9341_DARKGREY);
+        tft->fillRect(STEP_FRAME_W * (endOfLoop + 2), BAR_POSITION_POINTER_Y, STEP_FRAME_W, POSITION_POINTER_THICKNESS + 1, ILI9341_DARKGREY);
         // tft->fillRect(STEP_FRAME_W * 2, GRID_POSITION_POINTER_Y, STEP_FRAME_W * 1, 4, ILI9341_GREEN);
     }
     // Serial.println(step_tick);
@@ -162,4 +161,92 @@ void MyClock::set_end_of_loop(byte n)
         enc_moved[n] = false;
     }
 }
+
+void MyClock::save_clock()
+{
+    SD.begin(BUILTIN_SDCARD);
+    // Serial.println("in save mode:");
+    trellisPressed[TRELLIS_BUTTON_ENTER] = false;
+
+    sprintf(_trackname, "%dclock.txt\0", gridTouchY);
+    Serial.println(_trackname);
+
+    // delete the file:
+    // Serial.println("Removing:");
+    SD.remove(_trackname);
+    // Serial.println("Done:");
+
+    // open the file.
+    // Serial.println("Creating and opening:");
+    myFile = SD.open(_trackname, FILE_WRITE);
+    // Serial.println(_trackname);
+    // Serial.println("Done:");
+    //  if the file opened okay, write to it:
+    if (myFile)
+    {
+        // save tracks
+        // Serial.println("Writing track:");
+        // Serial.println("settings & seqmodes saved:");
+        byte _tempo = tempo / 2;
+        byte _startOfLoop = startOfLoop / 2;
+        byte _endOfLoop = endOfLoop / 2;
+        myFile.print((char)_tempo);
+        myFile.print((char)_startOfLoop);
+        myFile.print((char)_endOfLoop);
+        // close the file:
+        myFile.close();
+        // Serial.println("all saved:");
+    }
+    else
+    {
+        // if the file didn't open, print an error:
+        Serial.println("error:");
+    }
+
+    Serial.println("clock saving Done:");
+    // startUpScreen();
+}
+void MyClock::load_clock()
+{
+    byte _tempo;
+    byte _startOfLoop;
+    byte _endOfLoop;
+    SD.begin(BUILTIN_SDCARD);
+    // Serial.println("in load mode");
+    sprintf(_trackname, "%dclock.txt\0", gridTouchY);
+    Serial.println(_trackname);
+    //  open the file for reading:
+    myFile = SD.open(_trackname, FILE_READ);
+    // Serial.println(_trackname);
+    if (myFile)
+    {
+        // Serial.println("opening:");
+        //  read from the file until there's nothing else in it:
+        //  load track 1
+
+        _tempo = myFile.read();
+        _startOfLoop = myFile.read();
+        _endOfLoop = myFile.read();
+
+        // Serial.println("settings loaded:");
+
+        // startUpScreen();
+        //  close the file:
+        myFile.close();
+    }
+    else
+    {
+        // if the file didn't open, print an error:
+        Serial.println("error:");
+    }
+    tempo = _tempo * 2;
+    startOfLoop = _startOfLoop * 2;
+    endOfLoop = _endOfLoop * 2;
+    uClock.setTempo(tempo);
+    draw_clock_option(POSITION_BPM_BUTTON, tempo);
+    draw_clock_option(POSITION_START_LOOP_BUTTON, startOfLoop);
+    draw_clock_option(POSITION_END_LOOP_BUTTON, endOfLoop);
+    Serial.println("clock Loading done");
+}
+
 // MyClock myClock(&tft);

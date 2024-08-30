@@ -83,7 +83,7 @@ public:
     // Stepsequencer
     bool recordState = false;
     byte parameter[16]{0, 0, 128, 99, 96, 1, 3, 4, 0, 0, 0, 0};
-     byte mixGainPot=127;
+    byte mixGainPot = 127;
     float mixGain = 1;
     byte mixDryPot;
     float mixDry = 1;
@@ -97,9 +97,10 @@ public:
     bool soloed;
     bool muteThruSolo;
     bool performIsActive = false;
+    int performNoteOffset = 0;
     bool cvNoteOn;
-bool cvNoteOff;
-byte cvNote;
+    bool cvNoteOff;
+    byte cvNote;
 
     int internal_clock = -1;
     int internal_clock_bar = 0;
@@ -174,8 +175,8 @@ byte cvNote;
     void update(int PixelX, byte gridY);
     void noteOn(byte Note, byte Velo, byte Channel);
     void noteOff(byte Note, byte Velo, byte Channel);
-    void save_track();
-    void load_track();
+    void save_track(byte songNr);
+    void load_track(byte songNr);
     // songmode
     void draw_clip_to_play(byte n, byte b);
     void draw_arrangment_line(byte n, byte b);
@@ -227,7 +228,7 @@ private:
     int pixelOn_Y;
     int gridX_4_save;
     byte gridY_4_save;
-    
+
     int noteOffset[256];
     byte barVelocity[256];
     byte sTick;
@@ -272,8 +273,6 @@ private:
 
     byte mute_norm_solo_pot = 1;
 
-    
-
     // sequencer Modes
 
     // void play_seq_mode0(byte cloock);
@@ -303,7 +302,7 @@ private:
 
     // sequencer note input stuff
     void set_active_note(byte _clip, byte _tick, byte _voice, byte _note);
-    
+
     void set_active_velo(byte _clip, byte _tick, byte _voice, byte _velo);
     byte get_active_velo(byte _clip, byte _tick, byte _voice);
     void set_active_stepFX(byte _clip, byte _tick, byte _voice, byte _stepFX);
@@ -311,7 +310,6 @@ private:
     void check_for_free_voices(byte onTick, byte cnote);
     void clear_notes_on_tick(byte cl_X);
     void draw_note_on_tick(byte dr_X);
-    
 
     // stepsequencer
 
@@ -326,11 +324,9 @@ private:
 
     // clip to play
 
-    
     void drawsongmodepageselector();
     void gridSongMode(int songpageNumber);
 
-    
     void draw_clipNr_arranger(byte n, byte b);
     byte get_clip_to_play(byte when);
     // note offset / note transpose
