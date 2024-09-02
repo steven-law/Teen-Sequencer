@@ -2,8 +2,9 @@
 
 #include <Arduino.h>
 #include "project_variables.h"
-
+#include "SD.h"
 elapsedMicros msecsclock;
+File myFile;
 
 // extern Clock Masterclock;
 int pixelTouchX = 0;
@@ -11,26 +12,34 @@ int gridTouchY = 0;
 byte lastPotRow = 0;
 byte activeScreen = 0;
 bool change_plugin_row = false;
-uint16_t tftRamInfoBox[200][120];
+// int tftRamInfoBox[INFO_BOX_WIDTH][INFO_BOX_HEIGTH];
+int **tftRamInfoBox;
 unsigned long currentTime = 0;
 bool showBox = false;
 
 byte active_track;
 byte arrangerpage;
 bool otherCtrlButtons = true;
+const char FLASHMEM *songNames[MAX_SONGS]{"Marshmallow", "KittyPitty", "DragonPunch", "Snozzle", "Wildbeast", "Worldpeace", "Jumanji", "WeAreApes", "MegaHit"};
 
 byte trellisScreen = 0;
 int trackColor[9]{ILI9341_RED, ILI9341_PINK, ILI9341_OLIVE, ILI9341_YELLOW, ILI9341_BLUE, 9365295, ILI9341_CYAN, ILI9341_GREEN, ILI9341_WHITE};
-int trellisTrackColor[9]{TRELLIS_RED, TRELLIS_PURPLE, TRELLIS_OLIVE, TRELLIS_YELLOW, TRELLIS_BLUE, 9365295, TRELLIS_TEAL, TRELLIS_GREEN, 900909};
-int trellisControllBuffer[TRELLIS_CONTROL_X_DIM][TRELLIS_CONTROL_Y_DIM];
-int trellisPanelBuffer[TRELLIS_CONTROL_X_DIM][TRELLIS_PANEL_Y_DIM];
-int trellisArrangerBuffer1[SONGMODE_PAGE_16+1][TRELLIS_PADS_X_DIM][TRELLIS_PADS_Y_DIM];
-int trellisStepSeqBuffer[8][TRELLIS_PADS_X_DIM][TRELLIS_PADS_Y_DIM];
-int trellisPianoBuffer[TRELLIS_PADS_X_DIM][TRELLIS_PADS_Y_DIM];
-bool trellisPressed[X_DIM * Y_DIM];
-bool trellisReleased[X_DIM * Y_DIM];
+int trellisTrackColor[9]{TRELLIS_RED, TRELLIS_PURPLE, TRELLIS_OLIVE, TRELLIS_YELLOW, TRELLIS_BLUE, 9365295, TRELLIS_AQUA, TRELLIS_GREEN, 900909};
+// int trellisControllBuffer[TRELLIS_CONTROL_X_DIM][TRELLIS_CONTROL_Y_DIM];
+// int trellisPanelBuffer[TRELLIS_CONTROL_X_DIM][TRELLIS_PANEL_Y_DIM];
+// int trellisMainGridBuffer[TRELLIS_MAX_PAGES][TRELLIS_PADS_X_DIM][TRELLIS_PADS_Y_DIM];
+int ***trellisMainGridBuffer;
+int **trellisControllBuffer;
+int **trellisPanelBuffer;
+
+// bool trellisPressed[X_DIM * Y_DIM];
+bool *trellisPressed;
 bool trellisShowClockPixel[Y_DIM];
 byte trellisPianoTrack;
+byte performCC[16]{7, 77, 24, 85, 84,  //Volume, EnvDepth, Data H, Rev Send, Del Send, 
+                   109, 119, 5, 83, //LFO1, LFO2, notelength, amprelease
+                   30, 92, 74, 75,
+                   128, 128, 128};
 bool trellisRecall;
 int encoder_colour[NUM_ENCODERS] = {ILI9341_BLUE, ILI9341_RED, ILI9341_GREEN, ILI9341_WHITE};
 // songmode
@@ -51,13 +60,13 @@ const char FLASHMEM *CCnames[129]{"CC0", "CC1", "CC2", "CC3", "CC4", "CC5", "CC6
                                   "CC110", "CC111", "CC112", "CC113", "CC114", "CC115", "CC116", "CC117", "CC118", "CC119",
                                   "CC120", "CC121", "CC122", "CC123", "CC124", "CC125", "CC126", "CC127", "none"};
 
-const char FLASHMEM *channelOutNames[MAX_OUTPUTS + 1]{"none", "SR1", "SR2", "SR3", "SR4", "SR5", "SR6", "SR7", "SR8",
+const char FLASHMEM *channelOutNames[MAX_OUTPUTS + 1]{"CV", "SR1", "SR2", "SR3", "SR4", "SR5", "SR6", "SR7", "SR8",
                                                       "SR9", "SR10", "SR11", "SR12", "SR13", "SR14", "SR15", "SR16",
                                                       "UD1", "UD2", "UD3", "UD4", "UD5", "UD6", "UD7", "UD8",
                                                       "UD9", "UD10", "UD11", "UD12", "UD13", "UD14", "UD15", "UD16",
                                                       "Ua1", "Ua2", "Ua3", "Ua4", "Ua5", "Ua6", "Ua7", "Ua8",
-                                                      "Ua9", "Ua10", "Ua11", "Ua12", "Ua13", "Ua14", "Ua15", "Ua16", 
-                                                      "Strg","1OSC", "FM2","mDrm","Drum","Draw", "Boom", "dTun"};
+                                                      "Ua9", "Ua10", "Ua11", "Ua12", "Ua13", "Ua14", "Ua15", "Ua16",
+                                                      "Strg", "1OSC", "FM2", "mDrm", "Drum", "Adtv", "Boom", "dTun", "rDrm"};
 
 const char FLASHMEM *noteNames[12]{"C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"};
 const char FLASHMEM *seqModname[5]{"Step", "Rand", "Drop", "BitRd", "PotS"};

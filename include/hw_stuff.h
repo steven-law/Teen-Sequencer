@@ -6,7 +6,6 @@
 #include <ili9341_t3n_font_Arial.h> // from ILI9341_t3
 #include <Bounce2.h>
 #include <Encoder.h>
-#include <Adafruit_Keypad.h>
 
 extern ILI9341_t3n tft;
 
@@ -22,6 +21,8 @@ extern ILI9341_t3n tft;
 extern uint16_t tft_frame_buffer[ILI9341_TFTWIDTH * ILI9341_TFTHEIGHT];
 #define ENABLE_ILI9341_FRAMEBUFFER
 extern void tft_setup(int dly);
+
+
 //trellis
 #define Y_DIM 8  // number of rows of key
 #define X_DIM 24 // number of columns of keys
@@ -45,22 +46,28 @@ extern void tft_setup(int dly);
 #define TRELLIS_BUTTON_PLUGIN 94
 #define TRELLIS_BUTTON_SEQUENCER 95
 
-#define TRELLIS_SCREEN_SEQUENCER 0
-#define TRELLIS_SCREEN_SONGPAGE_SELECTION 1
-#define TRELLIS_SCREEN_PIANO 2
-#define TRELLIS_SCREEN_MIXER 3
-#define TRELLIS_SCREEN_ARRANGER_1 10
-#define TRELLIS_SCREEN_ARRANGER_2 11
+#define TRELLIS_SCREEN_SEQUENCER_CLIP_0 0
+#define TRELLIS_SCREEN_SEQUENCER_CLIP_1 1
+#define TRELLIS_SCREEN_SEQUENCER_CLIP_2 2
+#define TRELLIS_SCREEN_SEQUENCER_CLIP_3 3
+#define TRELLIS_SCREEN_SEQUENCER_CLIP_4 4
+#define TRELLIS_SCREEN_SEQUENCER_CLIP_5 5
+#define TRELLIS_SCREEN_SEQUENCER_CLIP_6 6
+#define TRELLIS_SCREEN_SEQUENCER_CLIP_7 7
+#define TRELLIS_SCREEN_SEQUENCER_CLIP_8 8
+
+#define TRELLIS_SCREEN_PIANO 10
+#define TRELLIS_SCREEN_SONGPAGE_SELECTION 11
+#define TRELLIS_SCREEN_MIXER 12
+#define TRELLIS_SCREEN_PERFORM 13
+
+#define TRELLIS_SCREEN_ARRANGER_1 15
+#define TRELLIS_SCREEN_ARRANGER_2 16
+
 #define TRELLIS_SCREEN_STARTUP 99
-// buttons
-#define ROWS 4 // four rows
-#define COLS 4 // four columns
-// define the cymbols on the buttons of the keypads
-extern char keys[ROWS][COLS];
-extern byte rowPins[ROWS]; // connect to the row pinouts of the keypad
-extern byte colPins[COLS]; // connect to the column pinouts of the keypad
-extern bool trellisPressed[X_DIM * Y_DIM];
-extern Adafruit_Keypad kpd;
+
+//extern bool trellisPressed[X_DIM * Y_DIM];
+extern bool *trellisPressed;
 #define BUTTON_LEFT 0
 #define BUTTON_RIGHT 1
 #define BUTTON_UP 2
@@ -79,10 +86,10 @@ extern Adafruit_Keypad kpd;
 #define BUTTON_ENTER 15
 #define BUTTONS_PER_ROW 8
 #define NUM_BUTTONS 16
-extern bool buttonPressed[NUM_BUTTONS];
-extern unsigned long buttonPressStartTime[NUM_BUTTONS] ;  // Zeitpunkt, zu dem jeder Button gedrückt wurde
 extern const unsigned long longPressDuration;  // 1 Sekunde in Millisekunden
 
+extern const byte gateOutputPin[8];
+void gate_setup();
 
 // encoder
 #define NUM_ENCODERS 4

@@ -1,8 +1,8 @@
 #include <Arduino.h>
 #include "Track.h"
-File myFile;
-// MIDI_CREATE_INSTANCE(HardwareSerial, Serial1, MIDI1);
-//  midi::MidiInterface<midi::SerialMIDI<HardwareSerial>> *midi_out_serial = &MIDI1;
+// File myFile;
+//  MIDI_CREATE_INSTANCE(HardwareSerial, Serial1, MIDI1);
+//   midi::MidiInterface<midi::SerialMIDI<HardwareSerial>> *midi_out_serial = &MIDI1;
 void Track::update(int PixelX, byte gridY)
 {
     // MIDI1.read();
@@ -19,14 +19,14 @@ void Track::update(int PixelX, byte gridY)
     // save_track();
     // load_track();
 }
-void Track::save_track()
+void Track::save_track(byte songNr)
 {
     SD.begin(BUILTIN_SDCARD);
     // Serial.println("in save mode:");
     trellisPressed[TRELLIS_BUTTON_ENTER] = false;
 
-    sprintf(_trackname, "track%d.txt\0", MIDI_channel_in);
-    // Serial.println(_trackname);
+    sprintf(_trackname, "%dtrack%d.txt\0", songNr, MIDI_channel_in);
+    Serial.println(_trackname);
 
     // delete the file:
     // Serial.println("Removing:");
@@ -58,7 +58,7 @@ void Track::save_track()
         }
         for (int t = 0; t <= MAX_TICKS; t++)
         {
-            Serial.printf("save track: %d, tick: %d, note: %d, channel out; %d\n", MIDI_channel_in, t, this->clip[0].tick[t].voice[0], parameter[SET_MIDICH_OUT]);
+            // Serial.printf("save track: %d, tick: %d, note: %d, channel out; %d\n", MIDI_channel_in, t, this->clip[0].tick[t].voice[0], parameter[SET_MIDICH_OUT]);
         }
         // Serial.println("array saved:");
         for (int i = 0; i < 256; i++)
@@ -86,10 +86,17 @@ void Track::save_track()
             myFile.print((char)SeqMod2Value[i]);
             myFile.print((char)SeqMod3Value[i]);
             myFile.print((char)SeqMod4Value[i]);
+            Serial.printf("save parameter %d = %d\n", i, parameter[i]);
         }
         // Serial.println("settings & seqmodes saved:");
         myFile.print((char)setStepFX);
-
+        myFile.print((char)mixGainPot);
+        myFile.print((char)mixDryPot);
+        myFile.print((char)mixFX1Pot);
+        myFile.print((char)mixFX2Pot);
+        myFile.print((char)mixFX3Pot);
+        byte _tempOffset =performNoteOffset+64;
+        myFile.print((char)_tempOffset);
         // close the file:
         myFile.close();
         // Serial.println("all saved:");
@@ -99,16 +106,27 @@ void Track::save_track()
         // if the file didn't open, print an error:
         Serial.println("error:");
     }
-    // Serial.println("saving Done:");
-    startUpScreen();
-}
-void Track::load_track()
-{
+    if (parameter[SET_MIDICH_OUT] > NUM_MIDI_OUTPUTS)
+    {
+        allPlugins[parameter[SET_MIDICH_OUT] - (NUM_MIDI_OUTPUTS + 1)]->save_plugin();
+    }
 
+    Serial.println("track saving Done:");
+    // startUpScreen();
+}
+void Track::load_track(byte songNr)
+{
+    for (int p = 0; p < TRELLIS_MAX_PAGES; p++)
+    {
+        for (int i = 0; i < NUM_STEPS; i++)
+        {
+            trellis_set_main_buffer(p, i, (MIDI_channel_in - 1), TRELLIS_BLACK);
+        }
+    }
     SD.begin(BUILTIN_SDCARD);
     // Serial.println("in load mode");
-    sprintf(_trackname, "track%d.txt\0", MIDI_channel_in);
-    // Serial.println(_trackname);
+    sprintf(_trackname, "%dtrack%d.txt\0", songNr, MIDI_channel_in);
+    Serial.println(_trackname);
     //  open the file for reading:
     myFile = SD.open(_trackname, FILE_READ);
     // Serial.println(_trackname);
@@ -136,13 +154,13 @@ void Track::load_track()
             {
                 if (clip[parameter[SET_CLIP2_EDIT]].tick[i].voice[v] < NO_NOTE)
                 {
-                    trellis_set_stepSeq_buffer((i / 6), (MIDI_channel_in - 1), trellisTrackColor[MIDI_channel_in - 1]);
+                    trellis_set_main_buffer(parameter[SET_CLIP2_EDIT], (i / 6), (MIDI_channel_in - 1), trellisTrackColor[MIDI_channel_in - 1]);
                 }
             }
         }
         for (int t = 0; t <= MAX_TICKS; t++)
         {
-            Serial.printf("load track: %d, tick: %d, note: %d, channel out; %d\n", MIDI_channel_in, t, this->clip[0].tick[t].voice[0], parameter[SET_MIDICH_OUT]);
+            // Serial.printf("load track: %d, tick: %d, note: %d, channel out; %d\n", MIDI_channel_in, t, this->clip[0].tick[t].voice[0], parameter[SET_MIDICH_OUT]);
         }
         // Serial.println("array loaded:");
 
@@ -154,7 +172,10 @@ void Track::load_track()
             play_presetNr_ccChannel[i] = myFile.read();
             play_presetNr_ccValue[i] = myFile.read();
             if (clip_to_play[i] <= NUM_USER_CLIPS)
-                trellis_set_arranger_buffer((i / 16), i % 16, (MIDI_channel_in - 1), trellisTrackColor[MIDI_channel_in - 1]+ (clip_to_play[i] * 20));
+            {
+                Serial.println((i / 16) + TRELLIS_SCREEN_ARRANGER_1);
+                trellis_set_main_buffer((i / 16) + TRELLIS_SCREEN_ARRANGER_1, i % 16, (MIDI_channel_in - 1), trellisTrackColor[MIDI_channel_in - 1] + (clip_to_play[i] * 20));
+            }
         }
         // Serial.println("song loaded:");
 
@@ -175,13 +196,20 @@ void Track::load_track()
             SeqMod2Value[i] = myFile.read();
             SeqMod3Value[i] = myFile.read();
             SeqMod4Value[i] = myFile.read();
+            Serial.printf("load parameter %d = %d\n", i, parameter[i]);
         }
         setStepFX = myFile.read();
+        mixGainPot = myFile.read();
+        mixDryPot = myFile.read();
+        mixFX1Pot = myFile.read();
+        mixFX2Pot = myFile.read();
+        mixFX3Pot = myFile.read();
+        int _tempOffset =myFile.read();
+        performNoteOffset = _tempOffset-64;
         // Serial.println("settings loaded:");
-        Serial.println("Loading done");
 
-        startUpScreen();
-        // close the file:
+        // startUpScreen();
+        //  close the file:
         myFile.close();
     }
     else
@@ -189,25 +217,34 @@ void Track::load_track()
         // if the file didn't open, print an error:
         Serial.println("error:");
     }
+    if (parameter[SET_MIDICH_OUT] > NUM_MIDI_OUTPUTS)
+    {
+        allPlugins[parameter[SET_MIDICH_OUT] - (NUM_MIDI_OUTPUTS + 1)]->load_plugin();
+    }
+    Serial.println("track Loading done");
 }
 void Track::play_sequencer_mode(byte cloock, byte start, byte end)
 {
+    if (cloock % MAX_TICKS == 0)
+        external_clock_bar++;
     if (cloock % parameter[SET_STEP_DIVIVISION] == 0)
     {
         internal_clock++;
         internal_clock_is_on = true;
-        // if (internal_clock % 6 == 0)
-        // trellis_show_clockbar(MIDI_channel_in, internal_clock / 6);
     }
     else
         internal_clock_is_on = false;
-    if (internal_clock == parameter[SET_SEQUENCE_LENGTH])
+
+    if (internal_clock >= parameter[SET_SEQUENCE_LENGTH])
     {
         internal_clock = 0;
         internal_clock_bar++;
         change_presets();
     }
-    if (internal_clock_bar == end)
+
+    if (external_clock_bar >= end)
+        external_clock_bar = start;
+    if (internal_clock_bar >= end)
         internal_clock_bar = start;
     // Serial.printf("bar: %d, tick: %d\n", internal_clock_bar, internal_clock);
     //  Serial.println(internal_clock_bar);
@@ -215,6 +252,8 @@ void Track::play_sequencer_mode(byte cloock, byte start, byte end)
     {
         if (!muted && !muteThruSolo)
         {
+            // Serial.printf("internalbar=%d, externalbar= %d\n",internal_clock_bar,external_clock_bar );
+            // Serial.printf("internalClock=%d, externalClock= %d\n",internal_clock,cloock );
             if (parameter[SET_SEQ_MODE] == 0)
             {
                 play_seq_mode0(internal_clock);
@@ -267,6 +306,13 @@ void Track::noteOn(byte Note, byte Velo, byte Channel)
 {
     // Serial.printf("sending noteOn: %d, velo: %d channel: %d\n", Note, Velo, Channel);
     sendNoteOn(Note, Velo, Channel);
+    if (Note <= 64)
+    {
+        cvNoteOn = true;
+        cvNote = Note;
+        // Serial.printf("Tracks frees cv note: %d\n", cvNote);
+        //  sendNoteOn_CV_Gate(Note, Channel);
+    }
     // MIDI1.sendNoteOn(Note, Velo, Channel);
     // usbMIDI.sendNoteOn(Note, Velo, Channel);
     //
@@ -275,6 +321,10 @@ void Track::noteOff(byte Note, byte Velo, byte Channel)
 {
     // Serial.printf("sending noteOff: %d, velo: %d channel: %d\n", Note, Velo, Channel);
     sendNoteOff(Note, Velo, Channel);
+    if (Note <= 64)
+    {
+        cvNoteOff = true;
+    }
     // MIDI1.sendNoteOn(Note, Velo, Channel);
     // usbMIDI.sendNoteOn(Note, Velo, Channel);
 }
@@ -297,7 +347,7 @@ void Track::record_noteOff(byte Note, byte Velo, byte Channel)
         {
             clip[parameter[SET_CLIP2_EDIT]].tick[i].voice[recordVoice] = Note;
             clip[parameter[SET_CLIP2_EDIT]].tick[i].velo[recordVoice] = recordVelocity[recordVoice];
-            trellis_set_stepSeq_buffer((i / 6), (MIDI_channel_in - 1), trellisTrackColor[MIDI_channel_in - 1]);
+            trellis_set_main_buffer(parameter[SET_CLIP2_EDIT], (i / 6), (MIDI_channel_in - 1), trellisTrackColor[MIDI_channel_in - 1]);
         }
     }
 }
@@ -348,10 +398,13 @@ void Track::set_clip_to_play(byte n, byte b)
     {
         if (enc_moved[n])
         {
-            clip_to_play[bar_to_edit] = constrain(clip_to_play[bar_to_edit] + encoded[n], 0, NUM_USER_CLIPS + 1);
-            draw_clip_to_play(n, bar_to_edit);
-            draw_arrangment_line(n, bar_to_edit);
 
+            for (int i = 0; i < parameter[SET_STEP_DIVIVISION]; i++)
+            {
+                clip_to_play[bar_to_edit + i] = constrain(clip_to_play[bar_to_edit + i] + encoded[n], 0, NUM_USER_CLIPS + 1);
+                draw_arrangment_line(n, bar_to_edit + i);
+            }
+            draw_clip_to_play(n, bar_to_edit);
             enc_moved[n] = false;
         }
     }
@@ -412,6 +465,7 @@ void Track::draw_arrangment_line(byte n, byte b) // b= 0-255; which bar
         {
             tft->drawFastHLine(((b - (16 * arrangerpage)) * STEP_FRAME_W + STEP_FRAME_W * 2) + 1, ((my_Arranger_Y_axis)*TRACK_FRAME_H + thickness) + 12, STEP_FRAME_W - 1, ILI9341_DARKGREY); //(x-start, y, length, color)
         }
+        trellis_set_main_buffer(arrangerpage + TRELLIS_SCREEN_ARRANGER_1, (b % 16), my_Arranger_Y_axis - 1, TRELLIS_BLACK);
     }
     else
     {
@@ -420,6 +474,8 @@ void Track::draw_arrangment_line(byte n, byte b) // b= 0-255; which bar
         {
             tft->drawFastHLine(((b - (16 * arrangerpage)) * STEP_FRAME_W + STEP_FRAME_W * 2) + 1, ((my_Arranger_Y_axis)*TRACK_FRAME_H + thickness) + 12, STEP_FRAME_W - 1, trackColor[my_Arranger_Y_axis - 1] + (clip_to_play[b] * 20)); //(x-start, y, length, color)
         }
+        trellis_set_main_buffer(arrangerpage + TRELLIS_SCREEN_ARRANGER_1, (b % 16), my_Arranger_Y_axis - 1, trellisTrackColor[my_Arranger_Y_axis - 1] + (clip_to_play[b] * 20));
+
         draw_clipNr_arranger(n, b);
         draw_offset_arranger(n, b);
     }
@@ -444,9 +500,14 @@ void Track::set_note_offset(byte n, int b)
         byte when = ((b - SEQ_GRID_LEFT) / STEP_FRAME_W) + (BARS_PER_PAGE * arrangerpage);
         if (enc_moved[n])
         {
-            noteOffset[when] = constrain(noteOffset[when] + encoded[n], -99, +99);
+            int _tempOffset = constrain(noteOffset[when] + encoded[n], -99, +99);
+
             draw_noteOffset(n, when);
-            draw_arrangment_line(n, when);
+            for (int i = 0; i < parameter[SET_STEP_DIVIVISION]; i++)
+            {
+                noteOffset[when + i] = _tempOffset;
+                draw_arrangment_line(n, when + i);
+            }
             enc_moved[n] = false;
         }
     }
@@ -467,7 +528,11 @@ void Track::set_barVelocity(byte n, int b)
         {
             barVelocity[when] = constrain(barVelocity[when] + encoded[n], 0, 127);
             draw_barVelocity(n, when);
-            draw_arrangment_line(n, when);
+            for (int i = 0; i < parameter[SET_STEP_DIVIVISION]; i++)
+            {
+
+                draw_arrangment_line(n, when + i);
+            }
             enc_moved[n] = false;
         }
     }

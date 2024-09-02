@@ -3,6 +3,8 @@
 
 #include <Arduino.h>
 #include "hw_stuff.h"
+#include "SD.h"
+extern File myFile;
 
 extern elapsedMicros msecsclock;
 // Startscreen
@@ -27,9 +29,16 @@ extern elapsedMicros msecsclock;
 #define TRACK_FRAME_H 24
 #define GRID_LENGTH_HOR 256
 #define GRID_LENGTH_VERT 192
+
+#define SONG_POSITION_POINTER_Y 228
+#define BAR_POSITION_POINTER_Y 232
+#define STEP_POSITION_POINTER_Y 236
 #define POSITION_POINTER_THICKNESS 3
+
 #define NUM_STEPS 16
 #define MAX_TICKS 96
+#define MAX_VOICES 12
+#define MAX_SONGS 9
 // active Tracks
 #define ACTIVE_TRACK_1 0
 #define ACTIVE_TRACK_2 1
@@ -82,6 +91,7 @@ extern elapsedMicros msecsclock;
 #define INPUT_FUNCTIONS_FOR_FX1 10
 #define INPUT_FUNCTIONS_FOR_FX2 11
 #define INPUT_FUNCTIONS_FOR_FX3 12
+#define INPUT_FUNCTIONS_FOR_PERFORM 13
 
 #define INFO_BOX_WIDTH 200
 #define INFO_BOX_HEIGTH 120
@@ -98,8 +108,9 @@ extern elapsedMicros msecsclock;
 #define CH_PLUGIN_6 NUM_MIDI_OUTPUTS+6
 #define CH_PLUGIN_7 NUM_MIDI_OUTPUTS+7
 #define CH_PLUGIN_8 NUM_MIDI_OUTPUTS+8
+#define CH_PLUGIN_9 NUM_MIDI_OUTPUTS+9
 
-#define NUM_PLUGINS 8
+#define NUM_PLUGINS 9
 #define MIDI_CC_RANGE 127
 #define MIDI_CC_RANGE_FLOAT 127.00
 #define NUM_PLUGIN_PRESETS 8
@@ -112,8 +123,7 @@ extern elapsedMicros msecsclock;
 #define MAX_OUTPUTS NUM_MIDI_OUTPUTS + NUM_PLUGINS
 // trellis
 
-#define TRELLIS_1 9
-#define TRELLIS_2 579
+
 // See https://www.w3schools.com/colors/colors_picker.asp
 #define TRELLIS_RED 0xFF0000
 #define TRELLIS_ORANGE 0xB34700
@@ -129,27 +139,35 @@ extern elapsedMicros msecsclock;
 #define TRELLIS_PINK 0xFF66B3
 #define TRELLIS_WHITE 0xFFFFFF
 #define TRELLIS_BLACK 0x000000
+//#define TRELLIS_LIGHTBLUE #ADD8E6
+
+#define TRELLIS_1 0x000066
+#define TRELLIS_2 579
 
 
-
-
+#define TRELLIS_MAX_PAGES TRELLIS_SCREEN_ARRANGER_1+SONGMODE_PAGE_16+1
 #define TRELLIS_CONTROL_X_DIM 4
 #define TRELLIS_CONTROL_Y_DIM 4
 #define TRELLIS_PANEL_Y_DIM 8
 #define TRELLIS_PADS_X_DIM 16
 #define TRELLIS_PADS_Y_DIM 8
+
+
+
 extern int pixelTouchX;
 extern int gridTouchY;
 extern byte lastPotRow;
 extern byte activeScreen;
 extern bool change_plugin_row;
-extern uint16_t tftRamInfoBox[INFO_BOX_WIDTH][INFO_BOX_HEIGTH];
+//extern int tftRamInfoBox[INFO_BOX_WIDTH][INFO_BOX_HEIGTH];
+extern int **tftRamInfoBox;
 extern unsigned long currentTime;
 extern bool showBox;
 
 extern byte active_track;
 extern byte arrangerpage;
 extern bool otherCtrlButtons;
+extern const char FLASHMEM *songNames[MAX_SONGS];
 
 extern int phraseSegmentLength;
 extern const char FLASHMEM *playstate[3];
@@ -157,16 +175,19 @@ extern byte trellisScreen;
 extern int controlColors[16];
 extern int trackColor[9];
 extern int trellisTrackColor[9];
-extern int trellisControllBuffer[TRELLIS_CONTROL_X_DIM][TRELLIS_CONTROL_Y_DIM];
-extern int trellisPanelBuffer[TRELLIS_CONTROL_X_DIM][TRELLIS_PANEL_Y_DIM];
-extern int trellisArrangerBuffer1[SONGMODE_PAGE_16+1][TRELLIS_PADS_X_DIM][TRELLIS_PADS_Y_DIM];
-extern int trellisStepSeqBuffer[8][TRELLIS_PADS_X_DIM][TRELLIS_PADS_Y_DIM];
-extern int trellisPianoBuffer[TRELLIS_PADS_X_DIM][TRELLIS_PADS_Y_DIM];
-extern bool trellisPressed[X_DIM * Y_DIM];
-extern bool trellisReleased[X_DIM * Y_DIM];
+//extern int trellisControllBuffer[TRELLIS_CONTROL_X_DIM][TRELLIS_CONTROL_Y_DIM];
+//extern int trellisPanelBuffer[TRELLIS_CONTROL_X_DIM][TRELLIS_PANEL_Y_DIM];
+//extern int trellisMainGridBuffer[TRELLIS_MAX_PAGES][TRELLIS_PADS_X_DIM][TRELLIS_PADS_Y_DIM];
+//extern bool trellisPressed[X_DIM * Y_DIM];
+extern int ***trellisMainGridBuffer;
+extern int **trellisControllBuffer;
+extern int **trellisPanelBuffer;
+extern bool *trellisPressed;
+
 extern bool trellisRecall;
 extern bool trellisShowClockPixel[Y_DIM];
 extern byte trellisPianoTrack;
+extern byte performCC[16];
 extern char _trackname[20];
 extern const char FLASHMEM *CCnames[129];
 

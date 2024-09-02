@@ -12,7 +12,7 @@ void Track::set_stepSequencer_parameters(byte row)
         set_coordinateX(0, 0);
         set_coordinateY(1, 0);
 
-        set_stepSequencer_parameter_value(ENCODER_STEP_FX, 0, CCnames[setStepFX], 0, 128);
+        set_stepSequencer_parameter_value(ENCODER_STEP_FX, 0, CCnames[setStepFX], 0, 129);
         set_stepSequencer_parameter_value(3, 0, "Velo", 1, 128);
         break;
     case 1:
@@ -441,11 +441,11 @@ void Track::check_for_free_voices(byte onTick, byte newNote)
             break;
         }
     }
-    trellis_set_stepSeq_buffer((sTick / 6) , (MIDI_channel_in - 1) , color);
-    //trellis_show();
-    // if (search_free_voice >= MAX_VOICES)
-    // search_free_voice = 0;
-    // old_cnote = array[parameter[SET_CLIP2_EDIT]][onTick][search_free_voice];
+     trellis_set_main_buffer(this->parameter[SET_CLIP2_EDIT], (sTick / 6), (MIDI_channel_in - 1), color);
+    //  trellis_show();
+    //   if (search_free_voice >= MAX_VOICES)
+    //   search_free_voice = 0;
+    //   old_cnote = array[parameter[SET_CLIP2_EDIT]][onTick][search_free_voice];
 }
 void Track::clear_notes_on_tick(byte cl_X)
 {
@@ -461,7 +461,8 @@ void Track::clear_notes_on_tick(byte cl_X)
 }
 void Track::draw_note_on_tick(byte dr_X)
 {
-    int stepcolor = trackColor[active_track] + (parameter[SET_CLIP2_EDIT] * 20);
+    int stepcolor = trackColor[my_Arranger_Y_axis - 1] + (parameter[SET_CLIP2_EDIT] * 20);
+    // int trellisStepcolor = trellisTrackColor[my_Arranger_Y_axis-1] + (parameter[SET_CLIP2_EDIT] * 20);
 
     for (int i = 0; i < MAX_VOICES; i++)
     {
@@ -487,6 +488,8 @@ void Track::draw_note_on_tick(byte dr_X)
             // Serial.printf("Skipping note: %d at tick: %d, voice: %d\n", note, dr_X, i);
         }
     }
+
+   
 }
 
 void Track::clear_notes_in_grid()
@@ -498,8 +501,10 @@ void Track::clear_notes_in_grid()
 }
 void Track::draw_notes_in_grid()
 {
+    // clear_notes_in_grid();
     for (int i = 0; i < MAX_TICKS; i++)
     {
+        // clear_notes_on_tick(i);
         draw_note_on_tick(i);
     }
 }
