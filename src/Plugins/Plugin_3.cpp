@@ -44,7 +44,7 @@ void Plugin_3::setup()
         outEnv.sustain(1);
         outEnv.release(200);
 
-        mixer.gain(0, 1);
+        //mixer.gain(0, 1);
     
     MixGain.gain(1);
     SongVol.gain(1);

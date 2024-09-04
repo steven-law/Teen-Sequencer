@@ -110,7 +110,7 @@ extern elapsedMicros msecsclock;
 #define CH_PLUGIN_8 NUM_MIDI_OUTPUTS+8
 #define CH_PLUGIN_9 NUM_MIDI_OUTPUTS+9
 
-#define NUM_PLUGINS 9
+#define NUM_PLUGINS 10
 #define MIDI_CC_RANGE 127
 #define MIDI_CC_RANGE_FLOAT 127.00
 #define NUM_PLUGIN_PRESETS 8

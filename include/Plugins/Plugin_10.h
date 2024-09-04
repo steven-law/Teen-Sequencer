@@ -1,5 +1,5 @@
-#ifndef PLUGIN_2_H
-#define PLUGIN_2_H
+#ifndef PLUGIN_10_H
+#define PLUGIN_10_H
 
 #include <Arduino.h>
 #include <Audio.h>
@@ -9,12 +9,13 @@
 #include <SerialFlash.h>
 #include "ownLibs/mixers.h"
 #include <Plugins/pluginClass.h>
+#include <Plugins/AudioSamples/AudioSamples.h>
 #include "ownLibs/filter_ladderlite.h"
 
 // TeensyDAW: begin automatically generated code
 // Name: 1Osc
-// Description: Subtractive Synthesizer
-// Voices: 12
+// Description: Soundfont Synthesizer
+// Voices: 1
 
 // VCO
 // Pot 1: Waveform
@@ -44,40 +45,38 @@ extern bool change_plugin_row;
 extern float *note_frequency;
 extern int tuning;
 void clearWorkSpace();
-class Plugin_2 : public PluginControll
+class Plugin_10 : public PluginControll
 {
 public:
     AudioSynthWaveformDc dc;
-    AudioSynthWaveform waveform;
+    AudioSynthWavetable waveform;
     AudioEffectEnvelope Fenv;
     AudioFilterStateVariable filter;
     AudioMixer4 fMixer;
     AudioEffectEnvelope Aenv;
-    //AudioMixer12 mixer;
+    // AudioMixer12 mixer;
     AudioAmplifier MixGain;
     AudioAmplifier SongVol;
     AudioConnection *patchCord[9]; // total patchCordCount:98 including array typed ones.
 
     // constructor (this is called when class-object is created)
-    Plugin_2(const char *Name, byte ID) : PluginControll(Name, ID)
+    Plugin_10(const char *Name, byte ID) : PluginControll(Name, ID)
     {
 
         int pci = 0; // used only for adding new patchcords
 
-        //patchCord[pci++] = new AudioConnection(mixer, 0, MixGain, 0);
+        // patchCord[pci++] = new AudioConnection(mixer, 0, MixGain, 0);
+        patchCord[pci++] = new AudioConnection(dc, 0, Fenv, 0);
+        patchCord[pci++] = new AudioConnection(waveform, 0, filter, 0);
+        patchCord[pci++] = new AudioConnection(Fenv, 0, filter, 1);
+        patchCord[pci++] = new AudioConnection(filter, 0, fMixer, 0);
+        patchCord[pci++] = new AudioConnection(filter, 1, fMixer, 1);
+        patchCord[pci++] = new AudioConnection(filter, 2, fMixer, 2);
+        patchCord[pci++] = new AudioConnection(fMixer, 0, Aenv, 0);
+        patchCord[pci++] = new AudioConnection(Aenv, 0, MixGain, 0);
         patchCord[pci++] = new AudioConnection(MixGain, 0, SongVol, 0);
-       
-            patchCord[pci++] = new AudioConnection(dc, 0, Fenv, 0);
-            patchCord[pci++] = new AudioConnection(waveform, 0, filter, 0);
-            patchCord[pci++] = new AudioConnection(Fenv, 0, filter, 1);
-            patchCord[pci++] = new AudioConnection(filter, 0, fMixer, 0);
-            patchCord[pci++] = new AudioConnection(filter, 1, fMixer, 1);
-            patchCord[pci++] = new AudioConnection(filter, 2, fMixer, 2);
-            patchCord[pci++] = new AudioConnection(fMixer, 0, Aenv, 0);
-            patchCord[pci++] = new AudioConnection(Aenv, 0, MixGain, 0);
-        
     }
-    virtual ~Plugin_2() = default;
+    virtual ~Plugin_10() = default;
 
     virtual void setup() override;
     virtual void noteOn(byte notePlayed, float velocity, byte voice) override;
@@ -96,14 +95,14 @@ public:
     void selectFilterType(byte mixerchannel);
 
     void set_envelope_ADSR(byte YPos, int maxA, int maxD, int maxR);
-    void set_envelope_attack(byte XPos, byte YPos, const char *name,  int max);
-    void set_envelope_decay(byte XPos, byte YPos, const char *name,  int max);
+    void set_envelope_attack(byte XPos, byte YPos, const char *name, int max);
+    void set_envelope_decay(byte XPos, byte YPos, const char *name, int max);
     void set_envelope_sustain(byte XPos, byte YPos, const char *name);
-    void set_envelope_release(byte XPos, byte YPos, const char *name,  int max);
+    void set_envelope_release(byte XPos, byte YPos, const char *name, int max);
 
     void assign_voice_waveform(byte value); // make virtual in baseclass but override
     void assign_voice_amplitude(byte value);
-    
+
     void assign_filter_frequency(byte value);
     void assign_filter_resonance(byte value);
     void assign_filter_sweep(byte value);
@@ -113,4 +112,4 @@ public:
     void assign_envelope_sustain(byte value);
     void assign_envelope_release(byte value, int max);
 };
-#endif // PLUGIN_2_H
+#endif // PLUGIN_10_H

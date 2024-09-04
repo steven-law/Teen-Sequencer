@@ -59,7 +59,7 @@ public:
     AudioEffectEnvelope Fenv;
     AudioFilterStateVariable filter;
     AudioFilterLadderLite ladder;
-    AudioMixer4 fmixer;
+    AudioMixer4 fMixer;
     AudioEffectEnvelope Aenv;
     AudioAmplifier MixGain;
     AudioAmplifier SongVol;
@@ -75,11 +75,11 @@ public:
         patchCord[pci++] = new AudioConnection(vcoMixer, 0, filter, 0);
         patchCord[pci++] = new AudioConnection(vcoMixer, 0, ladder, 0);
         patchCord[pci++] = new AudioConnection(Fenv, 0, filter, 1);
-        patchCord[pci++] = new AudioConnection(filter, 0, fmixer, 0);
-        patchCord[pci++] = new AudioConnection(filter, 1, fmixer, 1);
-        patchCord[pci++] = new AudioConnection(filter, 2, fmixer, 2);
-        patchCord[pci++] = new AudioConnection(ladder, 0, fmixer, 3);
-        patchCord[pci++] = new AudioConnection(fmixer, 0, Aenv, 0);
+        patchCord[pci++] = new AudioConnection(filter, 0, fMixer, 0);
+        patchCord[pci++] = new AudioConnection(filter, 1, fMixer, 1);
+        patchCord[pci++] = new AudioConnection(filter, 2, fMixer, 2);
+        patchCord[pci++] = new AudioConnection(ladder, 0, fMixer, 3);
+        patchCord[pci++] = new AudioConnection(fMixer, 0, Aenv, 0);
         patchCord[pci++] = new AudioConnection(Aenv, 0, MixGain, 0);
         patchCord[pci++] = new AudioConnection(MixGain, 0, SongVol, 0);
     }

@@ -17,24 +17,10 @@ public:
     //AudioAnalyzePeak peak3;
     //AudioAnalyzePeak peak2;
     AudioAmplifier dry[NUM_PLUGINS];
-
-    AudioAmplifier FX3_1;
-    AudioAmplifier FX3_2;
-    AudioAmplifier FX3_3;
-    AudioAmplifier FX3_4;
-    AudioAmplifier FX3_5;
-    AudioAmplifier FX3_6;
-    AudioAmplifier FX3_7;
-    AudioAmplifier FX3_8;
-    AudioAmplifier FX3_9;
-
-
     AudioMixer12 dry_mixer;
-
     //AudioMixer12 FX3_mixer;
-
     AudioMixer4 endmixer;
-    AudioConnection *patchCord[22]; // total patchCordCount:46 including array typed ones.
+    AudioConnection *patchCord[(NUM_PLUGINS*2)+4]; // total patchCordCount:46 including array typed ones.
 
     // constructor (this is called when class-object is created)
     FX_Section()
@@ -53,15 +39,12 @@ public:
         patchCord[pci++] = new AudioConnection(plugin_7.SongVol, 0, dry[6], 0);
         patchCord[pci++] = new AudioConnection(plugin_8.SongVol, 0, dry[7], 0);
         patchCord[pci++] = new AudioConnection(plugin_9.SongVol, 0, dry[8], 0);
-        patchCord[pci++] = new AudioConnection(dry[0], 0, dry_mixer, 0);
-        patchCord[pci++] = new AudioConnection(dry[1], 0, dry_mixer, 1);
-        patchCord[pci++] = new AudioConnection(dry[2], 0, dry_mixer, 2);
-        patchCord[pci++] = new AudioConnection(dry[3], 0, dry_mixer, 3);
-        patchCord[pci++] = new AudioConnection(dry[4], 0, dry_mixer, 4);
-        patchCord[pci++] = new AudioConnection(dry[5], 0, dry_mixer, 5);
-        patchCord[pci++] = new AudioConnection(dry[6], 0, dry_mixer, 6);
-        patchCord[pci++] = new AudioConnection(dry[7], 0, dry_mixer, 7);
-        patchCord[pci++] = new AudioConnection(dry[8], 0, dry_mixer, 8);
+        patchCord[pci++] = new AudioConnection(plugin_10.SongVol, 0, dry[9], 0);
+
+
+        for (int i=0;i<NUM_PLUGINS;i++){
+            patchCord[pci++] = new AudioConnection(dry[i], 0, dry_mixer, i);
+        }
 
         patchCord[pci++] = new AudioConnection(dry_mixer, 0, endmixer, 0);
         patchCord[pci++] = new AudioConnection(fx_1.freeverb, 0, endmixer, 1);

@@ -53,24 +53,25 @@ public:
     AudioEffectEnvelope modEnv;
     AudioSynthWaveformModulated carrier;
     AudioEffectEnvelope outEnv;
-    AudioMixer4 mixer;
+    //AudioMixer4 mixer;
     AudioAmplifier MixGain;
     AudioAmplifier SongVol;
-    AudioConnection *patchCord[6]; // total patchCordCount:50 including array typed ones.
+    AudioConnection *patchCord[5]; // total patchCordCount:50 including array typed ones.
     // AudioAnalyzePeak peak;
     //  constructor (this is called when class-object is created)
     Plugin_3(const char *Name, byte ID) : PluginControll(Name, ID)
     {
         int pci = 0; // used only for adding new patchcords
 
-        patchCord[pci++] = new AudioConnection(mixer, 0, MixGain, 0);
-        patchCord[pci++] = new AudioConnection(MixGain, 0, SongVol, 0);
+        
         // patchCord[pci++] = new AudioConnection(modulator[0], 0, peak, 0);
 
         patchCord[pci++] = new AudioConnection(modulator, 0, modEnv, 0);
         patchCord[pci++] = new AudioConnection(modEnv, 0, carrier, 0);
         patchCord[pci++] = new AudioConnection(carrier, 0, outEnv, 0);
-        patchCord[pci++] = new AudioConnection(outEnv, 0, mixer, 0);
+        //patchCord[pci++] = new AudioConnection(outEnv, 0, mixer, 0);
+        patchCord[pci++] = new AudioConnection(outEnv, 0, MixGain, 0);
+        patchCord[pci++] = new AudioConnection(MixGain, 0, SongVol, 0);
     }
     virtual ~Plugin_3() = default;
 

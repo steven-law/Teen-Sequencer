@@ -9,7 +9,7 @@
 #include <SerialFlash.h>
 #include "ownLibs/mixers.h"
 #include <Plugins/pluginClass.h>
-#include <Plugins/AudioSamples.h>
+#include <Plugins/AudioSamples/AudioSamples.h>
 // TeensyDAW: begin automatically generated code
 // Name: mDrm
 // Description: Plays 12 Samplesounds stored on Flash (PROGMEM)

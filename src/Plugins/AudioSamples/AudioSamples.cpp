@@ -1,6 +1,6 @@
 // Audio data converted from WAV file by wav2sketch
 
-#include "Plugins/AudioSamples.h"
+#include "Plugins/AudioSamples/AudioSamples.h"
 #include <Arduino.h>
 
 // Converted from cashregister.wav, using 22050 Hz, u-law encoding
@@ -49971,8 +49971,8 @@ const unsigned int AudioSamplePongblip[737] PROGMEM = {
 // Audio data converted from WAV file by wav2sketch
 
 // Converted from 509526__synthnisse__claps.wav, using 44100 Hz, u-law encoding
-PROGMEM
-const unsigned int AudioSampleClap[3649] = {
+
+const unsigned int AudioSampleClap[3649] PROGMEM = {
     0x010038B1,
     0x80008000,
     0x00008000,
@@ -53623,3 +53623,6 @@ const unsigned int AudioSampleClap[3649] = {
     0x00000000,
     0x00000000,
 };
+
+
+

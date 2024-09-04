@@ -40,10 +40,10 @@ void Plugin_8::setup()
     filter.resonance(1);
     filter.octaveControl(4);
 
-    fmixer.gain(0, 1);
-    fmixer.gain(1, 0);
-    fmixer.gain(2, 0);
-    fmixer.gain(3, 0);
+    fMixer.gain(0, 1);
+    fMixer.gain(1, 0);
+    fMixer.gain(2, 0);
+    fMixer.gain(3, 0);
 
     Aenv.delay(0);
     Aenv.attack(0);
@@ -219,10 +219,10 @@ void Plugin_8::set_filter_type(byte XPos, byte YPos, const char *name)
 void Plugin_8::selectFilterType(byte mixerchannel)
 {
 
-    fmixer.gain(0, 0);
-    fmixer.gain(1, 0);
-    fmixer.gain(2, 0);
-    fmixer.gain(mixerchannel, 1);
+    fMixer.gain(0, 0);
+    fMixer.gain(1, 0);
+    fMixer.gain(2, 0);
+    fMixer.gain(mixerchannel, 1);
 }
 
 
@@ -332,11 +332,11 @@ void Plugin_8::assign_filter_sweep(byte value)
 void Plugin_8::assign_filter_type(byte mixerchannel)
 {
     
-        fmixer.gain(0, 0);
-        fmixer.gain(1, 0);
-        fmixer.gain(2, 0);
-        fmixer.gain(3, 0);
-        fmixer.gain(mixerchannel, 1);
+        fMixer.gain(0, 0);
+        fMixer.gain(1, 0);
+        fMixer.gain(2, 0);
+        fMixer.gain(3, 0);
+        fMixer.gain(mixerchannel, 1);
     
 }
 

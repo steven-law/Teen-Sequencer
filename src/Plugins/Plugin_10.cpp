@@ -7,7 +7,7 @@
 #include "ownLibs/mixers.h"
 #include "project_variables.h"
 #include "project_functions.h"
-#include <Plugins/Plugin_2.h>
+#include <Plugins/Plugin_10.h>
 
 extern bool enc_moved[4];
 extern int encoded[4];
@@ -17,66 +17,65 @@ extern int tuning;
 void clearWorkSpace();
 extern const char *filterName[4];
 
-void Plugin_2::setup()
+void Plugin_10::setup()
 {
 
-   
-        dc.amplitude(1);
+    dc.amplitude(1);
 
-        waveform.begin(WAVEFORM_SINE);
-        waveform.amplitude(1);
+    waveform.setInstrument(Flute_100kbyte);
+    waveform.amplitude(1);
 
-        Fenv.delay(0);
-        Fenv.attack(0);
-        Fenv.hold(0);
-        Fenv.decay(0);
-        Fenv.sustain(1);
-        Fenv.release(200);
+    Fenv.delay(0);
+    Fenv.attack(0);
+    Fenv.hold(0);
+    Fenv.decay(0);
+    Fenv.sustain(1);
+    Fenv.release(200);
 
-        filter.frequency(2000);
-        filter.resonance(1);
-        filter.octaveControl(4);
-        //ladder[i].frequency(2000);
-        //ladder[i].resonance(1);
-        //ladder[i].octaveControl(4);
+    filter.frequency(2000);
+    filter.resonance(1);
+    filter.octaveControl(4);
+    // ladder[i].frequency(2000);
+    // ladder[i].resonance(1);
+    // ladder[i].octaveControl(4);
 
-        fMixer.gain(0, 1);
-        fMixer.gain(1, 0);
-        fMixer.gain(2, 0);
-        fMixer.gain(3, 0);
+    fMixer.gain(0, 1);
+    fMixer.gain(1, 0);
+    fMixer.gain(2, 0);
+    fMixer.gain(3, 0);
 
-        Aenv.delay(0);
-        Aenv.attack(0);
-        Aenv.hold(0);
-        Aenv.decay(0);
-        Aenv.sustain(1);
-        Aenv.release(200);
+    Aenv.delay(0);
+    Aenv.attack(0);
+    Aenv.hold(0);
+    Aenv.decay(0);
+    Aenv.sustain(1);
+    Aenv.release(200);
 
-        //mixer.gain(0, 1);
-    
+   // mixer.gain(0, 1);
+
     MixGain.gain(1);
     SongVol.gain(1);
 }
-void Plugin_2::noteOn(byte notePlayed, float velocity, byte voice)
+void Plugin_10::noteOn(byte notePlayed, float velocity, byte voice)
 {
     float frequency = note_frequency[notePlayed] * tuning;
-    waveform.frequency(frequency);
+    waveform.playFrequency(frequency);
     Fenv.noteOn();
     Aenv.noteOn();
 }
-void Plugin_2::noteOff(byte notePlayed, byte voice)
+void Plugin_10::noteOff(byte notePlayed, byte voice)
 {
     Fenv.noteOff();
     Aenv.noteOff();
 }
-void Plugin_2::set_parameters(byte row)
+void Plugin_10::set_parameters(byte row)
 {
     draw_plugin();
     if (!trellisPressed[TRELLIS_BUTTON_SHIFT])
     {
         if (row == 0)
         {
-           
+
             set_voice_waveform(0, 0, "W~Form");
             set_voice_amplitude(1, 0, "Volume");
         }
@@ -107,7 +106,7 @@ void Plugin_2::set_parameters(byte row)
         set_presetNr();
     }
 }
-void Plugin_2::draw_plugin()
+void Plugin_10::draw_plugin()
 {
     if (change_plugin_row)
     {
@@ -133,136 +132,147 @@ void Plugin_2::draw_plugin()
     }
 }
 
-void Plugin_2::set_voice_waveform(byte XPos, byte YPos, const char *name)
+void Plugin_10::set_voice_waveform(byte XPos, byte YPos, const char *name)
 {
     if (enc_moved[XPos])
     {
         assign_voice_waveform(get_Potentiometer(XPos, YPos, name));
     }
 }
-void Plugin_2::assign_voice_waveform(byte value)
+void Plugin_10::assign_voice_waveform(byte value)
 {
-    byte walveform = map(value, 0, MIDI_CC_RANGE, 0, 12);
-   
-        waveform.begin(walveform);
-    
-    
+    byte walveform = map(value, 0, MIDI_CC_RANGE, 0, 5);
+    switch (walveform)
+    {
+    case 0:
+        waveform.setInstrument(Flute_100kbyte);
+        break;
+    case 1:
+        waveform.setInstrument(BasicFlute1);
+        break;
+    case 2:
+        waveform.setInstrument(FrenchHorns);
+        break;
+    case 3:
+        waveform.setInstrument(Ocarina);
+        break;
+    case 4:
+        waveform.setInstrument(Ocarina);
+        break;
+    case 5:
+        waveform.setInstrument(Pizzicato);
+        break;
+    default:
+        waveform.setInstrument(Pizzicato);
+        break;
+    }
 }
 
-void Plugin_2::set_voice_amplitude(byte XPos, byte YPos, const char *name)
+void Plugin_10::set_voice_amplitude(byte XPos, byte YPos, const char *name)
 {
     if (enc_moved[XPos])
     {
         assign_voice_amplitude(get_Potentiometer(XPos, YPos, name));
     }
 }
-void Plugin_2::assign_voice_amplitude(byte value)
+void Plugin_10::assign_voice_amplitude(byte value)
 {
     float ampl = value / MIDI_CC_RANGE_FLOAT;
-   
-        waveform.amplitude(ampl);
-    
+
+    waveform.amplitude(ampl);
 }
 
-void Plugin_2::set_filter_frequency(byte XPos, byte YPos, const char *name)
+void Plugin_10::set_filter_frequency(byte XPos, byte YPos, const char *name)
 {
     if (enc_moved[XPos])
     {
         assign_filter_frequency(get_Potentiometer(XPos, YPos, name));
     }
 }
-void Plugin_2::assign_filter_frequency(byte value)
+void Plugin_10::assign_filter_frequency(byte value)
 {
 
     int frequency = note_frequency[value] * tuning;
-    
-        filter.frequency(frequency);
-        //ladder[i].frequency(frequency);
-    
+
+    filter.frequency(frequency);
+    // ladder[i].frequency(frequency);
 }
 
-void Plugin_2::set_filter_resonance(byte XPos, byte YPos, const char *name, float min, float max)
+void Plugin_10::set_filter_resonance(byte XPos, byte YPos, const char *name, float min, float max)
 {
     if (enc_moved[XPos])
     {
         assign_filter_resonance(get_Potentiometer(XPos, YPos, name));
     }
 }
-void Plugin_2::assign_filter_resonance(byte value)
+void Plugin_10::assign_filter_resonance(byte value)
 {
 
     float reso = value / 25.40;
-    
-        filter.resonance(reso);
-        //ladder[i].resonance(reso);
-    
+
+    filter.resonance(reso);
+    // ladder[i].resonance(reso);
 }
-void Plugin_2::set_filter_sweep(byte XPos, byte YPos, const char *name)
+void Plugin_10::set_filter_sweep(byte XPos, byte YPos, const char *name)
 {
     if (enc_moved[XPos])
     {
         assign_filter_sweep(get_Potentiometer(XPos, YPos, name));
     }
 }
-void Plugin_2::assign_filter_sweep(byte value)
+void Plugin_10::assign_filter_sweep(byte value)
 {
     float swp = value / 18.14;
-    
-        filter.octaveControl(swp);
-       // ladder[i].octaveControl(swp);
-    
+
+    filter.octaveControl(swp);
+    // ladder[i].octaveControl(swp);
 }
-void Plugin_2::set_filter_type(byte XPos, byte YPos, const char *name)
+void Plugin_10::set_filter_type(byte XPos, byte YPos, const char *name)
 {
     if (enc_moved[XPos])
     {
         selectFilterType(constrain(get_Potentiometer(XPos, YPos, name), 0, 3));
     }
 }
-void Plugin_2::selectFilterType(byte mixerchannel)
+void Plugin_10::selectFilterType(byte mixerchannel)
 {
-    
-        fMixer.gain(0, 0);
-        fMixer.gain(1, 0);
-        fMixer.gain(2, 0);
-        fMixer.gain(3, 0);
-        fMixer.gain(mixerchannel, 1);
-    
+
+    fMixer.gain(0, 0);
+    fMixer.gain(1, 0);
+    fMixer.gain(2, 0);
+    fMixer.gain(3, 0);
+    fMixer.gain(mixerchannel, 1);
 }
 
-void Plugin_2::assign_envelope_attack(byte value, int max)
+void Plugin_10::assign_envelope_attack(byte value, int max)
 {
     int attack = map(value, 0, MIDI_CC_RANGE, 0, max);
-    
-        Fenv.attack(attack);
-        Aenv.attack(attack);
-    
+
+    Fenv.attack(attack);
+    Aenv.attack(attack);
 }
-void Plugin_2::assign_envelope_decay(byte value, int max)
+void Plugin_10::assign_envelope_decay(byte value, int max)
 {
     int decay = map(value, 0, MIDI_CC_RANGE, 0, max);
-    
-        Fenv.decay(decay);
-        Aenv.decay(decay);
-    
+
+    Fenv.decay(decay);
+    Aenv.decay(decay);
 }
-void Plugin_2::assign_envelope_sustain(byte value)
+void Plugin_10::assign_envelope_sustain(byte value)
 {
     float ampl = value / MIDI_CC_RANGE_FLOAT;
-    
-        Fenv.sustain(ampl);
-        Aenv.sustain(ampl);
-    
+
+    Fenv.sustain(ampl);
+    Aenv.sustain(ampl);
 }
-void Plugin_2::assign_envelope_release(byte value, int max)
+void Plugin_10::assign_envelope_release(byte value, int max)
 {
     int release = map(value, 0, MIDI_CC_RANGE, 0, max);
-    
-        Fenv.release(release);
-        Aenv.release(release);
-    
+
+    Fenv.release(release);
+    Aenv.release(release);
 }
-void Plugin_2::set_envelope_ADSR(byte YPos, int maxA, int maxD, int maxR)
+void Plugin_10::set_envelope_ADSR(byte YPos, int maxA, int maxD, int maxR)
 {
 
     if (enc_moved[0])
@@ -298,30 +308,29 @@ void Plugin_2::set_envelope_ADSR(byte YPos, int maxA, int maxD, int maxR)
                      potentiometer[presetNr][2 + rowIx], potentiometer[presetNr][3 + rowIx]);
     }
 }
-void Plugin_2::set_envelope_attack(byte XPos, byte YPos, const char *name,  int max)
+void Plugin_10::set_envelope_attack(byte XPos, byte YPos, const char *name, int max)
 {
     if (enc_moved[XPos])
     {
-       assign_envelope_attack(get_Potentiometer(XPos, YPos, name), max);
+        assign_envelope_attack(get_Potentiometer(XPos, YPos, name), max);
     }
 }
-void Plugin_2::set_envelope_decay(byte XPos, byte YPos, const char *name,  int max)
+void Plugin_10::set_envelope_decay(byte XPos, byte YPos, const char *name, int max)
 {
     if (enc_moved[XPos])
     {
-       assign_envelope_decay(get_Potentiometer(XPos, YPos, name), max);
+        assign_envelope_decay(get_Potentiometer(XPos, YPos, name), max);
     }
 }
-void Plugin_2::set_envelope_sustain(byte XPos, byte YPos, const char *name)
+void Plugin_10::set_envelope_sustain(byte XPos, byte YPos, const char *name)
 {
     if (enc_moved[XPos])
     {
 
         assign_envelope_sustain(get_Potentiometer(XPos, YPos, name) / MIDI_CC_RANGE_FLOAT);
-        
     }
 }
-void Plugin_2::set_envelope_release(byte XPos, byte YPos, const char *name,  int max)
+void Plugin_10::set_envelope_release(byte XPos, byte YPos, const char *name, int max)
 {
     if (enc_moved[XPos])
     {
