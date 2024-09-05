@@ -64,7 +64,10 @@ Plugin_7 plugin_7("Boom", 7);
 Plugin_8 plugin_8("dTune", 8);
 Plugin_9 plugin_9("rDrm", 9);
 Plugin_10 plugin_10("SF2", 9);
-PluginControll *allPlugins[NUM_PLUGINS] = {&plugin_1, &plugin_2, &plugin_3, &plugin_4, &plugin_5, &plugin_6, &plugin_7, &plugin_8, &plugin_9,&plugin_10};
+Plugin_11 plugin_11("Ext", 9);
+
+PluginControll *allPlugins[NUM_PLUGINS] = {&plugin_1, &plugin_2, &plugin_3, &plugin_4, &plugin_5, &plugin_6, &plugin_7, &plugin_8, &plugin_9, &plugin_10, &plugin_11};
+// PluginControll *allPlugins[NUM_PLUGINS] = {&plugin_1, &plugin_2, &plugin_3, &plugin_4, &plugin_5, &plugin_6, &plugin_7, &plugin_8, &plugin_9};
 FX_1 fx_1("Rev", 1);
 FX_2 fx_2("Bit", 2);
 FX_3 fx_3("Nix", 3);
@@ -209,59 +212,60 @@ void setup()
   }
 
   Serial.println("DAC´s started");
+  /*
+   trellisMainGridBuffer = new int **[TRELLIS_MAX_PAGES];
+   for (int i = 0; i < TRELLIS_MAX_PAGES; i++)
+   {
+     trellisMainGridBuffer[i] = new int *[TRELLIS_PADS_X_DIM];
+     for (int j = 0; j < TRELLIS_PADS_X_DIM; j++)
+     {
+       trellisMainGridBuffer[i][j] = new int[TRELLIS_PADS_Y_DIM];
+     }
+   }
+   // fill the array
+   for (int i = 0; i < TRELLIS_MAX_PAGES; i++)
+   {
+     for (int j = 0; j < TRELLIS_PADS_X_DIM; j++)
+     {
+       for (int k = 0; k < TRELLIS_PADS_Y_DIM; k++)
+       {
+         trellisMainGridBuffer[i][j][k] = TRELLIS_BLACK;
+       }
+     }
+   }
 
-  trellisMainGridBuffer = new int **[TRELLIS_MAX_PAGES];
-  for (int i = 0; i < TRELLIS_MAX_PAGES; i++)
-  {
-    trellisMainGridBuffer[i] = new int *[TRELLIS_PADS_X_DIM];
-    for (int j = 0; j < TRELLIS_PADS_X_DIM; j++)
-    {
-      trellisMainGridBuffer[i][j] = new int[TRELLIS_PADS_Y_DIM];
-    }
-  }
-  // fill the array
-  for (int i = 0; i < TRELLIS_MAX_PAGES; i++)
-  {
-    for (int j = 0; j < TRELLIS_PADS_X_DIM; j++)
-    {
-      for (int k = 0; k < TRELLIS_PADS_Y_DIM; k++)
-      {
-        trellisMainGridBuffer[i][j][k] = TRELLIS_BLACK;
-      }
-    }
-  }
-  trellisPressed = new bool[X_DIM * Y_DIM];
-  for (int i = 0; i < X_DIM * Y_DIM; i++)
-  {
-    trellisPressed[i] = false;
-  }
+   trellisPressed = new bool[X_DIM * Y_DIM];
+   for (int i = 0; i < X_DIM * Y_DIM; i++)
+   {
+     trellisPressed[i] = false;
+   }
 
-  trellisControllBuffer = new int *[TRELLIS_CONTROL_X_DIM];
-  for (int j = 0; j < TRELLIS_CONTROL_X_DIM; j++)
-  {
-    trellisControllBuffer[j] = new int[TRELLIS_CONTROL_Y_DIM];
-  }
-  for (int j = 0; j < TRELLIS_CONTROL_X_DIM; j++)
-  {
-    for (int k = 0; k < TRELLIS_CONTROL_Y_DIM; k++)
-    {
-      trellisControllBuffer[j][k] = TRELLIS_BLACK;
-    }
-  }
+   trellisControllBuffer = new int *[TRELLIS_CONTROL_X_DIM];
+   for (int j = 0; j < TRELLIS_CONTROL_X_DIM; j++)
+   {
+     trellisControllBuffer[j] = new int[TRELLIS_CONTROL_Y_DIM];
+   }
+   for (int j = 0; j < TRELLIS_CONTROL_X_DIM; j++)
+   {
+     for (int k = 0; k < TRELLIS_CONTROL_Y_DIM; k++)
+     {
+       trellisControllBuffer[j][k] = TRELLIS_BLACK;
+     }
+   }
 
-  trellisPanelBuffer = new int *[TRELLIS_CONTROL_X_DIM];
-  for (int j = 0; j < TRELLIS_CONTROL_X_DIM; j++)
-  {
-    trellisPanelBuffer[j] = new int[TRELLIS_PANEL_Y_DIM];
-  }
-  for (int j = 0; j < TRELLIS_CONTROL_X_DIM; j++)
-  {
-    for (int k = 0; k < TRELLIS_PANEL_Y_DIM; k++)
-    {
-      trellisPanelBuffer[j][k] = TRELLIS_BLACK;
-    }
-  }
-
+   trellisPanelBuffer = new int *[TRELLIS_CONTROL_X_DIM];
+   for (int j = 0; j < TRELLIS_CONTROL_X_DIM; j++)
+   {
+     trellisPanelBuffer[j] = new int[TRELLIS_PANEL_Y_DIM];
+   }
+   for (int j = 0; j < TRELLIS_CONTROL_X_DIM; j++)
+   {
+     for (int k = 0; k < TRELLIS_PANEL_Y_DIM; k++)
+     {
+       trellisPanelBuffer[j][k] = TRELLIS_BLACK;
+     }
+   }
+ */
   tftRamInfoBox = new int *[INFO_BOX_WIDTH];
   for (int j = 0; j < INFO_BOX_WIDTH; j++)
   {
@@ -281,7 +285,7 @@ void setup()
   MIDI1.setHandleNoteOff(myNoteOff);
   usbMidi1.setHandleNoteOn(myNoteOn);
   usbMidi1.setHandleNoteOff(myNoteOff);
-  AudioMemory(200);
+  AudioMemory(250);
   MasterOut.setup();
   Serial.println("Audio & MIDI Setup done");
   note_frequency = new float[128];
@@ -1651,11 +1655,11 @@ void trellis_static()
     trellis_set_main_buffer(TRELLIS_SCREEN_PERFORM, 15, i, TRELLIS_GREEN);
   }
 
-    trellis_set_main_buffer(TRELLIS_SCREEN_PERFORM, lastPotRow * 4, 7, TRELLIS_BLUE);
-    trellis_set_main_buffer(TRELLIS_SCREEN_PERFORM, lastPotRow * 4 + 1, 7, TRELLIS_RED);
-    trellis_set_main_buffer(TRELLIS_SCREEN_PERFORM, lastPotRow * 4 + 2, 7, TRELLIS_GREEN);
-    trellis_set_main_buffer(TRELLIS_SCREEN_PERFORM, lastPotRow * 4 + 3, 7, TRELLIS_WHITE);
-  
+  trellis_set_main_buffer(TRELLIS_SCREEN_PERFORM, lastPotRow * 4, 7, TRELLIS_BLUE);
+  trellis_set_main_buffer(TRELLIS_SCREEN_PERFORM, lastPotRow * 4 + 1, 7, TRELLIS_RED);
+  trellis_set_main_buffer(TRELLIS_SCREEN_PERFORM, lastPotRow * 4 + 2, 7, TRELLIS_GREEN);
+  trellis_set_main_buffer(TRELLIS_SCREEN_PERFORM, lastPotRow * 4 + 3, 7, TRELLIS_WHITE);
+
   for (int i = 0; i < NUM_TRACKS; i++)
   {
     for (int c = 0; c < 4; c++)
@@ -1791,9 +1795,9 @@ void trellis_show_clockbar(byte trackNr, byte step)
     else
       color = TRELLIS_ORANGE;
 
-    trellis.setPixelColor(step, trackNr, color);
     if (trellisScreen <= TRELLIS_SCREEN_SEQUENCER_CLIP_8)
     {
+      trellis.setPixelColor(step, trackNr, color);
       if (step > 0)
         trellis.setPixelColor(step - 1, trackNr, trellis_get_main_buffer(allTracks[trackNr]->parameter[SET_CLIP2_EDIT], step - 1, trackNr));
       if (step == 0)
@@ -1805,13 +1809,18 @@ void trellis_show_clockbar(byte trackNr, byte step)
     }
     else
     {
-      if (step > 0)
-        trellis.setPixelColor(step - 1, trackNr, trellis_get_main_buffer(trellisScreen, step - 1, trackNr));
-      if (step == 0)
+      //if (step % 16 == 0)
       {
-        byte oldNr = (allTracks[trackNr]->parameter[SET_SEQUENCE_LENGTH] / 6) - 1;
-        trellis.setPixelColor(oldNr, trackNr, trellis_get_main_buffer(trellisScreen, oldNr, trackNr));
-        // Serial.println(oldNr);
+
+        trellis.setPixelColor(myClock.barTick, trackNr, color);
+        if (myClock.barTick > 0)
+          trellis.setPixelColor(myClock.barTick - 1, trackNr, trellis_get_main_buffer(trellisScreen, myClock.barTick - 1, trackNr));
+        if (myClock.barTick == 0)
+        {
+         
+          trellis.setPixelColor(myClock.endOfLoop-1, trackNr, trellis_get_main_buffer(trellisScreen, myClock.endOfLoop-1, trackNr));
+          // Serial.println(oldNr);
+        }
       }
     }
 
@@ -2480,13 +2489,13 @@ void draw_perform_page()
       drawPot(i % 4, i / 4, performCC[i], "CC");
       trellis_set_main_buffer(TRELLIS_SCREEN_PERFORM, i, 7, TRELLIS_BLACK);
     }
-    trellisRecall=true;
+    trellisRecall = true;
     trellis_set_main_buffer(TRELLIS_SCREEN_PERFORM, lastPotRow * 4, 7, TRELLIS_BLUE);
-    trellisRecall=true;
+    trellisRecall = true;
     trellis_set_main_buffer(TRELLIS_SCREEN_PERFORM, lastPotRow * 4 + 1, 7, TRELLIS_RED);
-    trellisRecall=true;
+    trellisRecall = true;
     trellis_set_main_buffer(TRELLIS_SCREEN_PERFORM, lastPotRow * 4 + 2, 7, TRELLIS_GREEN);
-    trellisRecall=true;
+    trellisRecall = true;
     trellis_set_main_buffer(TRELLIS_SCREEN_PERFORM, lastPotRow * 4 + 3, 7, TRELLIS_WHITE);
   }
 }

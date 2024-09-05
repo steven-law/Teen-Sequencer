@@ -16,7 +16,7 @@
 #include <Plugins/Plugin_8.h>
 #include <Plugins/Plugin_9.h>
 #include <Plugins/Plugin_10.h>
-
+#include <Plugins/Plugin_11.h>
 
 extern Plugin_1 plugin_1;
 extern Plugin_2 plugin_2;
@@ -28,6 +28,7 @@ extern Plugin_7 plugin_7;
 extern Plugin_8 plugin_8;
 extern Plugin_9 plugin_9;
 extern Plugin_10 plugin_10;
+extern Plugin_11 plugin_11;
 extern PluginControll *allPlugins[NUM_PLUGINS];
 
 

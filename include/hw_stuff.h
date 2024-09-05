@@ -66,8 +66,8 @@ extern void tft_setup(int dly);
 
 #define TRELLIS_SCREEN_STARTUP 99
 
-//extern bool trellisPressed[X_DIM * Y_DIM];
-extern bool *trellisPressed;
+extern bool trellisPressed[X_DIM * Y_DIM];
+//extern bool *trellisPressed;
 #define BUTTON_LEFT 0
 #define BUTTON_RIGHT 1
 #define BUTTON_UP 2

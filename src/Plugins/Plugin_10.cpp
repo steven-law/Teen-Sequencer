@@ -51,7 +51,7 @@ void Plugin_10::setup()
     Aenv.sustain(1);
     Aenv.release(200);
 
-   // mixer.gain(0, 1);
+    // mixer.gain(0, 1);
 
     MixGain.gain(1);
     SongVol.gain(1);
@@ -59,6 +59,7 @@ void Plugin_10::setup()
 void Plugin_10::noteOn(byte notePlayed, float velocity, byte voice)
 {
     float frequency = note_frequency[notePlayed] * tuning;
+    Serial.printf("pl10: notePlayed= %d\n", notePlayed);
     waveform.playFrequency(frequency);
     Fenv.noteOn();
     Aenv.noteOn();
@@ -141,7 +142,7 @@ void Plugin_10::set_voice_waveform(byte XPos, byte YPos, const char *name)
 }
 void Plugin_10::assign_voice_waveform(byte value)
 {
-    byte walveform = map(value, 0, MIDI_CC_RANGE, 0, 5);
+    byte walveform = map(value, 0, MIDI_CC_RANGE, 0,27);
     switch (walveform)
     {
     case 0:
@@ -162,6 +163,74 @@ void Plugin_10::assign_voice_waveform(byte value)
     case 5:
         waveform.setInstrument(Pizzicato);
         break;
+    case 6:
+        waveform.setInstrument(bassoon);
+        break;
+    case 7:
+        waveform.setInstrument(clarinet);
+        break;
+
+         case 8:
+        waveform.setInstrument(distortiongt);
+        break;
+         case 9:
+        waveform.setInstrument(epiano);
+        break;
+         case 10:
+        waveform.setInstrument(flute);
+        break;
+         case 11:
+        waveform.setInstrument(glockenspiel);
+        break;
+         case 12:
+        waveform.setInstrument(gtfretnoise);
+        break;
+         case 13:
+        waveform.setInstrument(harmonica);
+        break;
+         case 14:
+        waveform.setInstrument(harp);
+        break;
+         case 15:
+        waveform.setInstrument(mutedgtr);
+        break;
+         case 16:
+        waveform.setInstrument(nylonstrgtr);
+        break;
+         case 17:
+        waveform.setInstrument(oboe);
+        break;
+         case 18:
+        waveform.setInstrument(overdrivegt);
+        break;
+         case 19:
+        waveform.setInstrument(piano);
+        break;
+         case 20:
+        waveform.setInstrument(recorder);
+        break;
+         case 21:
+        waveform.setInstrument(standard_DRUMS);
+        break;
+         case 22:
+        waveform.setInstrument(steelstrgtr);
+        break;
+         case 23:
+        waveform.setInstrument(strings);
+        break;
+         case 24:
+        waveform.setInstrument(trombone);
+        break;
+         case 25:
+        waveform.setInstrument(trumpet);
+        break;
+         case 26:
+        waveform.setInstrument(tuba);
+        break;
+         case 27:
+        waveform.setInstrument(vibraphone);
+        break;
+
     default:
         waveform.setInstrument(Pizzicato);
         break;

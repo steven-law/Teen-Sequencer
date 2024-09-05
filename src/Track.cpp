@@ -132,7 +132,7 @@ void Track::load_track(byte songNr)
     // Serial.println(_trackname);
     if (myFile)
     {
-        // Serial.println("opening:");
+         Serial.println("opening:");
         //  read from the file until there's nothing else in it:
         //  load track 1
         for (int c = 0; c < MAX_CLIPS; c++)

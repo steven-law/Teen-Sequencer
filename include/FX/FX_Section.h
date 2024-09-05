@@ -14,21 +14,21 @@ class FX_Section
 public:
     //   byte FX2_Potentiomer[2];
     byte FX3_Potentiomer[2];
-    //AudioAnalyzePeak peak3;
-    //AudioAnalyzePeak peak2;
+    // AudioAnalyzePeak peak3;
+    // AudioAnalyzePeak peak2;
     AudioAmplifier dry[NUM_PLUGINS];
     AudioMixer12 dry_mixer;
-    //AudioMixer12 FX3_mixer;
+    // AudioMixer12 FX3_mixer;
     AudioMixer4 endmixer;
-    AudioConnection *patchCord[(NUM_PLUGINS*2)+4]; // total patchCordCount:46 including array typed ones.
+    AudioConnection *patchCord[(NUM_PLUGINS * 2) + 4]; // total patchCordCount:46 including array typed ones.
 
     // constructor (this is called when class-object is created)
     FX_Section()
     {
         int pci = 0; // used only for adding new patchcords
 
-        //patchCord[pci++] = new AudioConnection(plugin_3.modulator[0], 0, peak3, 0);
-        //patchCord[pci++] = new AudioConnection(plugin_2.waveform[0], 0, peak2, 0);
+        // patchCord[pci++] = new AudioConnection(plugin_3.modulator[0], 0, peak3, 0);
+        // patchCord[pci++] = new AudioConnection(plugin_2.waveform[0], 0, peak2, 0);
 
         patchCord[pci++] = new AudioConnection(plugin_1.SongVol, 0, dry[0], 0);
         patchCord[pci++] = new AudioConnection(plugin_2.SongVol, 0, dry[1], 0);
@@ -40,9 +40,10 @@ public:
         patchCord[pci++] = new AudioConnection(plugin_8.SongVol, 0, dry[7], 0);
         patchCord[pci++] = new AudioConnection(plugin_9.SongVol, 0, dry[8], 0);
         patchCord[pci++] = new AudioConnection(plugin_10.SongVol, 0, dry[9], 0);
+        patchCord[pci++] = new AudioConnection(plugin_11.SongVol, 0, dry[10], 0);
 
-
-        for (int i=0;i<NUM_PLUGINS;i++){
+        for (int i = 0; i < NUM_PLUGINS; i++)
+        {
             patchCord[pci++] = new AudioConnection(dry[i], 0, dry_mixer, i);
         }
 
@@ -74,7 +75,7 @@ public:
 
     void get_peak()
     {
-        //Serial.printf("FX2: %f , FX3: %f \n", peak2.read(), peak3.read());
+        // Serial.printf("FX2: %f , FX3: %f \n", peak2.read(), peak3.read());
     }
 };
 // TeensyDAW: end automatically generated code

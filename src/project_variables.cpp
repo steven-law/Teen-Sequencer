@@ -25,19 +25,19 @@ const char FLASHMEM *songNames[MAX_SONGS]{"Marshmallow", "KittyPitty", "DragonPu
 byte trellisScreen = 0;
 int trackColor[9]{ILI9341_RED, ILI9341_PINK, ILI9341_OLIVE, ILI9341_YELLOW, ILI9341_BLUE, 9365295, ILI9341_CYAN, ILI9341_GREEN, ILI9341_WHITE};
 int trellisTrackColor[9]{TRELLIS_RED, TRELLIS_PURPLE, TRELLIS_OLIVE, TRELLIS_YELLOW, TRELLIS_BLUE, 9365295, TRELLIS_AQUA, TRELLIS_GREEN, 900909};
-// int trellisControllBuffer[TRELLIS_CONTROL_X_DIM][TRELLIS_CONTROL_Y_DIM];
-// int trellisPanelBuffer[TRELLIS_CONTROL_X_DIM][TRELLIS_PANEL_Y_DIM];
-// int trellisMainGridBuffer[TRELLIS_MAX_PAGES][TRELLIS_PADS_X_DIM][TRELLIS_PADS_Y_DIM];
-int ***trellisMainGridBuffer;
-int **trellisControllBuffer;
-int **trellisPanelBuffer;
+ int trellisControllBuffer[TRELLIS_CONTROL_X_DIM][TRELLIS_CONTROL_Y_DIM];
+ int trellisPanelBuffer[TRELLIS_CONTROL_X_DIM][TRELLIS_PANEL_Y_DIM];
+ int trellisMainGridBuffer[TRELLIS_MAX_PAGES][TRELLIS_PADS_X_DIM][TRELLIS_PADS_Y_DIM];
+//int ***trellisMainGridBuffer;
+//int **trellisControllBuffer;
+//int **trellisPanelBuffer;
 
-// bool trellisPressed[X_DIM * Y_DIM];
-bool *trellisPressed;
+bool trellisPressed[X_DIM * Y_DIM];
+// bool *trellisPressed;
 bool trellisShowClockPixel[Y_DIM];
 byte trellisPianoTrack;
-byte performCC[16]{7, 77, 24, 85, 84,  //Volume, EnvDepth, Data H, Rev Send, Del Send, 
-                   109, 119, 5, 83, //LFO1, LFO2, notelength, amprelease
+byte performCC[16]{7, 77, 24, 85, 84, // Volume, EnvDepth, Data H, Rev Send, Del Send,
+                   109, 119, 5, 83,   // LFO1, LFO2, notelength, amprelease
                    30, 92, 74, 75,
                    128, 128, 128};
 bool trellisRecall;
@@ -66,7 +66,7 @@ const char FLASHMEM *channelOutNames[MAX_OUTPUTS + 1]{"CV", "SR1", "SR2", "SR3",
                                                       "UD9", "UD10", "UD11", "UD12", "UD13", "UD14", "UD15", "UD16",
                                                       "Ua1", "Ua2", "Ua3", "Ua4", "Ua5", "Ua6", "Ua7", "Ua8",
                                                       "Ua9", "Ua10", "Ua11", "Ua12", "Ua13", "Ua14", "Ua15", "Ua16",
-                                                      "Strg", "1OSC", "FM2", "mDrm", "Drum", "Adtv", "Boom", "dTun", "rDrm", "SF2"};
+                                                      "Strg", "1OSC", "FM2", "mDrm", "Drum", "Adtv", "Boom", "dTun", "rDrm", "SF2", "Ext"};
 
 const char FLASHMEM *noteNames[12]{"C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"};
 const char FLASHMEM *seqModname[5]{"Step", "Rand", "Drop", "BitRd", "PotS"};
