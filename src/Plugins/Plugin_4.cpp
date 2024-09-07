@@ -125,5 +125,10 @@ void Plugin_4::assign_mixer_gain(byte value, byte channel)
     float sustain = value / MIDI_CC_RANGE_FLOAT;
     mixer.gain(channel, sustain);
 }
+void Plugin_4::change_preset(){
+    for (int i=0;i<MAX_VOICES;i++){
+        assign_mixer_gain(potentiometer[presetNr][i], i);
+    }
+}
 
 // TeensyDAW: end automatically generated code

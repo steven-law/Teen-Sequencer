@@ -38,8 +38,8 @@ public:
       void set_start_of_loop(byte n);
 
   void set_end_of_loop(byte n);
-  void save_clock();
-  void load_clock();
+  void save_clock(byte _songNr);
+  void load_clock(byte _songNr);
 };
 extern MyClock myClock;
 #endif

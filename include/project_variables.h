@@ -159,8 +159,8 @@ extern int gridTouchY;
 extern byte lastPotRow;
 extern byte activeScreen;
 extern bool change_plugin_row;
-//extern int tftRamInfoBox[INFO_BOX_WIDTH][INFO_BOX_HEIGTH];
-extern int **tftRamInfoBox;
+extern int tftRamInfoBox[INFO_BOX_WIDTH][INFO_BOX_HEIGTH];
+//extern int **tftRamInfoBox;
 extern unsigned long currentTime;
 extern bool showBox;
 

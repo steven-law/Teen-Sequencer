@@ -13,6 +13,7 @@ void PluginControll::noteOn(byte notePlayed, float velocity, byte voice) {}
 void PluginControll::noteOff(byte notePlayed, byte voice) {}
 void PluginControll::set_parameters(byte row) {}
 void PluginControll::draw_plugin() {}
+void PluginControll::change_preset() {}
 
 void PluginControll::set_presetNr()
 {
@@ -32,13 +33,13 @@ byte PluginControll::get_Potentiometer(byte XPos, byte YPos, const char *name)
     return potentiometer[presetNr][n];
 }
 
-void PluginControll::save_plugin()
+void PluginControll::save_plugin(byte _songNr)
 {
     SD.begin(BUILTIN_SDCARD);
     // Serial.println("in save mode:");
     trellisPressed[TRELLIS_BUTTON_ENTER] = false;
 
-    sprintf(_trackname, "%dplugin%d.txt\0", gridTouchY, myID);
+    sprintf(_trackname, "%dplugin%d.txt\0", _songNr, myID);
 
     Serial.println(_trackname);
 
@@ -79,12 +80,12 @@ void PluginControll::save_plugin()
     }
     Serial.println("plugin saving Done:");
 }
-void PluginControll::load_plugin()
+void PluginControll::load_plugin(byte _songNr)
 {
     SD.begin(BUILTIN_SDCARD);
     // Serial.println("in save mode:");
 
-    sprintf(_trackname, "%dplugin%d.txt\0", gridTouchY, myID);
+    sprintf(_trackname, "%dplugin%d.txt\0", _songNr, myID);
     Serial.println(_trackname);
 
     // open the file.
@@ -117,5 +118,6 @@ void PluginControll::load_plugin()
         // if the file didn't open, print an error:
         Serial.println("error:");
     }
+    change_preset();
     Serial.println("plugin loading Done:");
 }

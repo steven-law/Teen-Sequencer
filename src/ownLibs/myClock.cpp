@@ -5,7 +5,7 @@ byte MyClock::tempo = 120;
 byte MyClock::startOfLoop = 0;
 byte MyClock::endOfLoop = 4;
 
-byte MyClock::barTick = 0;
+byte MyClock::barTick = -1;
 MyClock *MyClock::instance = nullptr;
 
 MyClock::MyClock(ILI9341_t3n *display)
@@ -79,6 +79,8 @@ void MyClock::set_start()
 void MyClock::set_stop()
 {
     uClock.stop();
+    barTick=-1;
+
 }
 void MyClock::draw_clock_option(byte x, byte v)
 {
@@ -162,13 +164,13 @@ void MyClock::set_end_of_loop(byte n)
     }
 }
 
-void MyClock::save_clock()
+void MyClock::save_clock(byte _songNr)
 {
     SD.begin(BUILTIN_SDCARD);
     // Serial.println("in save mode:");
     trellisPressed[TRELLIS_BUTTON_ENTER] = false;
 
-    sprintf(_trackname, "%dclock.txt\0", gridTouchY);
+    sprintf(_trackname, "%dclock.txt\0", _songNr);
     Serial.println(_trackname);
 
     // delete the file:
@@ -206,14 +208,14 @@ void MyClock::save_clock()
     Serial.println("clock saving Done:");
     // startUpScreen();
 }
-void MyClock::load_clock()
+void MyClock::load_clock(byte _songNr)
 {
     byte _tempo;
     byte _startOfLoop;
     byte _endOfLoop;
     SD.begin(BUILTIN_SDCARD);
     // Serial.println("in load mode");
-    sprintf(_trackname, "%dclock.txt\0", gridTouchY);
+    sprintf(_trackname, "%dclock.txt\0", _songNr);
     Serial.println(_trackname);
     //  open the file for reading:
     myFile = SD.open(_trackname, FILE_READ);

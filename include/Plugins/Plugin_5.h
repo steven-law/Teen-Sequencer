@@ -88,6 +88,7 @@ public:
     virtual void noteOff(byte notePlayed, byte voice) override;
     virtual void set_parameters(byte row) override;
     virtual void draw_plugin() override;
+virtual void change_preset() override;
 
     void set_fmsnare_frequency(byte XPos, byte YPos, const char *name, int min, int max);
     void set_fmsnare_pitchMod(byte XPos, byte YPos, const char *name);

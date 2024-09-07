@@ -132,7 +132,20 @@ void Plugin_10::draw_plugin()
         draw_sequencer_option(SEQUENCER_OPTIONS_VERY_RIGHT, "Prset", presetNr, 3, 0);
     }
 }
+void Plugin_10::change_preset(){
+    assign_voice_waveform(potentiometer[presetNr][0]);
+assign_voice_amplitude(potentiometer[presetNr][1]);
 
+assign_filter_frequency(potentiometer[presetNr][8]);
+assign_filter_resonance(potentiometer[presetNr][9]);
+assign_filter_sweep(potentiometer[presetNr][10]);
+selectFilterType(potentiometer[presetNr][11]);
+
+assign_envelope_attack(potentiometer[presetNr][12], 1000);
+assign_envelope_decay(potentiometer[presetNr][13], 500);
+assign_envelope_sustain(potentiometer[presetNr][14]);
+assign_envelope_release(potentiometer[presetNr][15], 2000);
+}
 void Plugin_10::set_voice_waveform(byte XPos, byte YPos, const char *name)
 {
     if (enc_moved[XPos])

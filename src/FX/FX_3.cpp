@@ -37,17 +37,26 @@ void FX_3::draw_plugin()
     }
 }
 
-void FX_3::set_DL_time(byte XPos, byte YPos, const char *name) {
+void FX_3::set_DL_time(byte XPos, byte YPos, const char *name)
+{
     if (enc_moved[XPos])
     {
-        int time =map( get_Potentiometer(XPos,YPos,name) ,0,127,3,500);
-        delay.delay(0,time);
+        int time = map(get_Potentiometer(XPos, YPos, name), 0, 127, 3, 500);
+        delay.delay(0, time);
     }
 }
-void FX_3::set_DL_feedback(byte XPos, byte YPos, const char *name) {
+void FX_3::set_DL_feedback(byte XPos, byte YPos, const char *name)
+{
     if (enc_moved[XPos])
     {
-        float gain = get_Potentiometer(XPos,YPos,name) / MIDI_CC_RANGE_FLOAT;
-        delayMixer.gain(1,gain);
+        float gain = get_Potentiometer(XPos, YPos, name) / MIDI_CC_RANGE_FLOAT;
+        delayMixer.gain(1, gain);
     }
+}
+void FX_3::change_preset()
+{
+    int time = map(potentiometer[presetNr][0], 0, 127, 3, 500);
+    delay.delay(0, time);
+    float gain = potentiometer[presetNr][1] / MIDI_CC_RANGE_FLOAT;
+    delayMixer.gain(1, gain);
 }

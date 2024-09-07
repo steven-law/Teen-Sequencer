@@ -66,6 +66,7 @@ public:
     virtual void noteOff(byte notePlayed, byte voice) override;
     virtual void set_parameters(byte row) override;
     virtual void draw_plugin() override;
+    virtual void change_preset() override;
 
     void set_mixer_gain(byte XPos, byte YPos, const char *name);
     void assign_mixer_gain(byte value, byte channel);

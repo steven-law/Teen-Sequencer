@@ -186,7 +186,28 @@ void Plugin_6::draw_plugin()
         draw_sequencer_option(SEQUENCER_OPTIONS_VERY_RIGHT, "Prset", presetNr, 3, 0);
     }
 }
+void Plugin_6::change_preset(){
+    
+assign_voice_amplitude(0,potentiometer[presetNr][0]);
+assign_voice_amplitude(1,potentiometer[presetNr][1]);
+assign_voice_amplitude(2,potentiometer[presetNr][2]);
+assign_voice_amplitude(3,potentiometer[presetNr][3]);
+assign_voice_amplitude(4,potentiometer[presetNr][4]);
+assign_voice_amplitude(5,potentiometer[presetNr][5]);
+assign_voice_amplitude(6,potentiometer[presetNr][6]);
+assign_voice_amplitude(7,potentiometer[presetNr][7]);
 
+
+assign_filter_frequency(potentiometer[presetNr][8]);
+assign_filter_resonance(potentiometer[presetNr][9]);
+assign_filter_sweep(potentiometer[presetNr][10]);
+selectFilterType(potentiometer[presetNr][11]);
+
+assign_envelope_attack(potentiometer[presetNr][12], 1000);
+assign_envelope_decay(potentiometer[presetNr][13], 500);
+assign_envelope_sustain(potentiometer[presetNr][14]);
+assign_envelope_release(potentiometer[presetNr][15], 2000);
+}
 void Plugin_6::set_voice_waveform(byte XPos, byte YPos, const char *name)
 {
     if (enc_moved[XPos])

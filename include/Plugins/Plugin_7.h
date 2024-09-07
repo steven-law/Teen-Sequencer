@@ -85,6 +85,7 @@ public:
     virtual void noteOff(byte notePlayed, byte voice) override;
     virtual void set_parameters(byte row) override;
     virtual void draw_plugin() override;
+virtual void change_preset() override;
 
     void set_fmdrum_pitchMod(byte XPos, byte YPos, const char *name);
     void set_fmdrum_decay(byte XPos, byte YPos, const char *name);

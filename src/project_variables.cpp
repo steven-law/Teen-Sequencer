@@ -12,8 +12,8 @@ int gridTouchY = 0;
 byte lastPotRow = 0;
 byte activeScreen = 0;
 bool change_plugin_row = false;
-// int tftRamInfoBox[INFO_BOX_WIDTH][INFO_BOX_HEIGTH];
-int **tftRamInfoBox;
+EXTMEM int tftRamInfoBox[INFO_BOX_WIDTH][INFO_BOX_HEIGTH];
+//int **tftRamInfoBox;
 unsigned long currentTime = 0;
 bool showBox = false;
 

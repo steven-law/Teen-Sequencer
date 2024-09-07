@@ -42,7 +42,7 @@ void FX_1::set_RV_roomsize(byte XPos, byte YPos, const char *name)
 {
     if (enc_moved[XPos])
     {
-        float size = get_Potentiometer(XPos,YPos,name) / MIDI_CC_RANGE_FLOAT;
+        float size = get_Potentiometer(XPos, YPos, name) / MIDI_CC_RANGE_FLOAT;
         freeverb.roomsize(size);
     }
 }
@@ -50,7 +50,14 @@ void FX_1::set_RC_damping(byte XPos, byte YPos, const char *name)
 {
     if (enc_moved[XPos])
     {
-        float damp = get_Potentiometer(XPos,YPos,name) / MIDI_CC_RANGE_FLOAT;
+        float damp = get_Potentiometer(XPos, YPos, name) / MIDI_CC_RANGE_FLOAT;
         freeverb.damping(damp);
     }
+}
+void FX_1::change_preset()
+{
+    float size = potentiometer[presetNr][0] / MIDI_CC_RANGE_FLOAT;
+    freeverb.roomsize(size);
+    float damp = potentiometer[presetNr][1] / MIDI_CC_RANGE_FLOAT;
+    freeverb.damping(damp);
 }

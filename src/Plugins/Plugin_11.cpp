@@ -15,15 +15,18 @@ void clearWorkSpace();
 
 void Plugin_11::setup()
 {  
+    NoteGain.gain(0);
     MixGain.gain(1);
     SongVol.gain(1);
 }
 void Plugin_11::noteOn(byte notePlayed, float velocity, byte voice)
+    
 {
-
+NoteGain.gain(1);
 }
 void Plugin_11::noteOff(byte notePlayed, byte voice)
 {
+    NoteGain.gain(0);
 
 }
 void Plugin_11::set_parameters(byte row)
@@ -77,4 +80,4 @@ void Plugin_11::set_voice_amplitude(byte XPos, byte YPos, const char *name)
     }
 }
 
-
+void Plugin_11::change_preset(){}

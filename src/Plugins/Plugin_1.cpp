@@ -95,6 +95,11 @@ void Plugin_1::draw_plugin()
         draw_sequencer_option(SEQUENCER_OPTIONS_VERY_RIGHT, "Prset", presetNr, 3, 0);
     }
 }
+void Plugin_1::change_preset(){
+    for (int i=0;i<MAX_VOICES;i++){
+        assign_mixer_gain(potentiometer[presetNr][i], i);
+    }
+}
 
 void Plugin_1::set_mixer_gain(byte XPos, byte YPos, const char *name)
 {

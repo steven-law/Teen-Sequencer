@@ -142,7 +142,7 @@ void Plugin_5::draw_plugin()
         draw_sequencer_option(SEQUENCER_OPTIONS_VERY_RIGHT, "Prset", presetNr, 3, 0);
     }
 }
-
+void Plugin_5::change_preset(){}
 void Plugin_5::set_fmsnare_frequency(byte XPos, byte YPos, const char *name, int min, int max)
 {
     if (enc_moved[XPos])

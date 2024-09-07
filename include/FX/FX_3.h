@@ -28,7 +28,7 @@ public:
     AudioMixer4 delayMixer;
     AudioMixer12 FX_mixer;
 
-    AudioConnection *patchCord[NUM_PLUGINS*2+3]; // total patchCordCount:46 including array typed ones.
+    AudioConnection *patchCord[NUM_PLUGINS * 2 + 3]; // total patchCordCount:46 including array typed ones.
     FX_3(const char *Name, byte ID) : PluginControll(Name, ID)
     {
         int pci = 0; // used only for adding new patchcords
@@ -42,19 +42,16 @@ public:
         patchCord[pci++] = new AudioConnection(plugin_7.SongVol, 0, pl[6], 0);
         patchCord[pci++] = new AudioConnection(plugin_8.SongVol, 0, pl[7], 0);
         patchCord[pci++] = new AudioConnection(plugin_9.SongVol, 0, pl[8], 0);
-        patchCord[pci++] = new AudioConnection(pl[0], 0, FX_mixer, 0);
-        patchCord[pci++] = new AudioConnection(pl[1], 0, FX_mixer, 1);
-        patchCord[pci++] = new AudioConnection(pl[2], 0, FX_mixer, 2);
-        patchCord[pci++] = new AudioConnection(pl[3], 0, FX_mixer, 3);
-        patchCord[pci++] = new AudioConnection(pl[4], 0, FX_mixer, 4);
-        patchCord[pci++] = new AudioConnection(pl[5], 0, FX_mixer, 5);
-        patchCord[pci++] = new AudioConnection(pl[6], 0, FX_mixer, 6);
-        patchCord[pci++] = new AudioConnection(pl[7], 0, FX_mixer, 7);
-        patchCord[pci++] = new AudioConnection(pl[8], 0, FX_mixer, 8);
+        patchCord[pci++] = new AudioConnection(plugin_10.SongVol, 0, pl[9], 0);
+        patchCord[pci++] = new AudioConnection(plugin_11.SongVol, 0, pl[10], 0);
+        for (int i = 0; i < NUM_PLUGINS; i++)
+        {
+            patchCord[pci++] = new AudioConnection(pl[i], 0, FX_mixer, i);
+        }
 
-         patchCord[pci++] = new AudioConnection(FX_mixer, 0, delayMixer, 0);
-         patchCord[pci++] = new AudioConnection(delayMixer, 0, delay, 0);
-         patchCord[pci++] = new AudioConnection(delay, 0, delayMixer, 1);
+        patchCord[pci++] = new AudioConnection(FX_mixer, 0, delayMixer, 0);
+        patchCord[pci++] = new AudioConnection(delayMixer, 0, delay, 0);
+        patchCord[pci++] = new AudioConnection(delay, 0, delayMixer, 1);
     }
 
     virtual ~FX_3() = default;
@@ -64,6 +61,7 @@ public:
     virtual void noteOff(byte notePlayed, byte voice) override;
     virtual void set_parameters(byte row) override;
     virtual void draw_plugin() override;
+    virtual void change_preset() override;
 
     void set_DL_time(byte XPos, byte YPos, const char *name);
     void set_DL_feedback(byte XPos, byte YPos, const char *name);

@@ -108,7 +108,7 @@ void Track::save_track(byte songNr)
     }
     if (parameter[SET_MIDICH_OUT] > NUM_MIDI_OUTPUTS)
     {
-        allPlugins[parameter[SET_MIDICH_OUT] - (NUM_MIDI_OUTPUTS + 1)]->save_plugin();
+        allPlugins[parameter[SET_MIDICH_OUT] - (NUM_MIDI_OUTPUTS + 1)]->save_plugin(songNr);
     }
 
     Serial.println("track saving Done:");
@@ -219,7 +219,7 @@ void Track::load_track(byte songNr)
     }
     if (parameter[SET_MIDICH_OUT] > NUM_MIDI_OUTPUTS)
     {
-        allPlugins[parameter[SET_MIDICH_OUT] - (NUM_MIDI_OUTPUTS + 1)]->load_plugin();
+        allPlugins[parameter[SET_MIDICH_OUT] - (NUM_MIDI_OUTPUTS + 1)]->load_plugin(songNr);
     }
     Serial.println("track Loading done");
 }

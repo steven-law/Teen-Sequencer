@@ -60,7 +60,7 @@ void Plugin_8::noteOn(byte notePlayed, float velocity, byte voice)
 {
     waveform.frequency((note_frequency[notePlayed] + detune1) * tuning);
     waveform1.frequency((note_frequency[notePlayed] + detune2) * tuning);
-    //Serial.printf("pl8 detune1: %d\n", detune1);
+    // Serial.printf("pl8 detune1: %d\n", detune1);
     Fenv.noteOn();
     Aenv.noteOn();
 }
@@ -92,7 +92,7 @@ void Plugin_8::set_parameters(byte row)
         if (row == 2)
         {
             set_filter_frequency(0, 2, "Filt-Frq");
-            set_filter_resonance(1, 2, "Resonance",0.00, MAX_RESONANCE);
+            set_filter_resonance(1, 2, "Resonance", 0.00, MAX_RESONANCE);
             set_filter_sweep(2, 2, "Sweep", 0.00, MAX_FILTERSWEEP);
             set_filter_type(3, 2, "Type");
         }
@@ -132,6 +132,26 @@ void Plugin_8::draw_plugin()
 
         draw_sequencer_option(SEQUENCER_OPTIONS_VERY_RIGHT, "Prset", presetNr, 3, 0);
     }
+}
+void Plugin_8::change_preset()
+{
+    assign_voice1_waveform(potentiometer[presetNr][0]);
+    detune1 = (float)((note_frequency[potentiometer[presetNr][1]] * 0.01));
+    assign_voice1_amplitude(potentiometer[presetNr][2]);
+
+    assign_voice2_waveform(potentiometer[presetNr][4]);
+    detune2 = (float)((note_frequency[potentiometer[presetNr][5]] * 0.01));
+    assign_voice2_amplitude(potentiometer[presetNr][6]);
+
+    assign_filter_frequency(potentiometer[presetNr][8]);
+    assign_filter_resonance(potentiometer[presetNr][9]);
+    assign_filter_sweep(potentiometer[presetNr][10]);
+    selectFilterType(potentiometer[presetNr][11]);
+
+    assign_envelope1_attack(potentiometer[presetNr][12], 1000);
+    assign_envelope1_decay(potentiometer[presetNr][13], 500);
+    assign_envelope1_sustain(potentiometer[presetNr][14]);
+    assign_envelope1_release(potentiometer[presetNr][15], 2000);
 }
 
 void Plugin_8::set_voice_waveform(byte XPos, byte YPos, const char *name)
@@ -225,7 +245,6 @@ void Plugin_8::selectFilterType(byte mixerchannel)
     fMixer.gain(mixerchannel, 1);
 }
 
-
 void Plugin_8::set_envelope_attack(byte XPos, byte YPos, const char *name, int min, int max)
 {
     if (enc_moved[XPos])
@@ -266,34 +285,31 @@ void Plugin_8::set_envelope_release(byte XPos, byte YPos, const char *name, int 
         Aenv.release(release);
     }
 }
+
 void Plugin_8::assign_voice1_waveform(byte value)
 {
     int walveform = map(value, 0, MIDI_CC_RANGE, 0, 12);
-   
-        waveform.begin(walveform);
-    
+
+    waveform.begin(walveform);
 }
 void Plugin_8::assign_voice1_amplitude(byte value)
 {
     float ampl = value / MIDI_CC_RANGE_FLOAT;
-    
-        waveform.amplitude(ampl);
-    
+
+    waveform.amplitude(ampl);
 }
 
 void Plugin_8::assign_voice2_waveform(byte value)
 {
     int walveform = map(value, 0, MIDI_CC_RANGE, 0, 12);
-    
-        waveform1.begin(walveform);
-    
+
+    waveform1.begin(walveform);
 }
 void Plugin_8::assign_voice2_amplitude(byte value)
 {
     float ampl = value / MIDI_CC_RANGE_FLOAT;
-    
-        waveform1.amplitude(ampl);
-    
+
+    waveform1.amplitude(ampl);
 }
 void Plugin_8::set_voice2_detune(byte XPos, byte YPos, const char *name)
 {
@@ -307,70 +323,62 @@ void Plugin_8::assign_filter_frequency(byte value)
 {
 
     int frequency = note_frequency[value] * tuning;
-   
-        filter.frequency(frequency);
-        ladder.frequency(frequency);
-    
+
+    filter.frequency(frequency);
+    ladder.frequency(frequency);
 }
 void Plugin_8::assign_filter_resonance(byte value)
 {
 
     float reso = value / 25.40;
-    
-        filter.resonance(reso);
-        ladder.resonance(reso);
-    
+
+    filter.resonance(reso);
+    ladder.resonance(reso);
 }
 void Plugin_8::assign_filter_sweep(byte value)
 {
     float swp = value / 18.14;
-    
-        filter.octaveControl(swp);
-        ladder.octaveControl(swp);
-    
+
+    filter.octaveControl(swp);
+    ladder.octaveControl(swp);
 }
 void Plugin_8::assign_filter_type(byte mixerchannel)
 {
-    
-        fMixer.gain(0, 0);
-        fMixer.gain(1, 0);
-        fMixer.gain(2, 0);
-        fMixer.gain(3, 0);
-        fMixer.gain(mixerchannel, 1);
-    
+
+    fMixer.gain(0, 0);
+    fMixer.gain(1, 0);
+    fMixer.gain(2, 0);
+    fMixer.gain(3, 0);
+    fMixer.gain(mixerchannel, 1);
 }
 
 void Plugin_8::assign_envelope1_attack(byte value, int max)
 {
     int attack = map(value, 0, MIDI_CC_RANGE, 0, max);
-   
-        Fenv.attack(attack);
-        Aenv.attack(attack);
-    
+
+    Fenv.attack(attack);
+    Aenv.attack(attack);
 }
 void Plugin_8::assign_envelope1_decay(byte value, int max)
 {
     int decay = map(value, 0, MIDI_CC_RANGE, 0, max);
-    
-        Fenv.decay(decay);
-        Aenv.decay(decay);
-    
+
+    Fenv.decay(decay);
+    Aenv.decay(decay);
 }
 void Plugin_8::assign_envelope1_sustain(byte value)
 {
     float ampl = value / MIDI_CC_RANGE_FLOAT;
-    
-        Fenv.sustain(ampl);
-        Aenv.sustain(ampl);
-    
+
+    Fenv.sustain(ampl);
+    Aenv.sustain(ampl);
 }
 void Plugin_8::assign_envelope1_release(byte value, int max)
 {
     int release = map(value, 0, MIDI_CC_RANGE, 0, max);
-    
-        Fenv.release(release);
-        Aenv.release(release);
-    
+
+    Fenv.release(release);
+    Aenv.release(release);
 }
 void Plugin_8::set_envelope1_ADSR(byte YPos, int maxA, int maxD, int maxR)
 {

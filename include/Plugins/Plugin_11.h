@@ -46,9 +46,10 @@ class Plugin_11 : public PluginControll
 {
 public:
     AudioInputI2S input;
+    AudioAmplifier NoteGain;
     AudioAmplifier MixGain;
     AudioAmplifier SongVol;
-    AudioConnection *patchCord[2]; // total patchCordCount:98 including array typed ones.
+    AudioConnection *patchCord[3]; // total patchCordCount:98 including array typed ones.
 
     // constructor (this is called when class-object is created)
     Plugin_11(const char *Name, byte ID) : PluginControll(Name, ID)
@@ -57,7 +58,11 @@ public:
         int pci = 0; // used only for adding new patchcords
 
  
-        patchCord[pci++] = new AudioConnection(input, 0, MixGain, 0);
+        patchCord[pci++] = new AudioConnection(input, 0, NoteGain, 0);
+        patchCord[pci++] = new AudioConnection(NoteGain, 0, MixGain, 0);
+
+        //patchCord[pci++] = new AudioConnection(input, 0, MixGain, 0);
+
         patchCord[pci++] = new AudioConnection(MixGain, 0, SongVol, 0);
     }
     virtual ~Plugin_11() = default;
@@ -68,6 +73,7 @@ public:
 
     virtual void set_parameters(byte row) override;
     virtual void draw_plugin() override;
+    virtual void change_preset() override;
 
     void set_voice_amplitude(byte XPos, byte YPos, const char *name);
 

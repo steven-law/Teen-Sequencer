@@ -89,6 +89,8 @@ public:
     virtual void noteOff(byte notePlayed, byte voice) override;
     virtual void set_parameters(byte row) override;
     virtual void draw_plugin() override;
+    virtual void change_preset() override;
+    
     void set_voice_waveform(byte XPos, byte YPos, const char *name);
     void set_voice_amplitude(byte XPos, byte YPos, const char *name);
     void set_voice_detune(byte XPos, byte YPos, const char *name);

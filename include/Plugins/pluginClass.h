@@ -34,10 +34,11 @@ public:
     virtual void noteOff(byte notePlayed, byte voice) = 0;
     virtual void set_parameters(byte row) = 0;
     virtual void draw_plugin() = 0;
+    virtual void change_preset() = 0;
 
     virtual void set_presetNr();
-    virtual void save_plugin();
-    virtual void load_plugin();
+    virtual void save_plugin(byte _songNr);
+    virtual void load_plugin(byte _songNr);
     virtual byte get_Potentiometer(byte XPos, byte YPos, const char *name);
 };
 #endif // PLUGIN_CLASS

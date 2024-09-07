@@ -52,3 +52,9 @@ void FX_2::set_BC_smplRate(byte XPos, byte YPos, const char *name)
         bitcrusher.sampleRate(map(get_Potentiometer(XPos,YPos,name), 0, 127, 1, 44100));
     }
 }
+void FX_2::change_preset(){
+        bitcrusher.bits(map(potentiometer[presetNr][0], 0, 127, 1, 16));
+        bitcrusher.sampleRate(map(potentiometer[presetNr][1], 0, 127, 1, 44100));
+
+
+}

@@ -80,6 +80,7 @@ public:
     virtual void noteOff(byte notePlayed, byte voice) override;
     virtual void set_parameters(byte row) override;
     virtual void draw_plugin() override;
+virtual void change_preset() override;
 
     void get_peak();
     void set_mod_waveform(byte XPos, byte YPos, const char *name);

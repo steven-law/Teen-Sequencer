@@ -85,6 +85,7 @@ public:
 
     virtual void set_parameters(byte row) override;
     virtual void draw_plugin() override;
+virtual void change_preset() override;
 
     void set_voice_waveform(byte XPos, byte YPos, const char *name); // make virtual in baseclass
     void set_voice_amplitude(byte XPos, byte YPos, const char *name);
