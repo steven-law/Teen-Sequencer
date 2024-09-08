@@ -71,7 +71,7 @@ void Plugin_5::noteOff(byte notePlayed, byte voice)
 void Plugin_5::set_parameters(byte row)
 {
     draw_plugin();
-    if (!trellisPressed[BUTTON_SHIFT])
+    if (!neotrellisPressed[BUTTON_SHIFT])
     {
         if (row == 0)
         {
@@ -106,7 +106,7 @@ void Plugin_5::set_parameters(byte row)
             set_toms_decay(3, 3, "Decay", 0, 2000);
         }
     }
-    if (trellisPressed[BUTTON_SHIFT])
+    if (neotrellisPressed[BUTTON_SHIFT])
     {
         set_presetNr();
     }

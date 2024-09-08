@@ -16,11 +16,10 @@ void set_mixer_dry(byte XPos, byte YPos, const char *name, byte trackn);
 void set_mixer_FX1(byte XPos, byte YPos, const char *name, byte trackn);
 void set_mixer_FX2(byte XPos, byte YPos, const char *name, byte trackn);
 void set_mixer_FX3(byte XPos, byte YPos, const char *name, byte trackn);
-void trellis_static();
+void neotrellis_static();
 void trellis_start_clock();
 void trellis_stop_clock();
 void trellis_set_potRow();
-void trellis_set_track_record();
 void trellis_SetCursor(byte maxY);
 void set_perform_page(byte lastPotRow);
 
@@ -45,53 +44,53 @@ void encoder_SetCursor(byte deltaX, byte maxY)
 
 void buttons_save_track()
 { //  save track stuff fromSD
-    if (trellisPressed[TRELLIS_BUTTON_ENTER])
+    if (neotrellisPressed[TRELLIS_BUTTON_ENTER])
     {
         if (pixelTouchX >= 13 * STEP_FRAME_W && pixelTouchX <= 14 * STEP_FRAME_W && gridTouchY == 0)
         {
             // allTracks[active_track]->save_track();
             //  Serial.println("saved track");
-            trellisPressed[TRELLIS_BUTTON_ENTER] = false;
+            neotrellisPressed[TRELLIS_BUTTON_ENTER] = false;
         }
     }
 }
 void buttons_load_track()
 { // load track stuff fromSD
-    if (trellisPressed[TRELLIS_BUTTON_ENTER])
+    if (neotrellisPressed[TRELLIS_BUTTON_ENTER])
     {
         if (pixelTouchX >= 15 * STEP_FRAME_W && gridTouchY == 0)
         {
 
             // allTracks[active_track]->load_track();
             //  Serial.println("loaded track");
-            trellisPressed[TRELLIS_BUTTON_ENTER] = false;
+            neotrellisPressed[TRELLIS_BUTTON_ENTER] = false;
         }
     }
 }
 
 void buttons_save_all()
 { //  save track stuff fromSD
-    if (trellisPressed[TRELLIS_BUTTON_ENTER])
+    if (neotrellisPressed[TRELLIS_BUTTON_ENTER])
     {
         if (pixelTouchX >= 13 * STEP_FRAME_W && pixelTouchX <= 14 * STEP_FRAME_W && gridTouchY == 0)
         {
             for (int i = 0; i < NUM_TRACKS; i++)
                 //  allTracks[i]->save_track();
                 // Serial.println("saved track");
-                trellisPressed[TRELLIS_BUTTON_ENTER] = false;
+                neotrellisPressed[TRELLIS_BUTTON_ENTER] = false;
         }
     }
 }
 void buttons_load_all()
 { // load track stuff fromSD
-    if (trellisPressed[TRELLIS_BUTTON_ENTER])
+    if (neotrellisPressed[TRELLIS_BUTTON_ENTER])
     {
         if (pixelTouchX >= 15 * STEP_FRAME_W && gridTouchY == 0)
         {
             for (int i = 0; i < NUM_TRACKS; i++)
                 // allTracks[i]->load_track();
                 // Serial.println("loaded track");
-                trellisPressed[TRELLIS_BUTTON_ENTER] = false;
+                neotrellisPressed[TRELLIS_BUTTON_ENTER] = false;
         }
     }
 }
@@ -100,12 +99,12 @@ void buttons_SetNoteOnTick(int x, byte y)
 {
     if (pixelTouchX >= SEQ_GRID_LEFT && pixelTouchX <= SEQ_GRID_RIGHT && gridTouchY >= SEQ_GRID_TOP && gridTouchY <= SEQ_GRID_BOTTOM)
     {
-        if (trellisPressed[TRELLIS_BUTTON_ENTER])
+        if (neotrellisPressed[TRELLIS_BUTTON_ENTER])
         {
 
             allTracks[active_track]->set_note_on_tick((pixelTouchX - SEQ_GRID_LEFT) / 2, gridTouchY);
 
-            trellisPressed[TRELLIS_BUTTON_ENTER] = false;
+            neotrellisPressed[TRELLIS_BUTTON_ENTER] = false;
         }
     }
 }
@@ -125,7 +124,6 @@ void input_behaviour()
     trellis_start_clock();
     trellis_stop_clock();
     trellis_set_potRow();
-    trellis_set_track_record();
     // if we are in one of the sequencer pages
     if (activeScreen == INPUT_FUNCTIONS_FOR_SEQUENCER)
     {
@@ -134,22 +132,22 @@ void input_behaviour()
         trellis_SetCursor(14);
         buttons_SetNoteOnTick(pixelTouchX, gridTouchY);
 
-        if (trellisPressed[TRELLIS_POTROW])
+        if (neotrellisPressed[TRELLIS_POTROW])
         {
             change_plugin_row = true;
             allTracks[active_track]->draw_stepSequencer_parameters(lastPotRow);
-            trellisPressed[TRELLIS_POTROW] = false;
+            neotrellisPressed[TRELLIS_POTROW] = false;
         }
         allTracks[active_track]->set_stepSequencer_parameters(lastPotRow);
     }
     // if we are in one of the Arrangerpages
     if (activeScreen == INPUT_FUNCTIONS_FOR_ARRANGER)
     {
-        if (trellisPressed[TRELLIS_POTROW])
+        if (neotrellisPressed[TRELLIS_POTROW])
         {
             change_plugin_row = true;
             allTracks[active_track]->draw_arranger_parameters(lastPotRow);
-            trellisPressed[TRELLIS_POTROW] = false;
+            neotrellisPressed[TRELLIS_POTROW] = false;
         }
 
         trellis_SetCursor(8);
@@ -179,13 +177,13 @@ void input_behaviour()
     }
     if (activeScreen == INPUT_FUNCTIONS_FOR_SEQUENCER_MODES)
     {
-        if (trellisPressed[TRELLIS_POTROW])
+        if (neotrellisPressed[TRELLIS_POTROW])
         {
             tft.fillRect(18 * STEP_FRAME_W, 5 * STEP_FRAME_H, 20 * STEP_FRAME_W, 12 * STEP_FRAME_H, ILI9341_DARKGREY);
-            trellisPressed[TRELLIS_POTROW] = false;
+            neotrellisPressed[TRELLIS_POTROW] = false;
         }
         // if Shift button is NOT pressed
-        if (!trellisPressed[TRELLIS_BUTTON_SHIFT])
+        if (!neotrellisPressed[TRELLIS_BUTTON_SHIFT])
         {
             /* for (int i = 0; i < NUM_TRACKS; i++)
              {
@@ -201,7 +199,7 @@ void input_behaviour()
             allTracks[active_track]->set_MIDI_CC(lastPotRow);
         else if (allTracks[active_track]->parameter[SET_MIDICH_OUT] > NUM_MIDI_OUTPUTS)
             MasterOut.set_parameters(allTracks[active_track]->parameter[SET_MIDICH_OUT] - 49, lastPotRow);
-        trellisPressed[TRELLIS_POTROW] = false;
+        neotrellisPressed[TRELLIS_POTROW] = false;
     }
     if (activeScreen == INPUT_FUNCTIONS_FOR_MIXER1)
         set_mixer(lastPotRow);

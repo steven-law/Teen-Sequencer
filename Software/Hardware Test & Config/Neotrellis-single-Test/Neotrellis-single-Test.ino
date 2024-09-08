@@ -7,7 +7,7 @@
 #include "Wire.h"
 Adafruit_NeoTrellis trellis;
 
-#define INT_PIN 41
+#define NEOTRELLIS_INT_PIN 41
 
 // Input a value 0 to 255 to get a color value.
 // The colors are a transition r - g - b - back to r.
@@ -40,7 +40,7 @@ void setup() {
   Serial.begin(9600);
   //while(!Serial);
 
-  pinMode(INT_PIN, INPUT);
+  pinMode(NEOTRELLIS_INT_PIN, INPUT);
   
   if(!trellis.begin(/*individual I2c Adress*/, &Wire1)){
     Serial.println("could not start trellis");
@@ -71,7 +71,7 @@ void setup() {
 }
 
 void loop() {
-  if(!digitalRead(INT_PIN)){
+  if(!digitalRead(NEOTRELLIS_INT_PIN)){
     trellis.read(false);
     Serial.println("reading trellis");
   }

@@ -147,10 +147,8 @@ extern elapsedMicros msecsclock;
 
 #define TRELLIS_MAX_PAGES TRELLIS_SCREEN_ARRANGER_1+SONGMODE_PAGE_16+1
 #define TRELLIS_CONTROL_X_DIM 4
-#define TRELLIS_CONTROL_Y_DIM 4
-#define TRELLIS_PANEL_Y_DIM 8
-#define TRELLIS_PADS_X_DIM 16
-#define TRELLIS_PADS_Y_DIM 8
+#define TRELLIS_CONTROL_Y_DIM 12
+
 
 
 
@@ -176,13 +174,9 @@ extern int controlColors[16];
 extern int trackColor[9];
 extern int trellisTrackColor[9];
 extern int trellisControllBuffer[TRELLIS_CONTROL_X_DIM][TRELLIS_CONTROL_Y_DIM];
-extern int trellisPanelBuffer[TRELLIS_CONTROL_X_DIM][TRELLIS_PANEL_Y_DIM];
 extern int trellisMainGridBuffer[TRELLIS_MAX_PAGES][TRELLIS_PADS_X_DIM][TRELLIS_PADS_Y_DIM];
-//extern bool trellisPressed[X_DIM * Y_DIM];
 //extern int ***trellisMainGridBuffer;
 //extern int **trellisControllBuffer;
-//extern int **trellisPanelBuffer;
-//extern bool *trellisPressed;
 
 extern bool trellisRecall;
 extern bool trellisShowClockPixel[Y_DIM];

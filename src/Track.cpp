@@ -23,7 +23,7 @@ void Track::save_track(byte songNr)
 {
     SD.begin(BUILTIN_SDCARD);
     // Serial.println("in save mode:");
-    trellisPressed[TRELLIS_BUTTON_ENTER] = false;
+    neotrellisPressed[TRELLIS_BUTTON_ENTER] = false;
 
     sprintf(_trackname, "%dtrack%d.txt\0", songNr, MIDI_channel_in);
     Serial.println(_trackname);

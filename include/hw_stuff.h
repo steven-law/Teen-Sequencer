@@ -22,29 +22,30 @@ extern uint16_t tft_frame_buffer[ILI9341_TFTWIDTH * ILI9341_TFTHEIGHT];
 #define ENABLE_ILI9341_FRAMEBUFFER
 extern void tft_setup(int dly);
 
-
+#define TRELLIS_PADS_X_DIM 16
+#define TRELLIS_PADS_Y_DIM 8
 //trellis
-#define Y_DIM 8  // number of rows of key
-#define X_DIM 24 // number of columns of keys
-#define TRELLIS_POTROW 20
-#define TRELLIS_BUTTON_RECORD 21
-#define TRELLIS_START_CLOCK 22
-#define TRELLIS_STOP_CLOCK 23
+#define Y_DIM 12  // number of rows of key
+#define X_DIM 4 // number of columns of keys
+#define TRELLIS_POTROW 0
+#define TRELLIS_BUTTON_RECORD 1
+#define TRELLIS_START_CLOCK 2
+#define TRELLIS_STOP_CLOCK 3
 
-#define TRELLIS_BUTTON_LEFT 44
-#define TRELLIS_BUTTON_RIGHT 45
-#define TRELLIS_BUTTON_UP 46
-#define TRELLIS_BUTTON_DOWN 47
+#define TRELLIS_BUTTON_LEFT 4
+#define TRELLIS_BUTTON_RIGHT 5
+#define TRELLIS_BUTTON_UP 6
+#define TRELLIS_BUTTON_DOWN 7
 
-#define TRELLIS_BUTTON_ENTER 68
-#define TRELLIS_BUTTON_SHIFT 69
-#define TRELLIS_BUTTON_PIANO 70
-#define TRELLIS_BUTTON_SEQMODE 71
+#define TRELLIS_BUTTON_ENTER 8
+#define TRELLIS_BUTTON_SHIFT 9
+#define TRELLIS_BUTTON_PIANO 10
+#define TRELLIS_BUTTON_SEQMODE 11
 
-#define TRELLIS_BUTTON_ARRANGER 92
-#define TRELLIS_BUTTON_MIXER 93
-#define TRELLIS_BUTTON_PLUGIN 94
-#define TRELLIS_BUTTON_SEQUENCER 95
+#define TRELLIS_BUTTON_ARRANGER 12
+#define TRELLIS_BUTTON_MIXER 13
+#define TRELLIS_BUTTON_PLUGIN 14
+#define TRELLIS_BUTTON_SEQUENCER 15
 
 #define TRELLIS_SCREEN_SEQUENCER_CLIP_0 0
 #define TRELLIS_SCREEN_SEQUENCER_CLIP_1 1
@@ -66,8 +67,10 @@ extern void tft_setup(int dly);
 
 #define TRELLIS_SCREEN_STARTUP 99
 
-extern bool trellisPressed[X_DIM * Y_DIM];
-//extern bool *trellisPressed;
+extern bool trellisPressed[TRELLIS_PADS_X_DIM * TRELLIS_PADS_Y_DIM];
+extern bool neotrellisPressed[X_DIM * Y_DIM];
+extern byte TrellisLED[TRELLIS_PADS_X_DIM * TRELLIS_PADS_Y_DIM];
+
 #define BUTTON_LEFT 0
 #define BUTTON_RIGHT 1
 #define BUTTON_UP 2

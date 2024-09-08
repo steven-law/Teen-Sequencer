@@ -28,7 +28,15 @@ void tft_setup(int dly)
 
 
 const unsigned long longPressDuration = 600;           // 1 Sekunde in Millisekunden
-
+bool trellisPressed[TRELLIS_PADS_X_DIM * TRELLIS_PADS_Y_DIM];
+byte TrellisLED[TRELLIS_PADS_X_DIM * TRELLIS_PADS_Y_DIM]{0 ,1, 2, 3,      16, 17, 18, 19,  32, 33, 34, 35,  48, 49, 50, 51, 
+                                                         4 ,5, 6, 7,      20, 21, 22, 23,  36, 37, 38, 39,  52, 53, 54, 55,
+                                                         8, 9, 10, 11,    24, 25, 26, 27,  40, 41, 42, 43,  56, 57, 58, 59,
+                                                         12, 13, 14, 15,  28, 29, 30, 32,  44, 45, 46, 47,  60, 61, 62, 63, 
+                                                         64, 65, 66, 67,  80, 81, 82, 83,  96, 97, 98, 99,  112,113,114,115,
+                                                         68, 69, 70, 71,  84, 85, 86, 87,  100,101,102,103, 116,117,118,119,
+                                                         72, 73, 74, 75,  88, 89, 90, 91,  104,105,106,107, 120,121,122,123,
+                                                         76, 77, 78, 79,  92, 93, 94, 95,  108,109,110,111, 124,125,126,127};
 const byte gateOutputPin[8]{22,40,38,37,36,35,34,33};
 void gate_setup(){
     for (int i=0;i<8;i++){
@@ -102,12 +110,12 @@ void readEncoders()
     }
     if (encButtons[0].fell())
     {
-        trellisPressed[TRELLIS_BUTTON_ENTER] = true;
+        neotrellisPressed[TRELLIS_BUTTON_ENTER] = true;
         // Serial.printf("EncButton: %d\n", i);
     }
     if (encButtons[0].rose())
     {
-        trellisPressed[TRELLIS_BUTTON_ENTER] = false;
+        neotrellisPressed[TRELLIS_BUTTON_ENTER] = false;
         // Serial.printf("EncButton: %d\n", i);
     }
 }

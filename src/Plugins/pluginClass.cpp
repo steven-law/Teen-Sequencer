@@ -37,7 +37,7 @@ void PluginControll::save_plugin(byte _songNr)
 {
     SD.begin(BUILTIN_SDCARD);
     // Serial.println("in save mode:");
-    trellisPressed[TRELLIS_BUTTON_ENTER] = false;
+    neotrellisPressed[TRELLIS_BUTTON_ENTER] = false;
 
     sprintf(_trackname, "%dplugin%d.txt\0", _songNr, myID);
 

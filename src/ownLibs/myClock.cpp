@@ -168,7 +168,7 @@ void MyClock::save_clock(byte _songNr)
 {
     SD.begin(BUILTIN_SDCARD);
     // Serial.println("in save mode:");
-    trellisPressed[TRELLIS_BUTTON_ENTER] = false;
+    neotrellisPressed[TRELLIS_BUTTON_ENTER] = false;
 
     sprintf(_trackname, "%dclock.txt\0", _songNr);
     Serial.println(_trackname);

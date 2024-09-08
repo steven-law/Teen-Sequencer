@@ -26,14 +26,11 @@ byte trellisScreen = 0;
 int trackColor[9]{ILI9341_RED, ILI9341_PINK, ILI9341_OLIVE, ILI9341_YELLOW, ILI9341_BLUE, 9365295, ILI9341_CYAN, ILI9341_GREEN, ILI9341_WHITE};
 int trellisTrackColor[9]{TRELLIS_RED, TRELLIS_PURPLE, TRELLIS_OLIVE, TRELLIS_YELLOW, TRELLIS_BLUE, 9365295, TRELLIS_AQUA, TRELLIS_GREEN, 900909};
  int trellisControllBuffer[TRELLIS_CONTROL_X_DIM][TRELLIS_CONTROL_Y_DIM];
- int trellisPanelBuffer[TRELLIS_CONTROL_X_DIM][TRELLIS_PANEL_Y_DIM];
  int trellisMainGridBuffer[TRELLIS_MAX_PAGES][TRELLIS_PADS_X_DIM][TRELLIS_PADS_Y_DIM];
 //int ***trellisMainGridBuffer;
 //int **trellisControllBuffer;
-//int **trellisPanelBuffer;
 
-bool trellisPressed[X_DIM * Y_DIM];
-// bool *trellisPressed;
+bool neotrellisPressed[X_DIM * Y_DIM];
 bool trellisShowClockPixel[Y_DIM];
 byte trellisPianoTrack;
 byte performCC[16]{7, 77, 24, 85, 84, // Volume, EnvDepth, Data H, Rev Send, Del Send,
