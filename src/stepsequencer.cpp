@@ -102,6 +102,7 @@ void Track::set_stepSequencer_parameter_text(byte XPos, byte YPos, const char *n
 void Track::draw_stepSequencer_parameter_text(byte XPos, byte YPos, const char *text, const char *name)
 
 {
+   // change_plugin_row=true;
     byte index = XPos + (YPos * NUM_ENCODERS);
     Serial.printf("Drawing text at index %d, name %s, text %s\n", index, name, text);
     draw_Text(XPos, YPos, SEQUENCER_OPTIONS_VERY_RIGHT, (XPos * 2) + 5, 0, 4, name, encoder_colour[XPos], false, false);

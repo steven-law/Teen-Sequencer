@@ -104,7 +104,7 @@ public:
 
     int internal_clock = -1;
     int internal_clock_bar = 0;
-    byte external_clock_bar = 0;
+    int external_clock_bar = 0;
     byte clip_to_play[256];
 
     Track(ILI9341_t3n *display, byte Y)

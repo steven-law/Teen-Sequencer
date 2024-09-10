@@ -181,6 +181,9 @@ extern int trellisMainGridBuffer[TRELLIS_MAX_PAGES][TRELLIS_PADS_X_DIM][TRELLIS_
 extern bool trellisRecall;
 extern bool trellisShowClockPixel[Y_DIM];
 extern byte trellisPianoTrack;
+extern byte trellisPerformIndex[NUM_STEPS];
+
+extern byte trellisMixerIndex[NUM_TRACKS];
 extern byte performCC[16];
 extern char _trackname[20];
 extern const char FLASHMEM *CCnames[129];

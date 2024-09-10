@@ -4,7 +4,7 @@ ILI9341_t3n *MyClock::tft = nullptr; // Hier wird der Display-Pointer auf `nullp
 byte MyClock::tempo = 120;
 byte MyClock::startOfLoop = 0;
 byte MyClock::endOfLoop = 4;
-
+bool MyClock::isPlaying=false;
 byte MyClock::barTick = -1;
 MyClock *MyClock::instance = nullptr;
 
@@ -42,6 +42,7 @@ void MyClock::onStepCallback(uint32_t tick) // Each call represents exactly one 
     {
         barTick++;
         barTick = barTick % endOfLoop; // Setze wert2 mit Modulo-Operator zurück
+       
     }
     // Serial.printf("Bar: %d\n", tick);
     drawstepPosition(tick);
@@ -50,6 +51,8 @@ void MyClock::onStepCallback(uint32_t tick) // Each call represents exactly one 
     {
         trellisShowClockPixel[i] = true;
     }
+ //trellis_writeDisplay();
+
 }
 
 void MyClock::onClockStart() // The callback function wich will be called when clock starts by using Clock.start() method.
@@ -75,11 +78,13 @@ void MyClock::set_tempo(byte _encoder)
 void MyClock::set_start()
 {
     uClock.start();
+    isPlaying=true;
 }
 void MyClock::set_stop()
 {
     uClock.stop();
     barTick=-1;
+    isPlaying=false;
 
 }
 void MyClock::draw_clock_option(byte x, byte v)

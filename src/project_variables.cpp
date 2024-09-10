@@ -33,6 +33,8 @@ int trellisTrackColor[9]{TRELLIS_RED, TRELLIS_PURPLE, TRELLIS_OLIVE, TRELLIS_YEL
 bool neotrellisPressed[X_DIM * Y_DIM];
 bool trellisShowClockPixel[Y_DIM];
 byte trellisPianoTrack;
+byte trellisPerformIndex[NUM_STEPS];
+byte trellisMixerIndex[NUM_TRACKS];
 byte performCC[16]{7, 77, 24, 85, 84, // Volume, EnvDepth, Data H, Rev Send, Del Send,
                    109, 119, 5, 83,   // LFO1, LFO2, notelength, amprelease
                    30, 92, 74, 75,

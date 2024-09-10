@@ -374,6 +374,7 @@ void draw_Text(byte index, byte lastPRow, byte XPos, byte YPos, byte offest_X, i
     tft.setTextColor(ILI9341_WHITE);
     tft.setCursor(xPos + offest_X, yPos + offset_Y);
     tft.print(name);
+   
 }
 void show_active_track()
 {
