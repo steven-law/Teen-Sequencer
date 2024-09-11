@@ -27,7 +27,6 @@ void tft_setup(int dly)
 }
 
 
-const unsigned long longPressDuration = 600;           // 1 Sekunde in Millisekunden
 bool trellisPressed[TRELLIS_PADS_X_DIM * TRELLIS_PADS_Y_DIM];
 byte TrellisLED[TRELLIS_PADS_X_DIM * TRELLIS_PADS_Y_DIM]{0 ,1, 2, 3,      16, 17, 18, 19,  32, 33, 34, 35,  48, 49, 50, 51, 
                                                          4 ,5, 6, 7,      20, 21, 22, 23,  36, 37, 38, 39,  52, 53, 54, 55,

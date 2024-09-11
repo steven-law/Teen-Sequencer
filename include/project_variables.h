@@ -6,7 +6,6 @@
 #include "SD.h"
 extern File myFile;
 
-extern elapsedMicros msecsclock;
 // Startscreen
 #define POSITION_ARR_BUTTON 18
 #define POSITION_BPM_BUTTON 11
@@ -157,18 +156,19 @@ extern int gridTouchY;
 extern byte lastPotRow;
 extern byte activeScreen;
 extern bool change_plugin_row;
-extern int tftRamInfoBox[INFO_BOX_WIDTH][INFO_BOX_HEIGTH];
-//extern int **tftRamInfoBox;
-extern unsigned long currentTime;
-extern bool showBox;
+
+extern unsigned long infoboxTimeAtCall;
+extern unsigned long infoboxTimeAtPress;
+extern int infoboxWaitingTime;
+extern bool infoboxShow;
+extern bool infoboxClear;
+
 
 extern byte active_track;
 extern byte arrangerpage;
-extern bool otherCtrlButtons;
 extern const char FLASHMEM *songNames[MAX_SONGS];
 
 extern int phraseSegmentLength;
-extern const char FLASHMEM *playstate[3];
 extern byte trellisScreen;
 extern int controlColors[16];
 extern int trackColor[9];
@@ -183,7 +183,6 @@ extern bool trellisShowClockPixel[Y_DIM];
 extern byte trellisPianoTrack;
 extern byte trellisPerformIndex[NUM_STEPS];
 
-extern byte trellisMixerIndex[NUM_TRACKS];
 extern byte performCC[16];
 extern char _trackname[20];
 extern const char FLASHMEM *CCnames[129];

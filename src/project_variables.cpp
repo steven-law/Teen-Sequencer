@@ -3,7 +3,6 @@
 #include <Arduino.h>
 #include "project_variables.h"
 #include "SD.h"
-elapsedMicros msecsclock;
 File myFile;
 
 // extern Clock Masterclock;
@@ -12,14 +11,15 @@ int gridTouchY = 0;
 byte lastPotRow = 0;
 byte activeScreen = 0;
 bool change_plugin_row = false;
-EXTMEM int tftRamInfoBox[INFO_BOX_WIDTH][INFO_BOX_HEIGTH];
-//int **tftRamInfoBox;
-unsigned long currentTime = 0;
-bool showBox = false;
+
+unsigned long infoboxTimeAtCall = 0;
+unsigned long infoboxTimeAtPress = 0;
+int infoboxWaitingTime = 1000;
+bool infoboxShow = false;
+bool infoboxClear = false;
 
 byte active_track;
 byte arrangerpage;
-bool otherCtrlButtons = true;
 const char FLASHMEM *songNames[MAX_SONGS]{"Marshmallow", "KittyPitty", "DragonPunch", "Snozzle", "Wildbeast", "Worldpeace", "Jumanji", "WeAreApes", "MegaHit"};
 
 byte trellisScreen = 0;
@@ -27,14 +27,11 @@ int trackColor[9]{ILI9341_RED, ILI9341_PINK, ILI9341_OLIVE, ILI9341_YELLOW, ILI9
 int trellisTrackColor[9]{TRELLIS_RED, TRELLIS_PURPLE, TRELLIS_OLIVE, TRELLIS_YELLOW, TRELLIS_BLUE, 9365295, TRELLIS_AQUA, TRELLIS_GREEN, 900909};
  int trellisControllBuffer[TRELLIS_CONTROL_X_DIM][TRELLIS_CONTROL_Y_DIM];
  int trellisMainGridBuffer[TRELLIS_MAX_PAGES][TRELLIS_PADS_X_DIM][TRELLIS_PADS_Y_DIM];
-//int ***trellisMainGridBuffer;
-//int **trellisControllBuffer;
 
 bool neotrellisPressed[X_DIM * Y_DIM];
 bool trellisShowClockPixel[Y_DIM];
 byte trellisPianoTrack;
 byte trellisPerformIndex[NUM_STEPS];
-byte trellisMixerIndex[NUM_TRACKS];
 byte performCC[16]{7, 77, 24, 85, 84, // Volume, EnvDepth, Data H, Rev Send, Del Send,
                    109, 119, 5, 83,   // LFO1, LFO2, notelength, amprelease
                    30, 92, 74, 75,
@@ -44,7 +41,7 @@ int encoder_colour[NUM_ENCODERS] = {ILI9341_BLUE, ILI9341_RED, ILI9341_GREEN, IL
 // songmode
 int phraseSegmentLength = 16;
 // mixer
-const char FLASHMEM *playstate[3] = {"Mute", "Play", "Solo"};
+
 const char FLASHMEM *CCnames[129]{"CC0", "CC1", "CC2", "CC3", "CC4", "CC5", "CC6", "CC7", "CC8", "CC9",
                                   "CC10", "CC11", "CC12", "CC13", "CC14", "CC15", "CC16", "CC17", "CC18", "CC19",
                                   "CC20", "CC21", "CC22", "CC23", "CC24", "CC25", "CC26", "CC27", "CC28", "CC29",

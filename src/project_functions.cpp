@@ -42,72 +42,6 @@ void encoder_SetCursor(byte deltaX, byte maxY)
     }
 }
 
-void buttons_save_track()
-{ //  save track stuff fromSD
-    if (neotrellisPressed[TRELLIS_BUTTON_ENTER])
-    {
-        if (pixelTouchX >= 13 * STEP_FRAME_W && pixelTouchX <= 14 * STEP_FRAME_W && gridTouchY == 0)
-        {
-            // allTracks[active_track]->save_track();
-            //  Serial.println("saved track");
-            neotrellisPressed[TRELLIS_BUTTON_ENTER] = false;
-        }
-    }
-}
-void buttons_load_track()
-{ // load track stuff fromSD
-    if (neotrellisPressed[TRELLIS_BUTTON_ENTER])
-    {
-        if (pixelTouchX >= 15 * STEP_FRAME_W && gridTouchY == 0)
-        {
-
-            // allTracks[active_track]->load_track();
-            //  Serial.println("loaded track");
-            neotrellisPressed[TRELLIS_BUTTON_ENTER] = false;
-        }
-    }
-}
-
-void buttons_save_all()
-{ //  save track stuff fromSD
-    if (neotrellisPressed[TRELLIS_BUTTON_ENTER])
-    {
-        if (pixelTouchX >= 13 * STEP_FRAME_W && pixelTouchX <= 14 * STEP_FRAME_W && gridTouchY == 0)
-        {
-            for (int i = 0; i < NUM_TRACKS; i++)
-                //  allTracks[i]->save_track();
-                // Serial.println("saved track");
-                neotrellisPressed[TRELLIS_BUTTON_ENTER] = false;
-        }
-    }
-}
-void buttons_load_all()
-{ // load track stuff fromSD
-    if (neotrellisPressed[TRELLIS_BUTTON_ENTER])
-    {
-        if (pixelTouchX >= 15 * STEP_FRAME_W && gridTouchY == 0)
-        {
-            for (int i = 0; i < NUM_TRACKS; i++)
-                // allTracks[i]->load_track();
-                // Serial.println("loaded track");
-                neotrellisPressed[TRELLIS_BUTTON_ENTER] = false;
-        }
-    }
-}
-
-void buttons_SetNoteOnTick(int x, byte y)
-{
-    if (pixelTouchX >= SEQ_GRID_LEFT && pixelTouchX <= SEQ_GRID_RIGHT && gridTouchY >= SEQ_GRID_TOP && gridTouchY <= SEQ_GRID_BOTTOM)
-    {
-        if (neotrellisPressed[TRELLIS_BUTTON_ENTER])
-        {
-
-            allTracks[active_track]->set_note_on_tick((pixelTouchX - SEQ_GRID_LEFT) / 2, gridTouchY);
-
-            neotrellisPressed[TRELLIS_BUTTON_ENTER] = false;
-        }
-    }
-}
 void clock_to_notes(int _tick)
 {
 
@@ -127,10 +61,8 @@ void input_behaviour()
     // if we are in one of the sequencer pages
     if (activeScreen == INPUT_FUNCTIONS_FOR_SEQUENCER)
     {
-        buttons_save_track();
-        buttons_load_track();
+       
         trellis_SetCursor(14);
-        buttons_SetNoteOnTick(pixelTouchX, gridTouchY);
 
         if (neotrellisPressed[TRELLIS_POTROW])
         {

@@ -128,8 +128,8 @@ void sendControlChange(byte control, byte value, byte Channel);
 void sendClock();
 void mouse(byte deltaX, byte maxY);
 void get_infobox_background();
-void set_infobox_background();
-void reset_infobox_background(unsigned long int waitingTime);
+void set_infobox_background(int _DisplayTime);
+void reset_infobox_background();
 void set_infobox_next_line(byte _lineNumber); //_lineNumber must be bigger 0
 void detect_USB_device();
 void detect_mouse();
@@ -274,18 +274,6 @@ void setup()
 
 
 
-  tftRamInfoBox = new int *[INFO_BOX_WIDTH];
-  for (int j = 0; j < INFO_BOX_WIDTH; j++)
-  {
-    tftRamInfoBox[j] = new int[INFO_BOX_HEIGTH];
-  }
-  for (int j = 0; j < INFO_BOX_WIDTH; j++)
-  {
-    for (int k = 0; k < INFO_BOX_HEIGTH; k++)
-    {
-      tftRamInfoBox[j][k] = TRELLIS_BLACK;
-    }
-  }
 */
   gate_setup();
   myClock.setup();
@@ -395,7 +383,7 @@ void loop()
     tft.updateScreenAsync();
     // trellis.writeDisplay();
   }
-
+  get_infobox_background();
   unsigned long loopEndTime = millis();
   unsigned long trellisCurrentMillis = millis();
 
@@ -893,41 +881,37 @@ void myNoteOff(byte channel, byte note, byte velocity)
 }
 
 void get_infobox_background()
-{
-  currentTime = millis();
-  for (int w = 0; w < INFO_BOX_WIDTH; w++)
+{  infoboxTimeAtPress = millis();
+  if (infoboxShow&&infoboxTimeAtPress- infoboxTimeAtCall >= infoboxWaitingTime)
   {
-    for (int h = 0; h < INFO_BOX_HEIGTH; h++)
-    {
-      tftRamInfoBox[w][h] = tft.readPixel(w + INFOBOX_OFFSET, h + INFOBOX_OFFSET);
-    }
+    infoboxClear=true;
+    infoboxShow=false;
+    //infoboxTimeAtPress=0;
   }
 }
-void set_infobox_background()
+void set_infobox_background(int _DisplayTime)
 {
-  showBox = true;
+  infoboxWaitingTime = _DisplayTime;
   tft.fillRoundRect(INFOBOX_OFFSET, INFOBOX_OFFSET, INFO_BOX_WIDTH, INFO_BOX_HEIGTH, 5, ILI9341_BLACK);
   tft.drawRoundRect(INFOBOX_OFFSET, INFOBOX_OFFSET, INFO_BOX_WIDTH, INFO_BOX_HEIGTH, 5, ILI9341_WHITE);
   tft.setFont(Arial_10);
   tft.setTextColor(ILI9341_WHITE);
   tft.setCursor(INFOBOX_TEXT_OFFSET, INFOBOX_TEXT_OFFSET);
+   infoboxTimeAtCall = millis();
+   infoboxShow = true;
+  
 }
 void set_infobox_next_line(byte _lineNumber)
 {
   tft.setCursor(INFOBOX_TEXT_OFFSET, INFOBOX_TEXT_OFFSET + (20 * _lineNumber));
 }
-void reset_infobox_background(unsigned long int waitingTime)
+void reset_infobox_background()
 {
-  if (showBox && millis() - currentTime >= waitingTime)
+ // tft.updateScreenAsync();
+  if (infoboxClear)
   {
-    showBox = false;
-    for (int w = 0; w < INFO_BOX_WIDTH; w++)
-    {
-      for (int h = 0; h < INFO_BOX_HEIGTH; h++)
-      {
-        tft.drawPixel(w + INFOBOX_OFFSET, h + INFOBOX_OFFSET, tftRamInfoBox[w][h]);
-      }
-    }
+    infoboxClear = false;
+
     clearWorkSpace();
     change_plugin_row = true;
   }
@@ -1038,8 +1022,7 @@ void detect_USB_device()
   // if connected
   if (usbMidi1.idProduct() != 0 && !deviceConnected)
   {
-    get_infobox_background();
-    set_infobox_background();
+    set_infobox_background(750);
 
     deviceConnected = true;
     tft.print("USB Device connected: ");
@@ -1049,23 +1032,21 @@ void detect_USB_device()
   // if disconnected
   else if (usbMidi1.idProduct() == 0 && deviceConnected)
   {
-    get_infobox_background();
-    set_infobox_background();
+    set_infobox_background(750);
     tft.println("USB Device disconnected");
     deviceConnected = false;
 
     // remove infobox
   }
 
-  reset_infobox_background(2000);
+  reset_infobox_background();
 }
 void detect_mouse()
 {
   static bool deviceConnected = false;
   if (mouse1.available() && !deviceConnected)
   {
-    get_infobox_background();
-    set_infobox_background();
+    set_infobox_background(750);
 
     deviceConnected = true;
     tft.print("Mouse connected: ");
@@ -1074,11 +1055,10 @@ void detect_mouse()
   else if (!mouse1.available() && deviceConnected)
   {
     deviceConnected = false;
-    get_infobox_background();
-    set_infobox_background();
+    set_infobox_background(750);
     tft.println("Mouse disconnected");
   }
-  reset_infobox_background(2000);
+  reset_infobox_background();
 }
 
 // define a callback for key presses
@@ -1229,6 +1209,8 @@ void trellis_read()
         {
           _nr = _nr + 48;
         }
+      
+       
         trellisPressed[_nr] = true;
         Serial.print("nr");
         Serial.println(_nr);
@@ -1410,66 +1392,69 @@ void trellis_set_brightness()
 }
 void trellis_show_clockbar(byte trackNr, byte step)
 {
-  if (trellisScreen <= TRELLIS_SCREEN_SEQUENCER_CLIP_8 || trellisScreen >= TRELLIS_SCREEN_ARRANGER_1 && myClock.isPlaying)
+  if (myClock.isPlaying)
   {
-    trellisShowClockPixel[trackNr] = false;
-    int color;
-
-    if (allTracks[trackNr]->get_recordState())
-      color = TRELLIS_RED;
-    else
-      color = TRELLIS_ORANGE;
-
-    if (trellisScreen <= TRELLIS_SCREEN_SEQUENCER_CLIP_8)
+    if (trellisScreen <= TRELLIS_SCREEN_SEQUENCER_CLIP_8 || trellisScreen >= TRELLIS_SCREEN_ARRANGER_1)
     {
-      byte _nr = step + (trackNr * NUM_STEPS);
-      trellis.setLED(TrellisLED[_nr]);
-      if (step > 0)
+      trellisShowClockPixel[trackNr] = false;
+      int color;
+
+      if (allTracks[trackNr]->get_recordState())
+        color = TRELLIS_RED;
+      else
+        color = TRELLIS_ORANGE;
+
+      if (trellisScreen <= TRELLIS_SCREEN_SEQUENCER_CLIP_8)
       {
-        if (trellis_get_main_buffer(allTracks[trackNr]->parameter[SET_CLIP2_EDIT], step - 1, trackNr) > 0)
-          trellis.setLED(TrellisLED[_nr - 1]);
-        else
-          trellis.clrLED(TrellisLED[_nr - 1]);
-      }
-      if (step == 0)
-      {
-        if (trellis_get_main_buffer(allTracks[trackNr]->parameter[SET_CLIP2_EDIT], (allTracks[trackNr]->parameter[SET_SEQUENCE_LENGTH] / 6) - 1, trackNr) > 0)
-          trellis.setLED(TrellisLED[((allTracks[trackNr]->parameter[SET_SEQUENCE_LENGTH] / 6) - 1) + (trackNr * TRELLIS_PADS_X_DIM)]);
-        else
-          trellis.clrLED(TrellisLED[((allTracks[trackNr]->parameter[SET_SEQUENCE_LENGTH] / 6) - 1) + (trackNr * TRELLIS_PADS_X_DIM)]);
-        // byte oldNr = (allTracks[trackNr]->parameter[SET_SEQUENCE_LENGTH] / 6) - 1;
-        // neotrellis.setPixelColor(oldNr, trackNr, trellis_get_main_buffer(allTracks[trackNr]->parameter[SET_CLIP2_EDIT], oldNr, trackNr));
-        //  Serial.println(oldNr);
-      }
-    }
-    else
-    {
-      // if (step % 16 == 0)
-      {
-        byte _nr = myClock.barTick + (trackNr * NUM_STEPS);
+        byte _nr = step + (trackNr * NUM_STEPS);
         trellis.setLED(TrellisLED[_nr]);
-
-        if (myClock.barTick > 0)
+        if (step > 0)
         {
-          if (trellis_get_main_buffer(trellisScreen, myClock.barTick - 1, trackNr) > 0)
+          if (trellis_get_main_buffer(allTracks[trackNr]->parameter[SET_CLIP2_EDIT], step - 1, trackNr) > 0)
             trellis.setLED(TrellisLED[_nr - 1]);
           else
             trellis.clrLED(TrellisLED[_nr - 1]);
         }
-        // neotrellis.setPixelColor(myClock.barTick - 1, trackNr, trellis_get_main_buffer(trellisScreen, myClock.barTick - 1, trackNr));
-        if (myClock.barTick == 0)
+        if (step == 0)
         {
-          if (trellis_get_main_buffer(trellisScreen, myClock.endOfLoop - 1, trackNr) > 0)
-            trellis.setLED(TrellisLED[(myClock.endOfLoop - 1) + (trackNr * TRELLIS_PADS_X_DIM)]);
+          if (trellis_get_main_buffer(allTracks[trackNr]->parameter[SET_CLIP2_EDIT], (allTracks[trackNr]->parameter[SET_SEQUENCE_LENGTH] / 6) - 1, trackNr) > 0)
+            trellis.setLED(TrellisLED[((allTracks[trackNr]->parameter[SET_SEQUENCE_LENGTH] / 6) - 1) + (trackNr * TRELLIS_PADS_X_DIM)]);
           else
-            trellis.clrLED(TrellisLED[(myClock.endOfLoop - 1) + (trackNr * TRELLIS_PADS_X_DIM)]);
-          //  neotrellis.setPixelColor(myClock.endOfLoop - 1, trackNr, trellis_get_main_buffer(trellisScreen, myClock.endOfLoop - 1, trackNr));
-          // Serial.println(oldNr);
+            trellis.clrLED(TrellisLED[((allTracks[trackNr]->parameter[SET_SEQUENCE_LENGTH] / 6) - 1) + (trackNr * TRELLIS_PADS_X_DIM)]);
+          // byte oldNr = (allTracks[trackNr]->parameter[SET_SEQUENCE_LENGTH] / 6) - 1;
+          // neotrellis.setPixelColor(oldNr, trackNr, trellis_get_main_buffer(allTracks[trackNr]->parameter[SET_CLIP2_EDIT], oldNr, trackNr));
+          //  Serial.println(oldNr);
         }
       }
+      else
+      {
+        // if (step % 16 == 0)
+        {
+          byte _nr = myClock.barTick + (trackNr * NUM_STEPS);
+          trellis.setLED(TrellisLED[_nr]);
+
+          if (myClock.barTick > 0)
+          {
+            if (trellis_get_main_buffer(trellisScreen, myClock.barTick - 1, trackNr) > 0)
+              trellis.setLED(TrellisLED[_nr - 1]);
+            else
+              trellis.clrLED(TrellisLED[_nr - 1]);
+          }
+          // neotrellis.setPixelColor(myClock.barTick - 1, trackNr, trellis_get_main_buffer(trellisScreen, myClock.barTick - 1, trackNr));
+          if (myClock.barTick == 0)
+          {
+            if (trellis_get_main_buffer(trellisScreen, myClock.endOfLoop - 1, trackNr) > 0)
+              trellis.setLED(TrellisLED[(myClock.endOfLoop - 1) + (trackNr * TRELLIS_PADS_X_DIM)]);
+            else
+              trellis.clrLED(TrellisLED[(myClock.endOfLoop - 1) + (trackNr * TRELLIS_PADS_X_DIM)]);
+            //  neotrellis.setPixelColor(myClock.endOfLoop - 1, trackNr, trellis_get_main_buffer(trellisScreen, myClock.endOfLoop - 1, trackNr));
+            // Serial.println(oldNr);
+          }
+        }
+      }
+      // trellis.writeDisplay();
+      // neotrellis_show();
     }
-    // trellis.writeDisplay();
-    // neotrellis_show();
   }
 }
 void trellis_writeDisplay()
@@ -1529,10 +1514,9 @@ void trellis_save_load()
         trellis.writeDisplay();
 
         byte _songNr = i;
-        get_infobox_background();
-        set_infobox_background();
+        set_infobox_background(750);
         tft.printf("Saved song: %s ", songNames[i]);
-        reset_infobox_background(1000);
+        reset_infobox_background();
         allTracks[0]->save_track(_songNr);
         allTracks[1]->save_track(_songNr);
         allTracks[2]->save_track(_songNr);
@@ -1553,10 +1537,9 @@ void trellis_save_load()
       {
         byte _songNr = i;
         Serial.printf("load song: %d\n", _songNr);
-        get_infobox_background();
-        set_infobox_background();
+        set_infobox_background(750);
         tft.printf("loaded song: %s ", songNames[_songNr]);
-        reset_infobox_background(1000);
+        reset_infobox_background();
         allTracks[0]->load_track(_songNr);
         allTracks[1]->load_track(_songNr);
         allTracks[2]->load_track(_songNr);
@@ -1948,7 +1931,7 @@ void trellis_play_mixer()
         {
           byte _gain[NUM_STEPS] = {0, 8, 16, 24, 32, 40, 48, 56, 64, 72, 80, 88, 96, 111, 119, 127};
           trellisPressed[_nr] = false;
-          trellisMixerIndex[s] = t;
+          
           allTracks[t]->mixGainPot = _gain[s];
           trellis_set_main_buffer(TRELLIS_SCREEN_MIXER1, s, t, trackColor[t]);
           clearWorkSpace();
@@ -1987,12 +1970,11 @@ void trellis_play_mixer()
                 trellis_set_main_buffer(TRELLIS_SCREEN_MIXER, 2, t, TRELLIS_BLACK);
                 trellis_set_main_buffer(TRELLIS_SCREEN_MIXER, 3, t, TRELLIS_BLACK);
                 trellis_set_main_buffer(TRELLIS_SCREEN_MIXER, c, t, TRELLIS_PINK);
-                get_infobox_background();
-                set_infobox_background();
+                set_infobox_background(750);
                 tft.printf("Track: %d", t);
                 set_infobox_next_line(1);
                 tft.printf("Dry Vol =  %d ", (c * 42));
-                reset_infobox_background(50);
+                reset_infobox_background();
                 break;
               }
               if (_nr % TRELLIS_PADS_X_DIM == c + 4)
@@ -2005,12 +1987,11 @@ void trellis_play_mixer()
                 trellis_set_main_buffer(TRELLIS_SCREEN_MIXER, 6, t, TRELLIS_BLACK);
                 trellis_set_main_buffer(TRELLIS_SCREEN_MIXER, 7, t, TRELLIS_BLACK);
                 trellis_set_main_buffer(TRELLIS_SCREEN_MIXER, c + 4, t, TRELLIS_OLIVE);
-                get_infobox_background();
-                set_infobox_background();
+                set_infobox_background(750);
                 tft.printf("Track: %d", t);
                 set_infobox_next_line(1);
                 tft.printf("FX1 Vol =  %d ", (c * 42));
-                reset_infobox_background(50);
+                reset_infobox_background();
                 break;
               }
               if (_nr % TRELLIS_PADS_X_DIM == c + 8)
@@ -2024,12 +2005,11 @@ void trellis_play_mixer()
                 trellis_set_main_buffer(TRELLIS_SCREEN_MIXER, 10, t, TRELLIS_BLACK);
                 trellis_set_main_buffer(TRELLIS_SCREEN_MIXER, 11, t, TRELLIS_BLACK);
                 trellis_set_main_buffer(TRELLIS_SCREEN_MIXER, c + 8, t, TRELLIS_AQUA);
-                get_infobox_background();
-                set_infobox_background();
+                set_infobox_background(750);
                 tft.printf("Track: %d", t);
                 set_infobox_next_line(1);
                 tft.printf("FX2 Vol =  %d ", (c * 42));
-                reset_infobox_background(50);
+                reset_infobox_background();
                 break;
               }
 
@@ -2044,12 +2024,11 @@ void trellis_play_mixer()
                 trellis_set_main_buffer(TRELLIS_SCREEN_MIXER, 14, t, TRELLIS_BLACK);
                 trellis_set_main_buffer(TRELLIS_SCREEN_MIXER, 15, t, TRELLIS_BLACK);
                 trellis_set_main_buffer(TRELLIS_SCREEN_MIXER, c + 12, t, TRELLIS_ORANGE);
-                get_infobox_background();
-                set_infobox_background();
+                set_infobox_background(750);
                 tft.printf("Track: %d", t);
                 set_infobox_next_line(1);
                 tft.printf("FX3 Vol =  %d ", (c * 42));
-                reset_infobox_background(50);
+                reset_infobox_background();
                 break;
               }
             }
@@ -2071,7 +2050,7 @@ void trellis_perform()
 
         for (int x = 0; x < NUM_STEPS; x++)
         {
-          for (int y = 0; y < NUM_TRACKS - 1; y++)
+          for (int y = 0; y < NUM_TRACKS; y++)
           {
 
             trellis.clrLED(TrellisLED[x + (y * TRELLIS_PADS_X_DIM)]);
@@ -2148,12 +2127,11 @@ void trellis_perform()
           trellisPressed[_nr] = false;
           if (_nr % TRELLIS_PADS_X_DIM == 0)
           {
-            get_infobox_background();
-            set_infobox_background();
+            set_infobox_background(750);
             tft.printf("Master Vol =  %d ", 127 - (t * 16));
             // set_infobox_next_line(1);
             // tft.printf("send CC%d =  %d ", performCC[0],127 - (t * 16));
-            reset_infobox_background(1000);
+            reset_infobox_background();
 
             for (int s = 0; s < NUM_TRACKS; s++)
             {
@@ -2182,12 +2160,11 @@ void trellis_perform()
                 // break;
               }
             }
-            get_infobox_background();
-            set_infobox_background();
+            set_infobox_background(750);
             tft.printf("dry Vol =  %d ", 127 - (t * 16));
             set_infobox_next_line(1);
             tft.printf("send CC%d =  %d ", performCC[1], 127 - (t * 16));
-            reset_infobox_background(1000);
+            reset_infobox_background();
           }
           if (_nr % TRELLIS_PADS_X_DIM == 2)
           {
@@ -2205,12 +2182,11 @@ void trellis_perform()
                 // break;
               }
             }
-            get_infobox_background();
-            set_infobox_background();
+            set_infobox_background(750);
             tft.printf("FX1 Vol =  %d ", 127 - (t * 16));
             set_infobox_next_line(1);
             tft.printf("send CC%d =  %d ", performCC[2], 127 - (t * 16));
-            reset_infobox_background(1000);
+            reset_infobox_background();
           }
           if (_nr % TRELLIS_PADS_X_DIM == 3)
           {
@@ -2228,12 +2204,11 @@ void trellis_perform()
                 // break;
               }
             }
-            get_infobox_background();
-            set_infobox_background();
+            set_infobox_background(750);
             tft.printf("FX2 Vol =  %d ", 127 - (t * 16));
             set_infobox_next_line(1);
             tft.printf("send CC%d =  %d ", performCC[3], 127 - (t * 16));
-            reset_infobox_background(1000);
+            reset_infobox_background();
           }
           if (_nr % TRELLIS_PADS_X_DIM == 4)
           {
@@ -2251,12 +2226,11 @@ void trellis_perform()
                 // break;
               }
             }
-            get_infobox_background();
-            set_infobox_background();
+            set_infobox_background(750);
             tft.printf("FX3 Vol =  %d ", 127 - (t * 16));
             set_infobox_next_line(1);
             tft.printf("send CC%d =  %d ", performCC[4], 127 - (t * 16));
-            reset_infobox_background(1000);
+            reset_infobox_background();
           }
 
           if (_nr % TRELLIS_PADS_X_DIM == 5)
@@ -2269,12 +2243,11 @@ void trellis_perform()
                 sendControlChange(performCC[5], 127 - (t * 16), allTracks[s]->parameter[SET_MIDICH_OUT]);
             }
             trellisPerformIndex[5] = t;
-            get_infobox_background();
-            set_infobox_background();
+            set_infobox_background(750);
             tft.printf("FX1 Roomsize =  %d ", 127 - (t * 16));
             set_infobox_next_line(1);
             tft.printf("send CC%d =  %d ", performCC[5], 127 - (t * 16));
-            reset_infobox_background(1000);
+            reset_infobox_background();
           }
           if (_nr % TRELLIS_PADS_X_DIM == 6)
           {
@@ -2287,12 +2260,11 @@ void trellis_perform()
                 sendControlChange(performCC[6], 127 - (t * 16), allTracks[s]->parameter[SET_MIDICH_OUT]);
             }
             trellisPerformIndex[6] = t;
-            get_infobox_background();
-            set_infobox_background();
+            set_infobox_background(750);
             tft.printf("FX1 Damping =  %d ", 127 - (t * 16));
             set_infobox_next_line(1);
             tft.printf("send CC%d =  %d ", performCC[6], 127 - (t * 16));
-            reset_infobox_background(1000);
+            reset_infobox_background();
           }
           if (_nr % TRELLIS_PADS_X_DIM == 7)
           {
@@ -2305,12 +2277,11 @@ void trellis_perform()
                 sendControlChange(performCC[7], 127 - (t * 16), allTracks[s]->parameter[SET_MIDICH_OUT]);
             }
             trellisPerformIndex[7] = t;
-            get_infobox_background();
-            set_infobox_background();
+            set_infobox_background(750);
             tft.printf("FX2 BitDepth =  %d ", map(t, 0, 8, 16, 0));
             set_infobox_next_line(1);
             tft.printf("send CC%d =  %d ", performCC[7], 127 - (t * 16));
-            reset_infobox_background(1000);
+            reset_infobox_background();
           }
           if (_nr % TRELLIS_PADS_X_DIM == 8)
           {
@@ -2323,12 +2294,11 @@ void trellis_perform()
                 sendControlChange(performCC[8], 127 - (t * 16), allTracks[s]->parameter[SET_MIDICH_OUT]);
             }
             trellisPerformIndex[8] = t;
-            get_infobox_background();
-            set_infobox_background();
+            set_infobox_background(750);
             tft.printf("FX2 SmplRate =  %d ", _rate[t]);
             set_infobox_next_line(1);
             tft.printf("send CC%d =  %d ", performCC[8], 127 - (t * 16));
-            reset_infobox_background(1000);
+            reset_infobox_background();
           }
           if (_nr % TRELLIS_PADS_X_DIM == 9)
           {
@@ -2340,12 +2310,11 @@ void trellis_perform()
                 sendControlChange(performCC[9], 127 - (t * 16), allTracks[s]->parameter[SET_MIDICH_OUT]);
             }
             trellisPerformIndex[9] = t;
-            get_infobox_background();
-            set_infobox_background();
+            set_infobox_background(750);
             tft.printf("FX3 DlyTime =  %d ", 500 / (t + 1));
             set_infobox_next_line(1);
             tft.printf("send CC%d =  %d ", performCC[9], 127 - (t * 16));
-            reset_infobox_background(1000);
+            reset_infobox_background();
           }
           if (_nr % TRELLIS_PADS_X_DIM == 10)
           {
@@ -2357,12 +2326,11 @@ void trellis_perform()
                 sendControlChange(performCC[10], 127 - (t * 16), allTracks[s]->parameter[SET_MIDICH_OUT]);
             }
             trellisPerformIndex[10] = t;
-            get_infobox_background();
-            set_infobox_background();
+            set_infobox_background(750);
             tft.printf("FX3 Feedback =  %d ", 127 - (t * 16));
             set_infobox_next_line(1);
             tft.printf("send CC%d =  %d ", performCC[10], 127 - (t * 16));
-            reset_infobox_background(1000);
+            reset_infobox_background();
           }
           if (_nr % TRELLIS_PADS_X_DIM == 11)
           {
@@ -2374,12 +2342,11 @@ void trellis_perform()
                 sendControlChange(performCC[11], 127 - (t * 16), allTracks[s]->parameter[SET_MIDICH_OUT]);
             }
             trellisPerformIndex[11] = t;
-            get_infobox_background();
-            set_infobox_background();
+            set_infobox_background(750);
             tft.printf("Fltr Freq =  %d ", frequency);
             set_infobox_next_line(1);
             tft.printf("send CC%d =  %d ", performCC[11], 127 - (t * 16));
-            reset_infobox_background(1000);
+            reset_infobox_background();
           }
           if (_nr % TRELLIS_PADS_X_DIM == 12)
           {
@@ -2390,12 +2357,11 @@ void trellis_perform()
                 sendControlChange(performCC[12], 127 - (t * 16), allTracks[s]->parameter[SET_MIDICH_OUT]);
             }
             trellisPerformIndex[12] = t;
-            get_infobox_background();
-            set_infobox_background();
+            set_infobox_background(750);
             tft.printf("Fltr Reso =  %d ", 127 - (t * 16));
             set_infobox_next_line(1);
             tft.printf("send CC%d =  %d ", performCC[12], 127 - (t * 16));
-            reset_infobox_background(1000);
+            reset_infobox_background();
           }
           if (_nr % TRELLIS_PADS_X_DIM == 13)
           {
@@ -2421,12 +2387,11 @@ void trellis_perform()
               }
             }
             trellisPerformIndex[13] = t;
-            get_infobox_background();
-            set_infobox_background();
+            set_infobox_background(750);
             tft.printf("Clip Length =  %d ", _clipLength[t]);
             set_infobox_next_line(1);
             tft.printf("send CC%d =  %d ", performCC[13], 127 - (t * 16));
-            reset_infobox_background(1000);
+            reset_infobox_background();
           }
           if (_nr % TRELLIS_PADS_X_DIM == 14)
           {
@@ -2447,12 +2412,11 @@ void trellis_perform()
               }
             }
             trellisPerformIndex[14] = t;
-            get_infobox_background();
-            set_infobox_background();
+            set_infobox_background(750);
             tft.printf("Step Div =  %d ", _stepDivision[t]);
             set_infobox_next_line(1);
             tft.printf("send CC%d =  %d ", performCC[14], 127 - (t * 16));
-            reset_infobox_background(1000);
+            reset_infobox_background();
           }
           if (_nr % TRELLIS_PADS_X_DIM == 15)
           {
@@ -2467,12 +2431,11 @@ void trellis_perform()
               }
             }
             trellisPerformIndex[15] = t;
-            get_infobox_background();
-            set_infobox_background();
+            set_infobox_background(750);
             tft.printf("Note Transpose =  %d ", _offset[t]);
             set_infobox_next_line(1);
             tft.printf("send CC%d =  %d ", performCC[15], 127 - (t * 16));
-            reset_infobox_background(1000);
+            reset_infobox_background();
           }
         }
       }
@@ -2605,11 +2568,11 @@ void trellis_select_trackClips()
           allTracks[active_track]->draw_notes_in_grid();
           neotrellis_set_control_buffer(3, 3, trellisTrackColor[active_track]);
 
-          trellisScreen = x;
+          trellisScreen = allTracks[active_track]->parameter[SET_CLIP2_EDIT];
           trellisRecall = true;
           trellis_recall_main_buffer(trellisScreen);
           // trellisScreen = 0;
-
+          trellis.writeDisplay();
           break;
         }
 
@@ -2634,7 +2597,7 @@ void trellis_select_trackClips()
           // allTracks[active_track]->clear_notes_in_grid();
           allTracks[active_track]->draw_notes_in_grid();
           neotrellis_set_control_buffer(3, 3, trellisTrackColor[active_track]);
-
+          trellis_recall_main_buffer(trellisScreen);
           break;
         }
       }

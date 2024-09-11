@@ -73,25 +73,8 @@ extern bool trellisPressed[TRELLIS_PADS_X_DIM * TRELLIS_PADS_Y_DIM];
 extern bool neotrellisPressed[X_DIM * Y_DIM];
 extern byte TrellisLED[TRELLIS_PADS_X_DIM * TRELLIS_PADS_Y_DIM];
 
-#define BUTTON_LEFT 0
-#define BUTTON_RIGHT 1
-#define BUTTON_UP 2
-#define BUTTON_DOWN 3
-#define BUTTON_ROW 4
-#define BUTTON_REC 5
-#define BUTTON_PLAY 6
-#define BUTTON_STOP 7
-#define BUTTON_TRACK 8
-#define BUTTON_PLUGIN 9
-#define BUTTON_SONG 10
-#define BUTTON_MIXER 11
-#define BUTTON_FX 12
-#define BUTTON_SMP 13
-#define BUTTON_SHIFT 14
-#define BUTTON_ENTER 15
-#define BUTTONS_PER_ROW 8
-#define NUM_BUTTONS 16
-extern const unsigned long longPressDuration;  // 1 Sekunde in Millisekunden
+
+
 
 extern const byte gateOutputPin[8];
 void gate_setup();
