@@ -133,9 +133,7 @@ void reset_infobox_background();
 void set_infobox_next_line(byte _lineNumber); //_lineNumber must be bigger 0
 void detect_USB_device();
 void detect_mouse();
-TrellisCallback blink2(keyEvent evt);
 TrellisCallback blink(keyEvent evt);
-uint32_t Wheel(byte WheelPos);
 void neotrellis_static();
 void neotrellis_setup();
 void trellis_set_brightness();
@@ -376,14 +374,15 @@ void loop()
     // if (trellisShowClockPixel[i])
     trellis_show_clockbar(i, allTracks[i]->internal_clock / 6);
   }
-
-  if (millis() % 20 == 0)
+  get_infobox_background();
+  if (updateTFTScreen)
   {
     tft.fillRect(70, lastPotRow * 4, 10, 3, ILI9341_ORANGE);
     tft.updateScreenAsync();
+    updateTFTScreen = false;
     // trellis.writeDisplay();
   }
-  get_infobox_background();
+
   unsigned long loopEndTime = millis();
   unsigned long trellisCurrentMillis = millis();
 
@@ -881,25 +880,27 @@ void myNoteOff(byte channel, byte note, byte velocity)
 }
 
 void get_infobox_background()
-{  infoboxTimeAtPress = millis();
-  if (infoboxShow&&infoboxTimeAtPress- infoboxTimeAtCall >= infoboxWaitingTime)
+{
+  infoboxTimeAtPress = millis();
+  if (infoboxShow && infoboxTimeAtPress - infoboxTimeAtCall >= infoboxWaitingTime)
   {
-    infoboxClear=true;
-    infoboxShow=false;
-    //infoboxTimeAtPress=0;
+    infoboxClear = true;
+    infoboxShow = false;
+    // infoboxTimeAtPress=0;
   }
 }
 void set_infobox_background(int _DisplayTime)
 {
+  updateTFTScreen = true;
+
   infoboxWaitingTime = _DisplayTime;
   tft.fillRoundRect(INFOBOX_OFFSET, INFOBOX_OFFSET, INFO_BOX_WIDTH, INFO_BOX_HEIGTH, 5, ILI9341_BLACK);
   tft.drawRoundRect(INFOBOX_OFFSET, INFOBOX_OFFSET, INFO_BOX_WIDTH, INFO_BOX_HEIGTH, 5, ILI9341_WHITE);
   tft.setFont(Arial_10);
   tft.setTextColor(ILI9341_WHITE);
   tft.setCursor(INFOBOX_TEXT_OFFSET, INFOBOX_TEXT_OFFSET);
-   infoboxTimeAtCall = millis();
-   infoboxShow = true;
-  
+  infoboxTimeAtCall = millis();
+  infoboxShow = true;
 }
 void set_infobox_next_line(byte _lineNumber)
 {
@@ -907,13 +908,14 @@ void set_infobox_next_line(byte _lineNumber)
 }
 void reset_infobox_background()
 {
- // tft.updateScreenAsync();
+  // tft.updateScreenAsync();
   if (infoboxClear)
   {
     infoboxClear = false;
 
     clearWorkSpace();
     change_plugin_row = true;
+    updateTFTScreen = true;
   }
 }
 
@@ -1209,8 +1211,9 @@ void trellis_read()
         {
           _nr = _nr + 48;
         }
-      
-       
+
+        updateTFTScreen = true;
+
         trellisPressed[_nr] = true;
         Serial.print("nr");
         Serial.println(_nr);
@@ -1931,7 +1934,7 @@ void trellis_play_mixer()
         {
           byte _gain[NUM_STEPS] = {0, 8, 16, 24, 32, 40, 48, 56, 64, 72, 80, 88, 96, 111, 119, 127};
           trellisPressed[_nr] = false;
-          
+
           allTracks[t]->mixGainPot = _gain[s];
           trellis_set_main_buffer(TRELLIS_SCREEN_MIXER1, s, t, trackColor[t]);
           clearWorkSpace();
@@ -2123,7 +2126,6 @@ void trellis_perform()
         int _nr = i + (t * TRELLIS_PADS_X_DIM);
         if (trellisPressed[_nr])
         {
-          // change_plugin_row = true;
           trellisPressed[_nr] = false;
           if (_nr % TRELLIS_PADS_X_DIM == 0)
           {
@@ -2561,6 +2563,8 @@ void trellis_select_trackClips()
           trellisRecall = true;
           activeScreen = INPUT_FUNCTIONS_FOR_SEQUENCER;
           allTracks[y]->parameter[SET_CLIP2_EDIT] = x;
+            updateTFTScreen = true;
+
           change_plugin_row = true;
           allTracks[active_track]->drawStepSequencerStatic();
           allTracks[active_track]->draw_stepSequencer_parameters(lastPotRow);
@@ -2586,6 +2590,7 @@ void trellis_select_trackClips()
           //  neotrellis_show();
           active_track = y;
           show_active_track();
+          updateTFTScreen = true;
           change_plugin_row = true;
           trellisRecall = true;
           activeScreen = INPUT_FUNCTIONS_FOR_SEQUENCER;
@@ -2633,6 +2638,8 @@ void trellis_setStepsequencer()
               trellisNote = 1;
             trellisPressed[_nr] = false;
             trellisRecall = true;
+            updateTFTScreen = true;
+             change_plugin_row = true;
             neotrellisPressed[TRELLIS_BUTTON_SEQUENCER] = false;
             allTracks[track]->set_note_on_tick(keyTick, trellisNote);
             Serial.printf("step: %d, tick: %d, track: %D \n", step, keyTick, track);

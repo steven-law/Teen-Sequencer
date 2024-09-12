@@ -73,8 +73,8 @@ extern bool trellisPressed[TRELLIS_PADS_X_DIM * TRELLIS_PADS_Y_DIM];
 extern bool neotrellisPressed[X_DIM * Y_DIM];
 extern byte TrellisLED[TRELLIS_PADS_X_DIM * TRELLIS_PADS_Y_DIM];
 
-
-
+extern bool change_plugin_row;
+extern bool updateTFTScreen;
 
 extern const byte gateOutputPin[8];
 void gate_setup();
