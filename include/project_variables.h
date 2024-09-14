@@ -6,33 +6,6 @@
 #include "SD.h"
 extern File myFile;
 
-// Startscreen
-#define POSITION_ARR_BUTTON 18
-#define POSITION_BPM_BUTTON 11
-#define POSITION_SCALE_BUTTON 16
-#define POSITION_LOAD_BUTTON 15
-#define POSITION_SAVE_BUTTON 13
-#define POSITION_STOP_BUTTON 10
-#define POSITION_PLAY_BUTTON 8
-#define POSITION_RECORD_BUTTON 7
-#define STARTUPSCREEN 0
-#define STEP_SEQUENCER_VIEW 1
-#define ARRANGMENT_VIEW 2
-
-#define POSITION_BAR_BUTTON 5
-#define POSITION_START_LOOP_BUTTON 16
-#define POSITION_END_LOOP_BUTTON 18
-
-#define STEP_FRAME_W 16
-#define STEP_FRAME_H 16
-#define TRACK_FRAME_H 24
-#define GRID_LENGTH_HOR 256
-#define GRID_LENGTH_VERT 192
-
-#define SONG_POSITION_POINTER_Y 228
-#define BAR_POSITION_POINTER_Y 232
-#define STEP_POSITION_POINTER_Y 236
-#define POSITION_POINTER_THICKNESS 3
 
 #define NUM_STEPS 16
 #define MAX_TICKS 96
@@ -52,10 +25,7 @@ extern File myFile;
 
 
 
-#define INFO_BOX_WIDTH 200
-#define INFO_BOX_HEIGTH 120
-#define INFOBOX_OFFSET 60
-#define INFOBOX_TEXT_OFFSET 80
+
 
 #define NUM_MIDI_OUTPUTS 48
 // plugins
@@ -122,7 +92,6 @@ extern bool trellisShowClockPixel[Y_DIM];
 
 extern byte performCC[16];
 extern char _trackname[20];
-extern const char FLASHMEM *CCnames[129];
 
 extern const char FLASHMEM *channelOutNames[MAX_OUTPUTS + 1];
 extern const char FLASHMEM *noteNames[12];
@@ -132,4 +101,10 @@ extern const char FLASHMEM *seqModname[5];
 extern float *note_frequency;
 extern int tuning;
 extern const char *filterName[4];
+
+
+
+
+
+
 #endif // GLOBAL_STUFF_H

@@ -33,6 +33,39 @@
 #define SONGMODE_PAGE_14 13
 #define SONGMODE_PAGE_15 14
 #define SONGMODE_PAGE_16 15
+
+// Startscreen
+#define POSITION_ARR_BUTTON 18
+#define POSITION_BPM_BUTTON 11
+#define POSITION_SCALE_BUTTON 16
+#define POSITION_LOAD_BUTTON 15
+#define POSITION_SAVE_BUTTON 13
+#define POSITION_STOP_BUTTON 10
+#define POSITION_PLAY_BUTTON 8
+#define POSITION_RECORD_BUTTON 7
+#define STARTUPSCREEN 0
+#define STEP_SEQUENCER_VIEW 1
+#define ARRANGMENT_VIEW 2
+
+#define POSITION_BAR_BUTTON 5
+#define POSITION_START_LOOP_BUTTON 16
+#define POSITION_END_LOOP_BUTTON 18
+
+#define STEP_FRAME_W 16
+#define STEP_FRAME_H 16
+#define TRACK_FRAME_H 24
+#define GRID_LENGTH_HOR 256
+#define GRID_LENGTH_VERT 192
+
+#define SONG_POSITION_POINTER_Y 228
+#define BAR_POSITION_POINTER_Y 232
+#define STEP_POSITION_POINTER_Y 236
+#define POSITION_POINTER_THICKNESS 3
+
+#define INFO_BOX_WIDTH 200
+#define INFO_BOX_HEIGTH 120
+#define INFOBOX_OFFSET 60
+#define INFOBOX_TEXT_OFFSET 80
 extern ILI9341_t3n tft;
 
 // Display
@@ -47,12 +80,13 @@ extern ILI9341_t3n tft;
 extern uint16_t tft_frame_buffer[ILI9341_TFTWIDTH * ILI9341_TFTHEIGHT];
 #define ENABLE_ILI9341_FRAMEBUFFER
 extern void tft_setup(int dly);
+extern bool updateTFTScreen;
 
 #define TRELLIS_PADS_X_DIM 16
 #define TRELLIS_PADS_Y_DIM 8
-//trellis
-#define Y_DIM 12  // number of rows of key
-#define X_DIM 4 // number of columns of keys
+// trellis
+#define Y_DIM 12 // number of rows of key
+#define X_DIM 4  // number of columns of keys
 #define TRELLIS_POTROW 0
 #define TRELLIS_BUTTON_RECORD 1
 #define TRELLIS_START_CLOCK 2
@@ -97,6 +131,35 @@ extern void tft_setup(int dly);
 // trellis
 
 
+// trellis
+#define TRELLIS_PADS_X_DIM 16
+#define TRELLIS_PADS_Y_DIM 8
+#define TRELLIS_INT_PIN 41
+#define NUMTRELLIS 8
+#define numKeys (NUMTRELLIS * 16)
+
+#define TRELLIS_SCREEN_SEQUENCER_CLIP_0 0
+#define TRELLIS_SCREEN_SEQUENCER_CLIP_1 1
+#define TRELLIS_SCREEN_SEQUENCER_CLIP_2 2
+#define TRELLIS_SCREEN_SEQUENCER_CLIP_3 3
+#define TRELLIS_SCREEN_SEQUENCER_CLIP_4 4
+#define TRELLIS_SCREEN_SEQUENCER_CLIP_5 5
+#define TRELLIS_SCREEN_SEQUENCER_CLIP_6 6
+#define TRELLIS_SCREEN_SEQUENCER_CLIP_7 7
+#define TRELLIS_SCREEN_SEQUENCER_CLIP_8 8
+
+#define TRELLIS_SCREEN_PIANO 10
+#define TRELLIS_SCREEN_SONGPAGE_SELECTION 11
+#define TRELLIS_SCREEN_MIXER 12
+#define TRELLIS_SCREEN_MIXER1 13
+#define TRELLIS_SCREEN_PERFORM 14
+
+#define TRELLIS_SCREEN_ARRANGER_1 15
+#define TRELLIS_SCREEN_ARRANGER_2 16
+#define TRELLIS_SONGMODE_PAGE_16 TRELLIS_SCREEN_ARRANGER_1 + 16
+
+#define TRELLIS_SCREEN_STARTUP 99
+#define TRELLIS_MAX_PAGES TRELLIS_SONGMODE_PAGE_16 + 1
 // See https://www.w3schools.com/colors/colors_picker.asp
 #define TRELLIS_RED 0xFF0000
 #define TRELLIS_ORANGE 0xB34700
@@ -112,18 +175,25 @@ extern void tft_setup(int dly);
 #define TRELLIS_PINK 0xFF66B3
 #define TRELLIS_WHITE 0xFFFFFF
 #define TRELLIS_BLACK 0x000000
-//#define TRELLIS_LIGHTBLUE #ADD8E6
+// #define TRELLIS_LIGHTBLUE #ADD8E6
 
 #define TRELLIS_1 0x000066
 #define TRELLIS_2 579
-extern int trellisTrackColor[9];
 
-//extern bool trellisPressed[TRELLIS_PADS_X_DIM * TRELLIS_PADS_Y_DIM];
+// extern bool trellisPressed[TRELLIS_PADS_X_DIM * TRELLIS_PADS_Y_DIM];
 extern bool neotrellisPressed[X_DIM * Y_DIM];
 
+extern const byte TrellisLED[TRELLIS_PADS_X_DIM * TRELLIS_PADS_Y_DIM];
+extern const char FLASHMEM *CCnames[129];
 
+extern bool trellisPressed[TRELLIS_PADS_X_DIM * TRELLIS_PADS_Y_DIM];
+extern int trellisTrackColor[9];
 
-
+extern int trellisMainGridBuffer[TRELLIS_MAX_PAGES][TRELLIS_PADS_X_DIM][TRELLIS_PADS_Y_DIM];
+extern bool trellisShowClockPixel[Y_DIM];
+extern byte trellisPianoTrack;
+extern byte trellisPerformIndex[TRELLIS_PADS_X_DIM];
+extern byte performCC[TRELLIS_PADS_X_DIM];
 
 extern const byte gateOutputPin[8];
 void gate_setup();

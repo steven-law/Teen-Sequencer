@@ -31,10 +31,7 @@ bool neotrellisPressed[X_DIM * Y_DIM];
 bool trellisShowClockPixel[Y_DIM];
 //byte trellisPianoTrack;
 //byte trellisPerformIndex[NUM_STEPS];
-byte performCC[16]{7, 77, 24, 85, 84, // Volume, EnvDepth, Data H, Rev Send, Del Send,
-                   109, 119, 5, 83,   // LFO1, LFO2, notelength, amprelease
-                   30, 92, 74, 75,
-                   128, 128, 128};
+
 int encoder_colour[NUM_ENCODERS] = {ILI9341_BLUE, ILI9341_RED, ILI9341_GREEN, ILI9341_WHITE};
 // songmode
 int phraseSegmentLength = 16;
