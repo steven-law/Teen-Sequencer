@@ -94,6 +94,7 @@ extern int pixelTouchX;
 extern int gridTouchY;
 extern byte lastPotRow;
 extern byte activeScreen;
+extern bool change_plugin_row;
 
 extern unsigned long infoboxTimeAtCall;
 extern unsigned long infoboxTimeAtPress;

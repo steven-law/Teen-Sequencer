@@ -10,7 +10,7 @@ int pixelTouchX = 0;
 int gridTouchY = 0;
 byte lastPotRow = 0;
 byte activeScreen = 0;
-
+bool change_plugin_row = false;
 
 unsigned long infoboxTimeAtCall = 0;
 unsigned long infoboxTimeAtPress = 0;

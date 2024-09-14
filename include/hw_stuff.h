@@ -122,8 +122,8 @@ extern int trellisTrackColor[9];
 extern bool neotrellisPressed[X_DIM * Y_DIM];
 
 
-extern bool change_plugin_row;
-extern bool updateTFTScreen;
+
+
 
 extern const byte gateOutputPin[8];
 void gate_setup();
