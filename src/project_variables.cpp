@@ -3,27 +3,15 @@
 #include <Arduino.h>
 #include "project_variables.h"
 #include "SD.h"
-File myFile;
 
-// extern Clock Masterclock;
-int pixelTouchX = 0;
-int gridTouchY = 0;
-byte lastPotRow = 0;
-byte activeScreen = 0;
-bool change_plugin_row = false;
 
-unsigned long infoboxTimeAtCall = 0;
-unsigned long infoboxTimeAtPress = 0;
-int infoboxWaitingTime = 1000;
-bool infoboxShow = false;
-bool infoboxClear = false;
+
 
 byte active_track;
 byte arrangerpage;
 const char FLASHMEM *songNames[MAX_SONGS]{"Marshmallow", "KittyPitty", "DragonPunch", "Snozzle", "Wildbeast", "Worldpeace", "Jumanji", "WeAreApes", "MegaHit"};
 
 byte trellisScreen = 0;
-int trackColor[9]{ILI9341_RED, ILI9341_PINK, ILI9341_OLIVE, ILI9341_YELLOW, ILI9341_BLUE, 9365295, ILI9341_CYAN, ILI9341_GREEN, ILI9341_WHITE};
  int trellisControllBuffer[TRELLIS_CONTROL_X_DIM][TRELLIS_CONTROL_Y_DIM];
  //int trellisMainGridBuffer[TRELLIS_MAX_PAGES][TRELLIS_PADS_X_DIM][TRELLIS_PADS_Y_DIM];
 
@@ -32,9 +20,7 @@ bool trellisShowClockPixel[Y_DIM];
 //byte trellisPianoTrack;
 //byte trellisPerformIndex[NUM_STEPS];
 
-int encoder_colour[NUM_ENCODERS] = {ILI9341_BLUE, ILI9341_RED, ILI9341_GREEN, ILI9341_WHITE};
 // songmode
-int phraseSegmentLength = 16;
 // mixer
 
 const char FLASHMEM *CCnames[129]{"CC0", "CC1", "CC2", "CC3", "CC4", "CC5", "CC6", "CC7", "CC8", "CC9",

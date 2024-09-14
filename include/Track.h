@@ -10,28 +10,13 @@
 #include "project_functions.h"
 #include "Plugins/plugin_List.h"
 // void draw_sequencer_option(byte x, const char *nameshort, int value, byte enc, const char *pluginName);
-#define SEQ_GRID_LEFT 30
-#define SEQ_GRID_RIGHT (18 * STEP_FRAME_W) - 2
-#define SEQ_GRID_TOP 1
-#define SEQ_GRID_BOTTOM 12
-#define SEQUENCER_OPTIONS_VERY_RIGHT 18
-#define SEQUENCER_OPTIONS_RIGHT 16
-#define OCTAVE_CHANGE_LEFTMOST 18
-#define OCTAVE_CHANGE_RIGHTMOST 20
-#define OCTAVE_CHANGE_UP_TOPMOST 2
-#define OCTAVE_CHANGE_UP_BOTTOMMOST 3
-#define OCTAVE_CHANGE_DOWN_TOPMOST 4
-#define OCTAVE_CHANGE_DOWN_BOTTOMMOST 5
 
-#define OCTAVE_CHANGE_TEXT 3
 #define NOTES_PER_OCTAVE 12
 #define MIDI_CC_RANGE 127
-#define BARS_PER_PAGE 16
+
 #define NO_NOTE 128
 
-#define MAX_CLIPS 9
-#define NUM_USER_CLIPS 7
-#define NUM_PRESETS 8
+
 
 // potrow 0
 #define ENCODER_STEP_FX 2
@@ -177,10 +162,7 @@ public:
     void save_track(byte songNr);
     void load_track(byte songNr);
     // songmode
-    void draw_clip_to_play(byte n, byte b);
-    void draw_arrangment_line(byte n, byte b);
-    void draw_arrangment_lines(byte n, byte b);
-    void draw_arranger_parameters(byte lastProw);
+
     void set_clip_to_play(byte n, byte b);
     void set_note_offset(byte n, int b);
     void set_barVelocity(byte n, int b);
@@ -307,14 +289,11 @@ private:
     void set_active_stepFX(byte _clip, byte _tick, byte _voice, byte _stepFX);
     byte get_active_stepFX(byte _clip, byte _tick, byte _voice);
     void check_for_free_voices(byte onTick, byte cnote);
-    void clear_notes_on_tick(byte cl_X);
-    void draw_note_on_tick(byte dr_X);
+
 
     // stepsequencer
 
-    void draw_Notenames();
-    void drawOctaveTriangle();
-    void draw_Clipselector();
+
 
     //----------------------------------------------------------------
     // arranger stuff
@@ -322,16 +301,12 @@ private:
     void set_arranger_parameters(byte lastProw);
 
     // clip to play
-
-    void drawsongmodepageselector();
-    void gridSongMode(int songpageNumber);
-
-    void draw_clipNr_arranger(byte n, byte b);
     byte get_clip_to_play(byte when);
+
+
     // note offset / note transpose
 
-    void draw_noteOffset(byte n, int b);
-    void draw_offset_arranger(byte n, byte b);
+
     // bar Velocity
 
     void draw_barVelocity(byte n, int b);

@@ -6,70 +6,9 @@
 #include <ili9341_t3n_font_Arial.h> // from ILI9341_t3
 #include <Bounce2.h>
 #include <Encoder.h>
-// pages
-#define TRACK_1_PAGE 0
-#define TRACK_2_PAGE 1
-#define TRACK_3_PAGE 2
-#define TRACK_4_PAGE 3
-#define TRACK_5_PAGE 4
-#define TRACK_6_PAGE 5
-#define TRACK_7_PAGE 6
-#define TRACK_8_PAGE 7
-#define STARTUPSCREEN_PAGE 8
-// #define EMPTY 9
-#define SONGMODE_PAGE_1 0
-#define SONGMODE_PAGE_2 1
-#define SONGMODE_PAGE_3 2
-#define SONGMODE_PAGE_4 3
-#define SONGMODE_PAGE_5 4
-#define SONGMODE_PAGE_6 5
-#define SONGMODE_PAGE_7 6
-#define SONGMODE_PAGE_8 7
-#define SONGMODE_PAGE_9 8
-#define SONGMODE_PAGE_10 9
-#define SONGMODE_PAGE_11 10
-#define SONGMODE_PAGE_12 11
-#define SONGMODE_PAGE_13 12
-#define SONGMODE_PAGE_14 13
-#define SONGMODE_PAGE_15 14
-#define SONGMODE_PAGE_16 15
 
-// Startscreen
-#define POSITION_ARR_BUTTON 18
-#define POSITION_BPM_BUTTON 11
-#define POSITION_SCALE_BUTTON 16
-#define POSITION_LOAD_BUTTON 15
-#define POSITION_SAVE_BUTTON 13
-#define POSITION_STOP_BUTTON 10
-#define POSITION_PLAY_BUTTON 8
-#define POSITION_RECORD_BUTTON 7
-#define STARTUPSCREEN 0
-#define STEP_SEQUENCER_VIEW 1
-#define ARRANGMENT_VIEW 2
-
-#define POSITION_BAR_BUTTON 5
-#define POSITION_START_LOOP_BUTTON 16
-#define POSITION_END_LOOP_BUTTON 18
-
-#define STEP_FRAME_W 16
-#define STEP_FRAME_H 16
-#define TRACK_FRAME_H 24
-#define GRID_LENGTH_HOR 256
-#define GRID_LENGTH_VERT 192
-
-#define SONG_POSITION_POINTER_Y 228
-#define BAR_POSITION_POINTER_Y 232
-#define STEP_POSITION_POINTER_Y 236
-#define POSITION_POINTER_THICKNESS 3
-
-#define INFO_BOX_WIDTH 200
-#define INFO_BOX_HEIGTH 120
-#define INFOBOX_OFFSET 60
-#define INFOBOX_TEXT_OFFSET 80
+//display
 extern ILI9341_t3n tft;
-
-// Display
-// #define TIRQ_PIN 15 // alternate Pins: any digital pin
 #define CS_PIN 14   // alternate Pins: any digital pin
 #define TFT_DC 9    // alternate Pins 9, 10, 20, 21
 #define TFT_CS 10   // alternate Pins 9, 15, 20, 21
@@ -77,10 +16,13 @@ extern ILI9341_t3n tft;
 #define TFT_MOSI 11 // shareable
 #define TFT_SCK 13  // shareable
 #define TFT_MISO 12 // shareable
+#define STEP_FRAME_W 16
+#define STEP_FRAME_H 16
+#define TRACK_FRAME_H 24
+
 extern uint16_t tft_frame_buffer[ILI9341_TFTWIDTH * ILI9341_TFTHEIGHT];
 #define ENABLE_ILI9341_FRAMEBUFFER
-extern void tft_setup(int dly);
-extern bool updateTFTScreen;
+
 
 #define TRELLIS_PADS_X_DIM 16
 #define TRELLIS_PADS_Y_DIM 8
@@ -107,28 +49,17 @@ extern bool updateTFTScreen;
 #define TRELLIS_BUTTON_PLUGIN 14
 #define TRELLIS_BUTTON_SEQUENCER 15
 
-#define TRELLIS_SCREEN_SEQUENCER_CLIP_0 0
-#define TRELLIS_SCREEN_SEQUENCER_CLIP_1 1
-#define TRELLIS_SCREEN_SEQUENCER_CLIP_2 2
-#define TRELLIS_SCREEN_SEQUENCER_CLIP_3 3
-#define TRELLIS_SCREEN_SEQUENCER_CLIP_4 4
-#define TRELLIS_SCREEN_SEQUENCER_CLIP_5 5
-#define TRELLIS_SCREEN_SEQUENCER_CLIP_6 6
-#define TRELLIS_SCREEN_SEQUENCER_CLIP_7 7
-#define TRELLIS_SCREEN_SEQUENCER_CLIP_8 8
-
 #define TRELLIS_SCREEN_PIANO 10
 #define TRELLIS_SCREEN_SONGPAGE_SELECTION 11
 #define TRELLIS_SCREEN_MIXER 12
 #define TRELLIS_SCREEN_MIXER1 13
 
 #define TRELLIS_SCREEN_PERFORM 14
-
 #define TRELLIS_SCREEN_ARRANGER_1 15
 #define TRELLIS_SCREEN_ARRANGER_2 16
 
 #define TRELLIS_SCREEN_STARTUP 99
-// trellis
+
 
 
 // trellis
@@ -180,15 +111,12 @@ extern bool updateTFTScreen;
 #define TRELLIS_1 0x000066
 #define TRELLIS_2 579
 
-// extern bool trellisPressed[TRELLIS_PADS_X_DIM * TRELLIS_PADS_Y_DIM];
 extern bool neotrellisPressed[X_DIM * Y_DIM];
+extern bool trellisPressed[TRELLIS_PADS_X_DIM * TRELLIS_PADS_Y_DIM];
 
 extern const byte TrellisLED[TRELLIS_PADS_X_DIM * TRELLIS_PADS_Y_DIM];
 extern const char FLASHMEM *CCnames[129];
-
-extern bool trellisPressed[TRELLIS_PADS_X_DIM * TRELLIS_PADS_Y_DIM];
 extern int trellisTrackColor[9];
-
 extern int trellisMainGridBuffer[TRELLIS_MAX_PAGES][TRELLIS_PADS_X_DIM][TRELLIS_PADS_Y_DIM];
 extern bool trellisShowClockPixel[Y_DIM];
 extern byte trellisPianoTrack;
@@ -234,4 +162,55 @@ void midi_setup(byte dly);
 void readMIDI();
 void myNoteOn(byte channel, byte note, byte velocity);
 void myNoteOff(byte channel, byte note, byte velocity);
+
+
+//project
+#define NUM_TRACKS 8
+
+
+
+extern int pixelTouchX;
+extern int gridTouchY;
+extern byte lastPotRow;
+extern byte activeScreen;
+extern bool change_plugin_row;
+File myFile;
+
+// pages
+#define TRACK_1_PAGE 0
+#define TRACK_2_PAGE 1
+#define TRACK_3_PAGE 2
+#define TRACK_4_PAGE 3
+#define TRACK_5_PAGE 4
+#define TRACK_6_PAGE 5
+#define TRACK_7_PAGE 6
+#define TRACK_8_PAGE 7
+#define STARTUPSCREEN_PAGE 8
+// #define EMPTY 9
+#define SONGMODE_PAGE_1 0
+#define SONGMODE_PAGE_2 1
+#define SONGMODE_PAGE_3 2
+#define SONGMODE_PAGE_4 3
+#define SONGMODE_PAGE_5 4
+#define SONGMODE_PAGE_6 5
+#define SONGMODE_PAGE_7 6
+#define SONGMODE_PAGE_8 7
+#define SONGMODE_PAGE_9 8
+#define SONGMODE_PAGE_10 9
+#define SONGMODE_PAGE_11 10
+#define SONGMODE_PAGE_12 11
+#define SONGMODE_PAGE_13 12
+#define SONGMODE_PAGE_14 13
+#define SONGMODE_PAGE_15 14
+#define SONGMODE_PAGE_16 15
+
+//clips
+#define MAX_CLIPS 9
+#define NUM_USER_CLIPS 7
+#define NUM_PRESETS 8
+
+
+//colors
+extern int trackColor[9];
+
 #endif // HW_STUFF_H

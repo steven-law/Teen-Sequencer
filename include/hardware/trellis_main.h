@@ -1,4 +1,4 @@
-/*#ifndef TRELLIS_MAIN_CLASS>
+/*#ifndef TRELLIS_MAIN_CLASS
 #define TRELLIS_MAIN_CLASS
 
 

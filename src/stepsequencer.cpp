@@ -102,7 +102,7 @@ void Track::set_stepSequencer_parameter_text(byte XPos, byte YPos, const char *n
 void Track::draw_stepSequencer_parameter_text(byte XPos, byte YPos, const char *text, const char *name)
 
 {
-   // change_plugin_row=true;
+    // change_plugin_row=true;
     byte index = XPos + (YPos * NUM_ENCODERS);
     Serial.printf("Drawing text at index %d, name %s, text %s\n", index, name, text);
     draw_Text(XPos, YPos, SEQUENCER_OPTIONS_VERY_RIGHT, (XPos * 2) + 5, 0, 4, name, encoder_colour[XPos], false, false);
@@ -337,100 +337,42 @@ void Track::set_note_on_tick(int x, int y)
     for (int i = 0; i < parameter[SET_STEP_LENGTH]; i++)
     {
         sTick = x + i;
-        pixelOn_X = (y - SEQ_GRID_TOP);
         note2set = (y - SEQ_GRID_TOP) + (parameter[SET_OCTAVE] * NOTES_PER_OCTAVE);
         this->check_for_free_voices(sTick, note2set);
-        if (activeScreen == INPUT_FUNCTIONS_FOR_SEQUENCER)
-        {
-            this->clear_notes_on_tick(sTick);
-            this->draw_note_on_tick(sTick);
-        }
     }
 }
 void Track::check_for_free_voices(byte onTick, byte newNote)
 {
     Serial.printf("newNote: %d onTick: %d\n", newNote, onTick);
     search_free_voice = pixelOn_X;
-    /*
-    for (int i = 0; i < MAX_VOICES; i++)
+
+    // löschen der Note
+
+    if (get_active_note(parameter[SET_CLIP2_EDIT], onTick, search_free_voice) == newNote)
     {
-        // Serial.printf("Voice: %d, Note: %d\n", i, array[parameter[SET_CLIP2_EDIT]][onTick][i]);
-        if (array[parameter[SET_CLIP2_EDIT]][onTick][i] == newNote)
-            Serial.printf("should clear:   old Note= %d on voice: %d, with new Note: %d on voice: %d\n", array[parameter[SET_CLIP2_EDIT]][onTick][i], i, newNote, search_free_voice);
-        if (array[parameter[SET_CLIP2_EDIT]][onTick][i] == NO_NOTE)
-            Serial.printf("should set new: old Note= %d on voice: %d, with new Note: %d on voice: %d\n", array[parameter[SET_CLIP2_EDIT]][onTick][i], i, newNote, search_free_voice);
-        if (array[parameter[SET_CLIP2_EDIT]][onTick][i] != newNote && array[parameter[SET_CLIP2_EDIT]][onTick][i] < NO_NOTE)
-            Serial.printf("should replace: old Note= %d on voice: %d, with new Note: %d on voice: %d\n", array[parameter[SET_CLIP2_EDIT]][onTick][i], i, newNote, search_free_voice);
-    }
-    */
 
-    // for (int i = 0; i < MAX_VOICES; i++)
+        set_active_note(parameter[SET_CLIP2_EDIT], onTick, search_free_voice, NO_NOTE);
+        set_active_velo(parameter[SET_CLIP2_EDIT], onTick, search_free_voice, 0);
+        set_active_stepFX(parameter[SET_CLIP2_EDIT], onTick, search_free_voice, 0);
+    }
+    // setzen neuer Note
+    else if (get_active_note(parameter[SET_CLIP2_EDIT], onTick, search_free_voice) == NO_NOTE)
     {
-        // löschen der Note
 
-        if (get_active_note(parameter[SET_CLIP2_EDIT], onTick, search_free_voice) == newNote)
-        {
-
-            set_active_note(parameter[SET_CLIP2_EDIT], onTick, search_free_voice, NO_NOTE);
-            set_active_velo(parameter[SET_CLIP2_EDIT], onTick, search_free_voice, 0);
-            set_active_stepFX(parameter[SET_CLIP2_EDIT], onTick, search_free_voice, 0);
-            // search_free_voice = i;
-            /*Serial.printf("Cleared note: %d at tick: %d, voice: %d with velocity: %d\n",
-                          clip[parameter[SET_CLIP2_EDIT]].tick[onTick].voice[search_free_voice],
-                          onTick,
-                          search_free_voice,
-                          clip[parameter[SET_CLIP2_EDIT]].tick[onTick].velo[search_free_voice]);
-                          */
-            // break;
-        }
-        // setzen neuer Note
-        else if (get_active_note(parameter[SET_CLIP2_EDIT], onTick, search_free_voice) == NO_NOTE)
-        {
-
-            // if (old_cnote != newNote)
-            // search_free_voice++;
-            set_active_note(parameter[SET_CLIP2_EDIT], onTick, search_free_voice, newNote);
-            set_active_velo(parameter[SET_CLIP2_EDIT], onTick, search_free_voice, parameter[SET_VELO2SET]);
-            set_active_stepFX(parameter[SET_CLIP2_EDIT], onTick, search_free_voice, parameter[SET_STEP_FX]);
-            // search_free_voice = i;
-            /*Serial.printf("Set new note: %d at tick: %d, voice: %d with velocity: %d\n",
-                          clip[parameter[SET_CLIP2_EDIT]].tick[onTick].voice[search_free_voice],
-                          onTick,
-                          search_free_voice,
-                          clip[parameter[SET_CLIP2_EDIT]].tick[onTick].velo[search_free_voice]);
-                          */
-            // break;
-        }
-        /*
-                // ersetzen alter note
-                else if (array[parameter[SET_CLIP2_EDIT]][onTick][search_free_voice] != newNote && array[parameter[SET_CLIP2_EDIT]][onTick][search_free_voice] < NO_NOTE)
-                {
-
-                    if (old_cnote != newNote)
-                        search_free_voice++;
-                    byte noteToReplace = array[parameter[SET_CLIP2_EDIT]][onTick][i];
-                    array[parameter[SET_CLIP2_EDIT]][onTick][i] = NO_NOTE;
-                    array[parameter[SET_CLIP2_EDIT]][onTick][search_free_voice] = newNote;
-                    velocity[parameter[SET_CLIP2_EDIT]][onTick][search_free_voice] = parameter[SET_VELO2SET];
-
-                    Serial.printf("Replaced old note: %d on voice: %d, with new note: %d  voice: %d with velocity: %d, at tick: %d\n",
-                                  noteToReplace,
-                                  i,
-                                  array[parameter[SET_CLIP2_EDIT]][onTick][search_free_voice],
-                                  search_free_voice,
-                                  velocity[parameter[SET_CLIP2_EDIT]][onTick][search_free_voice],
-                                  onTick);
-                    break;
-                }
-                */
+        set_active_note(parameter[SET_CLIP2_EDIT], onTick, search_free_voice, newNote);
+        set_active_velo(parameter[SET_CLIP2_EDIT], onTick, search_free_voice, parameter[SET_VELO2SET]);
+        set_active_stepFX(parameter[SET_CLIP2_EDIT], onTick, search_free_voice, parameter[SET_STEP_FX]);
     }
-    int color;
+
+    int trellisColor;
+    int tftColor;
     for (int v = 0; v < MAX_VOICES; v++)
     {
 
         if (get_active_note(parameter[SET_CLIP2_EDIT], onTick, v) == NO_NOTE)
         {
-            color = TRELLIS_BLACK;
+            trellisColor = TRELLIS_BLACK;
+            tftColor = ILI9341_DARKGREY;
             break;
         }
     }
@@ -438,150 +380,30 @@ void Track::check_for_free_voices(byte onTick, byte newNote)
     {
         if (get_active_note(parameter[SET_CLIP2_EDIT], onTick, v) < NO_NOTE)
         {
-            color = trellisTrackColor[MIDI_channel_in - 1];
+            trellisColor = trellisTrackColor[MIDI_channel_in - 1];
+            tftColor = trackColor[my_Arranger_Y_axis - 1] + (this->parameter[SET_CLIP2_EDIT] * 20);
             break;
         }
     }
-     trellis_set_main_buffer(this->parameter[SET_CLIP2_EDIT], (sTick / 6), (MIDI_channel_in - 1), color);
-    //  neotrellis_show();
-    //   if (search_free_voice >= MAX_VOICES)
-    //   search_free_voice = 0;
-    //   old_cnote = array[parameter[SET_CLIP2_EDIT]][onTick][search_free_voice];
-}
-void Track::clear_notes_on_tick(byte cl_X)
-{
-    int piX = (cl_X * 2) + 2 * STEP_FRAME_W;
-    for (int i = 0; i < NOTES_PER_OCTAVE; i++)
+    byte note = get_active_note(parameter[SET_CLIP2_EDIT], onTick, search_free_voice);
+    byte velo = get_active_velo(parameter[SET_CLIP2_EDIT], onTick, search_free_voice);
+
+    if (note >= parameter[SET_OCTAVE] * NOTES_PER_OCTAVE && note < (parameter[SET_OCTAVE] + 1) * NOTES_PER_OCTAVE)
     {
-        for (int w = -4; w < 5; w++)
-        {
-            tft->drawPixel(piX, (STEP_FRAME_H * (i + 1)) + w + 8, ILI9341_DARKGREY);
-            tft->drawPixel(piX + 1, (STEP_FRAME_H * (i + 1)) + w + 8, ILI9341_DARKGREY);
-        }
+        if (active_track == my_Arranger_Y_axis - 1)
+            void tftClass::draw_note_on_tick(note, onTick, this->parameter[SET_CLIP2_EDIT], velo, tftColor);
     }
-}
-void Track::draw_note_on_tick(byte dr_X)
-{
-    int stepcolor = trackColor[my_Arranger_Y_axis - 1] + (parameter[SET_CLIP2_EDIT] * 20);
-    // int trellisStepcolor = trellisTrackColor[my_Arranger_Y_axis-1] + (parameter[SET_CLIP2_EDIT] * 20);
-
-    for (int i = 0; i < MAX_VOICES; i++)
-    {
-        byte note = this->clip[parameter[SET_CLIP2_EDIT]].tick[dr_X].voice[i];
-        byte velo = this->clip[parameter[SET_CLIP2_EDIT]].tick[dr_X].velo[i];
-
-        if (note >= parameter[SET_OCTAVE] * NOTES_PER_OCTAVE && note < (parameter[SET_OCTAVE] + 1) * NOTES_PER_OCTAVE)
-        {
-            byte PixelOn_Y = ((note - (parameter[SET_OCTAVE] * NOTES_PER_OCTAVE)) + 1) * STEP_FRAME_H;
-            int minY = map(velo, 0, 127, 0, 4);
-            int maxY = map(velo, 0, 127, 0, 5);
-
-            // Serial.printf("draw velocity: %d tick: %d for note: %d on voice: %d\n", velo, dr_X, note, i);
-
-            for (int w = -minY; w < maxY; w++)
-            {
-                tft->drawPixel((dr_X * 2) + 32, PixelOn_Y + w + 8, stepcolor);
-                tft->drawPixel((dr_X * 2) + 32 + 1, PixelOn_Y + w + 8, stepcolor);
-            }
-        }
-        else
-        {
-            // Serial.printf("Skipping note: %d at tick: %d, voice: %d\n", note, dr_X, i);
-        }
-    }
-
-   
+    trellis_set_main_buffer(this->parameter[SET_CLIP2_EDIT], (onTick / 6), (MIDI_channel_in - 1), trellisColor);
 }
 
-void Track::clear_notes_in_grid()
-{
-    for (int i = 0; i < MAX_TICKS; i++)
-    {
-        clear_notes_on_tick(i);
-    }
-}
-void Track::draw_notes_in_grid()
-{
-    // clear_notes_in_grid();
-    for (int i = 0; i < MAX_TICKS; i++)
-    {
-        // clear_notes_on_tick(i);
-        draw_note_on_tick(i);
-    }
-}
+
+
 // stepsequencer
-void Track::drawStepSequencerStatic()
-{
-    clearWorkSpace();
-    draw_Notenames();
-    drawOctaveTriangle();
-    draw_Clipselector();
-    // draw the Main Grid
-    for (int i = 0; i < 17; i++)
-    { // vert Lines
-        int step_Frame_X = i * 12;
-        tft->drawFastVLine(step_Frame_X + STEP_FRAME_W * 2, STEP_FRAME_H, GRID_LENGTH_VERT, ILI9341_WHITE); //(x, y-start, length, color)
-        if (i % 4 == 0)
-        {
-            tft->drawFastVLine((i * 12) + 32, STEP_FRAME_H, STEP_FRAME_H * 12, ILI9341_LIGHTGREY); //(x, y-start, y-length, color)
-        }
-    }
-    for (int i = 0; i < 13; i++)
-    { // hor lines
-        int step_Frame_Y = i * 16;
-        tft->drawFastHLine(STEP_FRAME_W * 2, step_Frame_Y + STEP_FRAME_H, NUM_STEPS * 12, ILI9341_WHITE); //(x-start, y, length, color)
-    }
-    // tft->asyncUpdateActive();
-}
-void Track::draw_Notenames()
-{
-    for (int n = 0; n < MAX_VOICES; n++)
-    { // hor notes
-        tft->fillRect(STEP_FRAME_W, STEP_FRAME_H * n + STEP_FRAME_H, STEP_FRAME_W, STEP_FRAME_H, trackColor[my_Arranger_Y_axis - 1]);
-        tft->setCursor(20, STEP_FRAME_H * n + 20);
-        tft->setFont(Arial_8);
-        tft->setTextColor(ILI9341_BLACK);
-        tft->setTextSize(1);
-        tft->print(noteNames[n]);
-    }
-}
-void Track::drawOctaveTriangle()
-{
-    // draw Octavebuttons
-    int leftmost = STEP_FRAME_W * OCTAVE_CHANGE_LEFTMOST;
-    int rightmost = STEP_FRAME_W * OCTAVE_CHANGE_RIGHTMOST;
-    int UP_topmost = STEP_FRAME_H * OCTAVE_CHANGE_UP_TOPMOST;
-    int UP_bottommost = STEP_FRAME_H * OCTAVE_CHANGE_UP_BOTTOMMOST;
-    int DOWN_topmost = STEP_FRAME_H * OCTAVE_CHANGE_DOWN_TOPMOST;
-    int DOWN_bottommost = STEP_FRAME_H * OCTAVE_CHANGE_DOWN_BOTTOMMOST;
-    tft->fillRect(leftmost + 1, STEP_FRAME_H * 2, STEP_FRAME_W * 2, STEP_FRAME_H * 3, ILI9341_DARKGREY);
-    tft->fillTriangle(leftmost + 1, UP_bottommost, rightmost, UP_bottommost, leftmost + STEP_FRAME_W, UP_topmost, ILI9341_LIGHTGREY);        // octave arrow up
-    tft->fillTriangle(leftmost + 1, DOWN_topmost, rightmost - 2, DOWN_topmost, leftmost + STEP_FRAME_W, DOWN_bottommost, ILI9341_LIGHTGREY); // x1, y1, x2, y2, x3, y3
-}
-void Track::draw_Clipselector()
-{
-
-    for (int ClipNr = 0; ClipNr < 8; ClipNr++)
-    {
-        tft->fillRect(STEP_FRAME_W * 2 * ClipNr + STEP_FRAME_W * 2 + 1, STEP_FRAME_H * 13 + 2, STEP_FRAME_W * 2 - 2, STEP_FRAME_H - 3, trackColor[active_track] + (ClipNr * 20));
-        tft->setCursor(STEP_FRAME_W * 2 * ClipNr + STEP_FRAME_W * 2 + 4, STEP_FRAME_H * 13 + 4);
-        tft->setFont(Arial_8);
-        tft->setTextColor(ILI9341_BLACK);
-        tft->setTextSize(1);
-        tft->print("Clip ");
-        tft->print(ClipNr);
-    }
-}
 
 void Track::set_recordState(bool _status)
 {
     int circleColor;
     this->recordState = _status;
-    if (recordState)
-        circleColor = ILI9341_RED;
-    else
-        circleColor = ILI9341_LIGHTGREY;
-    tft->fillCircle(STEP_FRAME_W * POSITION_RECORD_BUTTON + 7, 7, 6, circleColor);
 }
 bool Track::get_recordState()
 {

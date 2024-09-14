@@ -20,7 +20,7 @@ extern File myFile;
 #define ACTIVE_TRACK_6 5
 #define ACTIVE_TRACK_7 6
 #define ACTIVE_TRACK_8 7
-#define NUM_TRACKS 8
+
 
 
 
@@ -60,27 +60,16 @@ extern File myFile;
 
 
 
-extern int pixelTouchX;
-extern int gridTouchY;
-extern byte lastPotRow;
-extern byte activeScreen;
-extern bool change_plugin_row;
 
-extern unsigned long infoboxTimeAtCall;
-extern unsigned long infoboxTimeAtPress;
-extern int infoboxWaitingTime;
-extern bool infoboxShow;
-extern bool infoboxClear;
+
+
 
 
 extern byte active_track;
 extern byte arrangerpage;
 extern const char FLASHMEM *songNames[MAX_SONGS];
 
-extern int phraseSegmentLength;
 extern byte trellisScreen;
-extern int controlColors[16];
-extern int trackColor[9];
 extern int trellisControllBuffer[TRELLIS_CONTROL_X_DIM][TRELLIS_CONTROL_Y_DIM];
 //extern int trellisMainGridBuffer[TRELLIS_MAX_PAGES][TRELLIS_PADS_X_DIM][TRELLIS_PADS_Y_DIM];
 //extern int ***trellisMainGridBuffer;

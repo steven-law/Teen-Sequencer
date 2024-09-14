@@ -148,6 +148,7 @@ void neotrellis_static();
 void neotrellis_setup();
 void neo_trellis_set_brightness();
 void neotrellis_show();
+void neotrellis_update();
 
 void neotrellis_set_potRow();
 void neo_trellis_save_load();
@@ -352,13 +353,6 @@ void loop()
 
   // trellis_setStepsequencer();
   trellis_show_arranger();
-  neotrellis_perform_set_active();
-  neotrellis_show_tft_seqMode();
-  neotrellis_show_tft_plugin();
-  neotrellis_set_mute();
-  neotrellis_set_solo();
-  neotrellis_set_fast_record();
-  neotrellis_show_piano();
 
   trellis_update();
 
@@ -372,7 +366,7 @@ void loop()
   for (int i = 0; i < NUM_TRACKS; i++)
   {
     allTracks[i]->update(pixelTouchX, gridTouchY);
-    trellis_show_clockbar(i, allTracks[i]->internal_clock/6);
+    trellis_show_clockbar(i, allTracks[i]->internal_clock / 6);
   }
   get_infobox_background();
   if (updateTFTScreen)
@@ -386,6 +380,7 @@ void loop()
   unsigned long loopEndTime = millis();
   unsigned long neotrellisCurrentMillis = millis();
 
+//if we need to restart the trellisboard
   if (neotrellisCurrentMillis - neotrellisReadPreviousMillis >= neotrellisReadInterval)
   {
     trellisReadPreviousMillis = neotrellisCurrentMillis;
@@ -1236,7 +1231,16 @@ void neotrellis_show()
 {
   neotrellis.show();
 }
-
+void trellis_update()
+{
+  neotrellis_perform_set_active();
+  neotrellis_show_tft_seqMode();
+  neotrellis_show_tft_plugin();
+  neotrellis_show_piano();
+  neotrellis_set_mute();
+  neotrellis_set_solo();
+  neotrellis_set_fast_record();
+}
 // 1st row
 void neotrellis_set_potRow()
 {
@@ -2637,7 +2641,7 @@ void trellis_update()
     trellis_set_arranger();
 
     trellis_perform();
-    
+
     trellis_setStepsequencer();
     trellis_play_mixer();
 

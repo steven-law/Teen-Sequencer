@@ -1,0 +1,116 @@
+#ifndef TFT_CLASS_H
+#define TFT_CLASS_H
+#include "hw_stuff.h"
+#include "project_functions.h"
+#include <ILI9341_t3n.h>
+#include <ili9341_t3n_font_Arial.h> // from ILI9341_t3
+// Display
+
+// Startscreen
+#define POSITION_ARR_BUTTON 18
+#define POSITION_BPM_BUTTON 11
+#define POSITION_SCALE_BUTTON 16
+#define POSITION_LOAD_BUTTON 15
+#define POSITION_SAVE_BUTTON 13
+#define POSITION_STOP_BUTTON 10
+#define POSITION_PLAY_BUTTON 8
+#define POSITION_RECORD_BUTTON 7
+#define STARTUPSCREEN 0
+#define STEP_SEQUENCER_VIEW 1
+#define ARRANGMENT_VIEW 2
+
+#define POSITION_BAR_BUTTON 5
+#define POSITION_START_LOOP_BUTTON 16
+#define POSITION_END_LOOP_BUTTON 18
+
+
+#define GRID_LENGTH_HOR 256
+#define GRID_LENGTH_VERT 192
+
+#define SONG_POSITION_POINTER_Y 228
+#define BAR_POSITION_POINTER_Y 232
+#define STEP_POSITION_POINTER_Y 236
+#define POSITION_POINTER_THICKNESS 3
+
+#define INFO_BOX_WIDTH 200
+#define INFO_BOX_HEIGTH 120
+#define INFOBOX_OFFSET 60
+#define INFOBOX_TEXT_OFFSET 80
+
+// for sequencer
+#define SEQ_GRID_LEFT 30
+#define SEQ_GRID_RIGHT (18 * STEP_FRAME_W) - 2
+#define SEQ_GRID_TOP 1
+#define SEQ_GRID_BOTTOM 12
+#define SEQUENCER_OPTIONS_VERY_RIGHT 18
+#define SEQUENCER_OPTIONS_RIGHT 16
+#define OCTAVE_CHANGE_LEFTMOST 18
+#define OCTAVE_CHANGE_RIGHTMOST 20
+#define OCTAVE_CHANGE_UP_TOPMOST 2
+#define OCTAVE_CHANGE_UP_BOTTOMMOST 3
+#define OCTAVE_CHANGE_DOWN_TOPMOST 4
+#define OCTAVE_CHANGE_DOWN_BOTTOMMOST 5
+
+// for arranger
+#define BARS_PER_PAGE 16
+
+#define OCTAVE_CHANGE_TEXT 3
+#define NO_VALUE 6789
+class tftClass
+{
+
+public:
+    void tft_setup(int dly);
+    tftClass(ILI9341_t3n *display);
+    ~tftClass();
+
+    void tftUpdate(int _pixelOnX, int _pixelOnY, byte _activeTrack, byte _activePage);
+    bool updateTFTScreen;
+    void clearWorkSpace();
+    void drawPot(int XPos, byte YPos, int dvalue, const char *dname);
+
+    void drawEnvelope(byte YPos, byte attack, byte decay, byte sustain, byte release);
+    void draw_value_box(byte lastPRow, byte XPos, byte YPos, byte offest_X, int offset_Y, int _value, const char *name, int color, byte _size, bool drawRect, bool drawFilling);
+
+    void show_active_page_info(const char *_pagename, byte _pagenumber); // shows the actual page on the the top left
+
+    void startUpScreen();
+    // songmode
+    void gridSongMode(int songpageNumber);
+    void drawsongmodepageselector();
+    void draw_clip_to_play(byte n, byte b);
+    void draw_arrangment_line(byte _trackNr, byte _arrangerpage, byte _bar, byte clipToPlayAtBar, byte velocityAtBar); // b= 0-255; which bar
+    void draw_arrangment_lines(byte n, byte b);
+    void draw_arranger_parameters(byte lastProw);
+    void draw_clipNr_arranger(byte n, byte b);
+    void draw_noteOffset(byte n, int b);
+    void draw_offset_arranger(byte n, byte b);
+
+    // stepsequencer
+void drawStepSequencerStatic();
+
+    void draw_Notenames();
+    void drawOctaveTriangle();
+    void draw_Clipselector();
+
+   void draw_note_on_tick(byte _note, byte _when, byte _clipNr, byte _velocity, int _color);
+
+
+private:
+    ILI9341_t3n *tft; // Pointer to the display object
+int pixelOnX;
+int pixelOnY;
+    const int encoder_colour[NUM_ENCODERS] = {ILI9341_BLUE, ILI9341_RED, ILI9341_GREEN, ILI9341_WHITE};
+byte activeTrack;
+byte activePage;
+    unsigned long infoboxTimeAtCall = 0;
+    unsigned long infoboxTimeAtPress = 0;
+    int infoboxWaitingTime = 1000;
+    bool infoboxShow = false;
+    bool infoboxClear = false;
+    int phraseSegmentLength = 16;
+
+    /* data */
+};
+
+#endif // TFT_CLASS_H

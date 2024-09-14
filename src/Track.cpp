@@ -355,33 +355,7 @@ void Track::record_noteOff(byte Note, byte Velo, byte Channel)
     }
 }
 //---------------------------arranger stuff-------------------------------------
-void Track::draw_arranger_parameters(byte lastProw)
-{
-    if (change_plugin_row)
-    {
-        tft->fillRect(18 * STEP_FRAME_W, 5 * STEP_FRAME_H, 20 * STEP_FRAME_W, 12 * STEP_FRAME_H, ILI9341_DARKGREY);
-        change_plugin_row = false;
-        if (lastProw == 0)
-        {
-            draw_clip_to_play(2, 0);
-            draw_noteOffset(3, 0);
-            // drawOctaveNumber();
-            // draw_velocity(3, 0);
-        }
-        if (lastProw == 1)
-        {
-            draw_barVelocity(0, 1);
-        }
-        if (lastProw == 2)
-        {
-            // draw_barVelocity(0, 1);
-            draw_play_presetNr_ccChannel(2, 2);
-            draw_play_presetNr_ccValue(3, 2);
-            // drawOctaveNumber();
-            // draw_velocity(3, 0);
-        }
-    }
-}
+
 void Track::change_presets()
 {
     for (int i = 0; i < 16; i++)
@@ -413,85 +387,9 @@ void Track::set_clip_to_play(byte n, byte b)
         }
     }
 }
-void Track::draw_clip_to_play(byte n, byte b)
-{
-    draw_Text(n, 0, SEQUENCER_OPTIONS_VERY_RIGHT, (n * 2) + 5, 4, 4, "Clip", encoder_colour[n], false, false);
-    draw_Value(n, 0, SEQUENCER_OPTIONS_VERY_RIGHT, (n * 2) + 6, 4, 4, clip_to_play[b], encoder_colour[n], true, false);
-    // draw_sequencer_option(SEQUENCER_OPTIONS_VERY_RIGHT, "clNr", clip_to_play[b], n, 0);
-}
-void Track::drawsongmodepageselector()
-{
-    // draw 16 rects of 16x16px in the 13th row
-    for (int pages = 2; pages < 18; pages++)
-    {
-        // drawActiveRect(pages, 13, 1, 1, selectPage == pages + 8, "", ILI9341_LIGHTGREY);
-        tft->drawRect(STEP_FRAME_W * pages, STEP_FRAME_H * 13 + 4, STEP_FRAME_W, STEP_FRAME_H, ILI9341_WHITE);
-        tft->setFont(Arial_8);
-        tft->setTextColor(ILI9341_WHITE);
-        tft->setCursor(STEP_FRAME_W * pages + 3, STEP_FRAME_H * 13 + 8);
-        tft->print((pages - 1));
-    }
-}
-void Track::gridSongMode(int songpageNumber)
-{ // static Display rendering
-    // int page_phrase_start = songpageNumber * 16;
-    // int page_phrase_end = (songpageNumber + 1) * 16;
-    drawsongmodepageselector();
-    // drawActiveRect(18, 3, 2, 2, false, "clear", ILI9341_RED);
 
-    // vertical pointer Lines
-    int shownLines = 257 / phraseSegmentLength;
-    for (int f = 0; f < shownLines; f++)
-    {                                                                                                 // do this for all phrases
-        tft->drawFastVLine((f * phraseSegmentLength) + 32, STEP_FRAME_H + 4, STEP_FRAME_H * 12, 360); //(x, y-start, y-length, color)
-        if (f % 4 == 0)
-        {
-            tft->drawFastVLine((f * phraseSegmentLength) + 32, STEP_FRAME_H + 4, STEP_FRAME_H * 12, 370); //(x, y-start, y-length, color)
-        }
-    }
-}
 
-void Track::draw_arrangment_lines(byte n, byte b) // b= active page
-{
-    for (int i = 0; i < 16; i++)
-    {
-        draw_arrangment_line(n, i + (BARS_PER_PAGE * (b - SONGMODE_PAGE_1)));
-        // Serial.printf("active page = %d, which bar = %d\n", b, i + (16 * (b - SONGMODE_PAGE_1)));
-    }
-}
-void Track::draw_arrangment_line(byte n, byte b) // b= 0-255; which bar
-{
-    int minY = map(barVelocity[b], 0, 127, 0, 10);
 
-    if (clip_to_play[b] == MAX_CLIPS - 1)
-    {
-        for (int thickness = -10; thickness < 10; thickness++)
-        {
-            tft->drawFastHLine(((b - (16 * arrangerpage)) * STEP_FRAME_W + STEP_FRAME_W * 2) + 1, ((my_Arranger_Y_axis)*TRACK_FRAME_H + thickness) + 12, STEP_FRAME_W - 1, ILI9341_DARKGREY); //(x-start, y, length, color)
-        }
-        trellis_set_main_buffer(arrangerpage + TRELLIS_SCREEN_ARRANGER_1, (b % 16), my_Arranger_Y_axis - 1, TRELLIS_BLACK);
-    }
-    else
-    {
-        // for other clips
-        for (int thickness = -minY; thickness < minY; thickness++)
-        {
-            tft->drawFastHLine(((b - (16 * arrangerpage)) * STEP_FRAME_W + STEP_FRAME_W * 2) + 1, ((my_Arranger_Y_axis)*TRACK_FRAME_H + thickness) + 12, STEP_FRAME_W - 1, trackColor[my_Arranger_Y_axis - 1] + (clip_to_play[b] * 20)); //(x-start, y, length, color)
-        }
-        trellis_set_main_buffer(arrangerpage + TRELLIS_SCREEN_ARRANGER_1, (b % 16), my_Arranger_Y_axis - 1, trellisTrackColor[my_Arranger_Y_axis - 1] + (clip_to_play[b] * 20));
-
-        draw_clipNr_arranger(n, b);
-        draw_offset_arranger(n, b);
-    }
-}
-void Track::draw_clipNr_arranger(byte n, byte b)
-{
-    // draw clipnumber in the arranger
-    tft->setFont(Arial_8);
-    tft->setTextColor(ILI9341_BLACK);
-    tft->setCursor((b - (16 * arrangerpage)) * STEP_FRAME_W + STEP_FRAME_W * 2 + 2, (my_Arranger_Y_axis)*TRACK_FRAME_H + 6);
-    tft->print(clip_to_play[b]);
-}
 byte Track::get_clip_to_play(byte when)
 {
     return clip_to_play[when];

@@ -4,28 +4,10 @@
 // Display
 ILI9341_t3n tft = ILI9341_t3n(TFT_CS, TFT_DC, TFT_RST, TFT_MOSI, TFT_SCK, TFT_MISO); // initiate TFT-Srceen
 DMAMEM uint16_t tft_frame_buffer[ILI9341_TFTWIDTH * ILI9341_TFTHEIGHT];
-void tft_setup(int dly)
-{
-    // initialize the TFT- and Touchscreen
 
-    tft.begin();
-    tft.setRotation(3);
-    tft.fillScreen(ILI9341_BLACK);
-    tft.setFrameBuffer(tft_frame_buffer);
-    tft.useFrameBuffer(true);
-    tft.initDMASettings();
-    tft.updateScreenAsync();
-    delay(dly);
-    // tft.updateChangedAreasOnly(true);
-    tft.setTextColor(ILI9341_WHITE);
-    tft.setFont(Arial_8);
-    tft.setCursor(0, 3);
-    Serial.println("Initializing Screen");
-    tft.println("Initializing Screen");
-    tft.updateScreenAsync();
-    delay(dly);
-}
-bool updateTFTScreen;
+
+
+
 byte trellisPianoTrack;
 int trellisMainGridBuffer[TRELLIS_MAX_PAGES][TRELLIS_PADS_X_DIM][TRELLIS_PADS_Y_DIM];
 bool trellisPressed[TRELLIS_PADS_X_DIM * TRELLIS_PADS_Y_DIM];
@@ -63,6 +45,7 @@ bool enc_moved[NUM_ENCODERS]{0, 0, 0, 0};
 int encoded[NUM_ENCODERS];
 bool enc_button[NUM_ENCODERS];
 long oldEnc[4] = {-999, -999, -999, -999};
+
 // Encoder Buttons
 const uint8_t BUTTON_PINS[NUM_ENCODERS] = {2, 27, 24, 30};
 Bounce *encButtons = new Bounce[NUM_ENCODERS];
@@ -144,3 +127,16 @@ void readMIDI()
 {
     usbMIDI.read();
 }
+
+
+//project
+// extern Clock Masterclock;
+int pixelTouchX = 0;
+int gridTouchY = 0;
+byte lastPotRow = 0;
+byte activeScreen = 0;
+bool change_plugin_row = false;
+
+
+//colors
+int trackColor[9]{ILI9341_RED, ILI9341_PINK, ILI9341_OLIVE, ILI9341_YELLOW, ILI9341_BLUE, 9365295, ILI9341_CYAN, ILI9341_GREEN, ILI9341_WHITE};
