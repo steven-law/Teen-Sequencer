@@ -9,8 +9,6 @@
 #include <project_variables.h>
 #include <project_functions.h>
 void sendClock();
-void trellis_show_clockbar(byte trackNr, byte step);
-void trellis_writeDisplay();
 
 class MyClock
 {
@@ -45,4 +43,4 @@ public:
   void load_clock(byte _songNr);
 };
 extern MyClock myClock;
-#endif
+#endif //MY_CLOCK

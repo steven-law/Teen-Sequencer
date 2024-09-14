@@ -72,7 +72,6 @@ extern byte arrangerpage;
 void sendNoteOn(byte Note, byte Velo, byte Channel);
 void sendNoteOff(byte Note, byte Velo, byte Channel);
 void sendControlChange(byte control, byte value, byte channel);
-void trellis_show_clockbar(byte trackNr, byte step);
 void trellis_set_main_buffer(int _page, int _x, int _y, int color);
 void neotrellis_show();
 // extern midi::MidiInterface<midi::SerialMIDI<HardwareSerial>> MIDI1;

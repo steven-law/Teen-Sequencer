@@ -1,3 +1,6 @@
+#ifndef FX_OUT_H
+#define FX_OUT_H
+
 #include <Arduino.h>
 #include <Audio.h>
 #include <Wire.h>
@@ -79,3 +82,4 @@ public:
     }
 };
 // TeensyDAW: end automatically generated code
+#endif

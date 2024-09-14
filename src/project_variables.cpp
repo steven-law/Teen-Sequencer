@@ -10,7 +10,7 @@ int pixelTouchX = 0;
 int gridTouchY = 0;
 byte lastPotRow = 0;
 byte activeScreen = 0;
-bool change_plugin_row = false;
+
 
 unsigned long infoboxTimeAtCall = 0;
 unsigned long infoboxTimeAtPress = 0;
@@ -24,19 +24,17 @@ const char FLASHMEM *songNames[MAX_SONGS]{"Marshmallow", "KittyPitty", "DragonPu
 
 byte trellisScreen = 0;
 int trackColor[9]{ILI9341_RED, ILI9341_PINK, ILI9341_OLIVE, ILI9341_YELLOW, ILI9341_BLUE, 9365295, ILI9341_CYAN, ILI9341_GREEN, ILI9341_WHITE};
-int trellisTrackColor[9]{TRELLIS_RED, TRELLIS_PURPLE, TRELLIS_OLIVE, TRELLIS_YELLOW, TRELLIS_BLUE, 9365295, TRELLIS_AQUA, TRELLIS_GREEN, 900909};
  int trellisControllBuffer[TRELLIS_CONTROL_X_DIM][TRELLIS_CONTROL_Y_DIM];
- int trellisMainGridBuffer[TRELLIS_MAX_PAGES][TRELLIS_PADS_X_DIM][TRELLIS_PADS_Y_DIM];
+ //int trellisMainGridBuffer[TRELLIS_MAX_PAGES][TRELLIS_PADS_X_DIM][TRELLIS_PADS_Y_DIM];
 
 bool neotrellisPressed[X_DIM * Y_DIM];
 bool trellisShowClockPixel[Y_DIM];
-byte trellisPianoTrack;
-byte trellisPerformIndex[NUM_STEPS];
+//byte trellisPianoTrack;
+//byte trellisPerformIndex[NUM_STEPS];
 byte performCC[16]{7, 77, 24, 85, 84, // Volume, EnvDepth, Data H, Rev Send, Del Send,
                    109, 119, 5, 83,   // LFO1, LFO2, notelength, amprelease
                    30, 92, 74, 75,
                    128, 128, 128};
-bool trellisRecall;
 int encoder_colour[NUM_ENCODERS] = {ILI9341_BLUE, ILI9341_RED, ILI9341_GREEN, ILI9341_WHITE};
 // songmode
 int phraseSegmentLength = 16;

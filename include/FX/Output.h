@@ -1,3 +1,6 @@
+#ifndef MASTEROUT_H
+#define MASTEROUT_H
+
 #include <Arduino.h>
 #include <Audio.h>
 #include <Wire.h>
@@ -7,6 +10,7 @@
 #include <Plugins/plugin_List.h>
 #include "project_variables.h"
 #include "FX/FX_Section.h"
+
 extern bool change_plugin_row;
 
 extern float *note_frequency;
@@ -36,7 +40,7 @@ public:
 
         patchCord[pci++] = new AudioConnection(fx_section.endmixer, 0, finalFilter, 0);
         patchCord[pci++] = new AudioConnection(finalFilter, 0, i2s, 0);
-        //patchCord[pci++] = new AudioConnection(plugin_3.modulator, 0, i2s, 0);
+        // patchCord[pci++] = new AudioConnection(plugin_3.modulator, 0, i2s, 0);
         patchCord[pci++] = new AudioConnection(finalFilter, 0, i2s, 1);
     }
     void setup()
@@ -54,18 +58,18 @@ public:
     }
     void noteOn(byte note, byte velo, byte _channel, byte voice)
     {
-        //Serial.printf("recieve NoteON channel:%d\n", _channel);
+        // Serial.printf("recieve NoteON channel:%d\n", _channel);
         allPlugins[_channel]->noteOn(note, 1, voice);
     }
     void noteOff(byte note, byte velo, byte _channel, byte voice)
     {
-        //Serial.printf("recieve NoteOFF channel:%d\n", _channel);
+        // Serial.printf("recieve NoteOFF channel:%d\n", _channel);
         allPlugins[_channel]->noteOff(note, voice);
     }
 
     void set_parameters(byte trackID, byte row)
     {
-        //Serial.printf("set parameters track: %d, channel: %d\n", trackID, plugin_channel[trackID]);
+        // Serial.printf("set parameters track: %d, channel: %d\n", trackID, plugin_channel[trackID]);
         allPlugins[trackID]->set_parameters(row);
     }
     void draw_plugin(byte trackID, byte channel)
@@ -81,3 +85,6 @@ public:
 
     // TeensyDAW: end automatically generated code
 };
+
+// extern Output MasterOut;
+#endif //MASTEROUT_H
