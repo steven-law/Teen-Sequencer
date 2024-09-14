@@ -469,7 +469,6 @@ void Track::draw_arrangment_line(byte n, byte b) // b= 0-255; which bar
         {
             tft->drawFastHLine(((b - (16 * arrangerpage)) * STEP_FRAME_W + STEP_FRAME_W * 2) + 1, ((my_Arranger_Y_axis)*TRACK_FRAME_H + thickness) + 12, STEP_FRAME_W - 1, ILI9341_DARKGREY); //(x-start, y, length, color)
         }
-        // trellisRecall=true;
         trellis_set_main_buffer(arrangerpage + TRELLIS_SCREEN_ARRANGER_1, (b % 16), my_Arranger_Y_axis - 1, TRELLIS_BLACK);
     }
     else
@@ -479,7 +478,6 @@ void Track::draw_arrangment_line(byte n, byte b) // b= 0-255; which bar
         {
             tft->drawFastHLine(((b - (16 * arrangerpage)) * STEP_FRAME_W + STEP_FRAME_W * 2) + 1, ((my_Arranger_Y_axis)*TRACK_FRAME_H + thickness) + 12, STEP_FRAME_W - 1, trackColor[my_Arranger_Y_axis - 1] + (clip_to_play[b] * 20)); //(x-start, y, length, color)
         }
-        // trellisRecall = true;
         trellis_set_main_buffer(arrangerpage + TRELLIS_SCREEN_ARRANGER_1, (b % 16), my_Arranger_Y_axis - 1, trellisTrackColor[my_Arranger_Y_axis - 1] + (clip_to_play[b] * 20));
 
         draw_clipNr_arranger(n, b);

@@ -4,6 +4,7 @@
 // #include <fx_List.h>
 #include <FX/Output.h>
 #include <ownLibs/myClock.h>
+#include "hardware/trellis_main.h"
 extern Output MasterOut;
 void draw_mixer();
 void set_mixer(byte row);
@@ -16,12 +17,11 @@ void set_mixer_dry(byte XPos, byte YPos, const char *name, byte trackn);
 void set_mixer_FX1(byte XPos, byte YPos, const char *name, byte trackn);
 void set_mixer_FX2(byte XPos, byte YPos, const char *name, byte trackn);
 void set_mixer_FX3(byte XPos, byte YPos, const char *name, byte trackn);
-void neotrellis_static();
-void trellis_start_clock();
-void trellis_stop_clock();
-void trellis_set_potRow();
-void trellis_SetCursor(byte maxY);
-void set_perform_page(byte lastPotRow);
+void neotrellis_assign_start_buffer();
+void neotrellis_start_clock();
+void neotrellis_stop_clock();
+void neotrellis_set_potRow();
+void neotrellis_SetCursor(byte maxY);
 
 
 
@@ -55,14 +55,14 @@ void clock_to_notes(int _tick)
 void input_behaviour()
 {
 
-    trellis_start_clock();
-    trellis_stop_clock();
-    trellis_set_potRow();
+    neotrellis_start_clock();
+    neotrellis_stop_clock();
+    neotrellis_set_potRow();
     // if we are in one of the sequencer pages
     if (activeScreen == INPUT_FUNCTIONS_FOR_SEQUENCER)
     {
        
-        trellis_SetCursor(14);
+        neotrellis_SetCursor(14);
 
         if (neotrellisPressed[TRELLIS_POTROW])
         {
@@ -82,7 +82,7 @@ void input_behaviour()
             neotrellisPressed[TRELLIS_POTROW] = false;
         }
 
-        trellis_SetCursor(8);
+        neotrellis_SetCursor(8);
 
         switch (lastPotRow)
         {
@@ -143,8 +143,8 @@ void input_behaviour()
         fx_1.set_parameters(lastPotRow);
     if (activeScreen == INPUT_FUNCTIONS_FOR_FX2)
         fx_2.set_parameters(lastPotRow);
-    if (activeScreen == INPUT_FUNCTIONS_FOR_PERFORM)
-        set_perform_page(lastPotRow);
+    //if (activeScreen == INPUT_FUNCTIONS_FOR_PERFORM)
+       // trellisMain->set_perform_page(lastPotRow);
 }
 
 void clearWorkSpace()

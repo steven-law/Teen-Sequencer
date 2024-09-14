@@ -4,6 +4,8 @@
 #include <Arduino.h>
 #include "project_variables.h"
 #include "Track.h"
+#include "hardware/trellis_main.h"
+
 //#include "ownLibs/clock.h"
 
 void encoder_SetCursor(byte deltaX, byte maxY);

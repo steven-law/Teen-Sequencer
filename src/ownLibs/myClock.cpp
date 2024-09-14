@@ -51,7 +51,6 @@ void MyClock::onStepCallback(uint32_t tick) // Each call represents exactly one 
     {
         trellisShowClockPixel[i] = true;
     }
- //trellis_writeDisplay();
 
 }
 
