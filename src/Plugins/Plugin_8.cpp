@@ -73,7 +73,7 @@ void Plugin_8::noteOff(byte notePlayed, byte voice)
 void Plugin_8::set_parameters(byte row)
 {
     draw_plugin();
-    if (!trellisPressed[TRELLIS_BUTTON_SHIFT])
+    if (!neotrellisPressed[TRELLIS_BUTTON_SHIFT])
     {
         if (row == 0)
         {
@@ -102,7 +102,7 @@ void Plugin_8::set_parameters(byte row)
             set_envelope1_ADSR(3, 1000, 500, 2000);
         }
     }
-    if (trellisPressed[TRELLIS_BUTTON_SHIFT])
+    if (neotrellisPressed[TRELLIS_BUTTON_SHIFT])
     {
         set_presetNr();
     }

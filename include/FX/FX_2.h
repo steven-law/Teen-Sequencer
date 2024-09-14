@@ -62,4 +62,4 @@ public:
     void set_BC_bits(byte XPos, byte YPos, const char *name);
     void set_BC_smplRate(byte XPos, byte YPos, const char *name);
 };
-#endif // PLUGIN_3_H
+#endif // FX_2_H

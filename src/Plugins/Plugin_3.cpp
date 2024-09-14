@@ -65,7 +65,7 @@ void Plugin_3::noteOff(byte notePlayed, byte voice)
 void Plugin_3::set_parameters(byte row)
 {
     draw_plugin();
-    if (!trellisPressed[TRELLIS_BUTTON_SHIFT])
+    if (!neotrellisPressed[TRELLIS_BUTTON_SHIFT])
     {
         if (row == 0)
         {
@@ -95,7 +95,7 @@ void Plugin_3::set_parameters(byte row)
         {
         }
     }
-    if (trellisPressed[TRELLIS_BUTTON_SHIFT])
+    if (neotrellisPressed[TRELLIS_BUTTON_SHIFT])
     {
         set_presetNr();
     }

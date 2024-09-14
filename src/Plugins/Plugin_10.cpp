@@ -72,7 +72,7 @@ void Plugin_10::noteOff(byte notePlayed, byte voice)
 void Plugin_10::set_parameters(byte row)
 {
     draw_plugin();
-    if (!trellisPressed[TRELLIS_BUTTON_SHIFT])
+    if (!neotrellisPressed[TRELLIS_BUTTON_SHIFT])
     {
         if (row == 0)
         {
@@ -102,7 +102,7 @@ void Plugin_10::set_parameters(byte row)
             // set_envelope_release(3, 3, "Release", 0, 2000);
         }
     }
-    if (trellisPressed[TRELLIS_BUTTON_SHIFT])
+    if (neotrellisPressed[TRELLIS_BUTTON_SHIFT])
     {
         set_presetNr();
     }
@@ -132,19 +132,20 @@ void Plugin_10::draw_plugin()
         draw_sequencer_option(SEQUENCER_OPTIONS_VERY_RIGHT, "Prset", presetNr, 3, 0);
     }
 }
-void Plugin_10::change_preset(){
+void Plugin_10::change_preset()
+{
     assign_voice_waveform(potentiometer[presetNr][0]);
-assign_voice_amplitude(potentiometer[presetNr][1]);
+    assign_voice_amplitude(potentiometer[presetNr][1]);
 
-assign_filter_frequency(potentiometer[presetNr][8]);
-assign_filter_resonance(potentiometer[presetNr][9]);
-assign_filter_sweep(potentiometer[presetNr][10]);
-selectFilterType(potentiometer[presetNr][11]);
+    assign_filter_frequency(potentiometer[presetNr][8]);
+    assign_filter_resonance(potentiometer[presetNr][9]);
+    assign_filter_sweep(potentiometer[presetNr][10]);
+    selectFilterType(potentiometer[presetNr][11]);
 
-assign_envelope_attack(potentiometer[presetNr][12], 1000);
-assign_envelope_decay(potentiometer[presetNr][13], 500);
-assign_envelope_sustain(potentiometer[presetNr][14]);
-assign_envelope_release(potentiometer[presetNr][15], 2000);
+    assign_envelope_attack(potentiometer[presetNr][12], 1000);
+    assign_envelope_decay(potentiometer[presetNr][13], 500);
+    assign_envelope_sustain(potentiometer[presetNr][14]);
+    assign_envelope_release(potentiometer[presetNr][15], 2000);
 }
 void Plugin_10::set_voice_waveform(byte XPos, byte YPos, const char *name)
 {
@@ -155,7 +156,8 @@ void Plugin_10::set_voice_waveform(byte XPos, byte YPos, const char *name)
 }
 void Plugin_10::assign_voice_waveform(byte value)
 {
-    byte walveform = map(value, 0, MIDI_CC_RANGE, 0,27);
+    byte walveform = map(value, 0, MIDI_CC_RANGE, 0, 27);
+    /*
     switch (walveform)
     {
     case 0:
@@ -247,7 +249,7 @@ void Plugin_10::assign_voice_waveform(byte value)
     default:
         waveform.setInstrument(Pizzicato);
         break;
-    }
+    }*/
 }
 
 void Plugin_10::set_voice_amplitude(byte XPos, byte YPos, const char *name)

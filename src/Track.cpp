@@ -23,7 +23,7 @@ void Track::save_track(byte songNr)
 {
     SD.begin(BUILTIN_SDCARD);
     // Serial.println("in save mode:");
-    trellisPressed[TRELLIS_BUTTON_ENTER] = false;
+    neotrellisPressed[TRELLIS_BUTTON_ENTER] = false;
 
     sprintf(_trackname, "%dtrack%d.txt\0", songNr, MIDI_channel_in);
     Serial.println(_trackname);
@@ -95,7 +95,7 @@ void Track::save_track(byte songNr)
         myFile.print((char)mixFX1Pot);
         myFile.print((char)mixFX2Pot);
         myFile.print((char)mixFX3Pot);
-        byte _tempOffset =performNoteOffset+64;
+        byte _tempOffset = performNoteOffset + 64;
         myFile.print((char)_tempOffset);
         // close the file:
         myFile.close();
@@ -132,7 +132,7 @@ void Track::load_track(byte songNr)
     // Serial.println(_trackname);
     if (myFile)
     {
-         Serial.println("opening:");
+        Serial.println("opening:");
         //  read from the file until there's nothing else in it:
         //  load track 1
         for (int c = 0; c < MAX_CLIPS; c++)
@@ -204,8 +204,8 @@ void Track::load_track(byte songNr)
         mixFX1Pot = myFile.read();
         mixFX2Pot = myFile.read();
         mixFX3Pot = myFile.read();
-        int _tempOffset =myFile.read();
-        performNoteOffset = _tempOffset-64;
+        int _tempOffset = myFile.read();
+        performNoteOffset = _tempOffset - 64;
         // Serial.println("settings loaded:");
 
         // startUpScreen();
@@ -225,8 +225,7 @@ void Track::load_track(byte songNr)
 }
 void Track::play_sequencer_mode(byte cloock, byte start, byte end)
 {
-    if (cloock % MAX_TICKS == 0)
-        external_clock_bar++;
+
     if (cloock % parameter[SET_STEP_DIVIVISION] == 0)
     {
         internal_clock++;
@@ -235,17 +234,21 @@ void Track::play_sequencer_mode(byte cloock, byte start, byte end)
     else
         internal_clock_is_on = false;
 
+    if (external_clock_bar >= end)
+        external_clock_bar = start ;
+    if (internal_clock_bar >= end)
+        internal_clock_bar = start ;
+    if (cloock % MAX_TICKS == 0)
+        external_clock_bar++;
     if (internal_clock >= parameter[SET_SEQUENCE_LENGTH])
     {
         internal_clock = 0;
+    }
+    if (internal_clock == 0)
+    {
         internal_clock_bar++;
         change_presets();
     }
-
-    if (external_clock_bar >= end)
-        external_clock_bar = start;
-    if (internal_clock_bar >= end)
-        internal_clock_bar = start;
     // Serial.printf("bar: %d, tick: %d\n", internal_clock_bar, internal_clock);
     //  Serial.println(internal_clock_bar);
     if (internal_clock_is_on)
@@ -390,6 +393,7 @@ void Track::change_presets()
             sendControlChange(CCchannel[play_presetNr_ccChannel[internal_clock_bar]][i], CCvalue[play_presetNr_ccValue[internal_clock_bar]][i], parameter[SET_MIDICH_OUT]);
         }
     }
+    Serial.printf("Trackbar Track: %d,clip2play: %d externalbar: %d internalBar: %d\n", my_Arranger_Y_axis - 1, clip_to_play[external_clock_bar], external_clock_bar, internal_clock_bar);
 }
 // clip to play
 void Track::set_clip_to_play(byte n, byte b)

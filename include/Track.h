@@ -72,9 +72,8 @@ extern byte arrangerpage;
 void sendNoteOn(byte Note, byte Velo, byte Channel);
 void sendNoteOff(byte Note, byte Velo, byte Channel);
 void sendControlChange(byte control, byte value, byte channel);
-void trellis_show_clockbar(byte trackNr, byte step);
 void trellis_set_main_buffer(int _page, int _x, int _y, int color);
-void trellis_show();
+void neotrellis_show();
 // extern midi::MidiInterface<midi::SerialMIDI<HardwareSerial>> MIDI1;
 class Track
 {
@@ -104,7 +103,7 @@ public:
 
     int internal_clock = -1;
     int internal_clock_bar = 0;
-    byte external_clock_bar = 0;
+    int external_clock_bar = 0;
     byte clip_to_play[256];
 
     Track(ILI9341_t3n *display, byte Y)

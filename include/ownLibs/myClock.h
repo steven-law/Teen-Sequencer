@@ -9,7 +9,7 @@
 #include <project_variables.h>
 #include <project_functions.h>
 void sendClock();
-void trellis_show_clockbar(byte trackNr, byte step);
+
 class MyClock
 {
 public:
@@ -19,6 +19,7 @@ public:
     static byte startOfLoop;
     static byte endOfLoop;
     static byte barTick;
+    static bool isPlaying;
     MyClock(ILI9341_t3n *display);
     void setup();
 
@@ -42,4 +43,4 @@ public:
   void load_clock(byte _songNr);
 };
 extern MyClock myClock;
-#endif
+#endif //MY_CLOCK

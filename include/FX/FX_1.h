@@ -64,4 +64,4 @@ public:
     void set_RV_roomsize(byte XPos, byte YPos, const char *name);
     void set_RC_damping(byte XPos, byte YPos, const char *name);
 };
-#endif // PLUGIN_3_H
+#endif // FX_1_H
