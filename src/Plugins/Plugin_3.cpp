@@ -15,7 +15,7 @@ extern int encoded[4];
 extern bool change_plugin_row;
 extern float *note_frequency;
 extern int tuning;
-void clearWorkSpace();
+//void clearWorkSpace();
 
 void Plugin_3::setup()
 {
@@ -105,28 +105,28 @@ void Plugin_3::draw_plugin()
     if (change_plugin_row)
     {
         change_plugin_row = false;
-        clearWorkSpace();
+        mytft->clearWorkSpace();
 
-        drawPot(0, 0, potentiometer[presetNr][0], "mW~Form");
-        drawPot(1, 0, potentiometer[presetNr][1], "mRatio");
-        drawPot(2, 0, potentiometer[presetNr][2], "mVolume");
-        drawPot(3, 0, potentiometer[presetNr][3], "cW~Form");
+        mytft->drawPot(0, 0, potentiometer[presetNr][0], "mW~Form");
+        mytft->drawPot(1, 0, potentiometer[presetNr][1], "mRatio");
+        mytft->drawPot(2, 0, potentiometer[presetNr][2], "mVolume");
+        mytft->drawPot(3, 0, potentiometer[presetNr][3], "cW~Form");
 
-        // drawPot(0, 2, potentiometer[8], "Filt-Frq");
-        // drawPot(1, 2, potentiometer[9], "Resonance");
-        // drawPot(2, 2, potentiometer[10], "Sweep");
-        // drawPot(3, 2, potentiometer[10], "Type");
-        drawPot(0, 1, potentiometer[presetNr][4], "mAttack");
-        drawPot(1, 1, potentiometer[presetNr][5], "mDecay");
-        drawPot(2, 1, potentiometer[presetNr][6], "mSustain");
-        drawPot(3, 1, potentiometer[presetNr][7], "mRelease");
+        // mytft->drawPot(0, 2, potentiometer[8], "Filt-Frq");
+        // mytft->drawPot(1, 2, potentiometer[9], "Resonance");
+        // mytft->drawPot(2, 2, potentiometer[10], "Sweep");
+        // mytft->drawPot(3, 2, potentiometer[10], "Type");
+        mytft->drawPot(0, 1, potentiometer[presetNr][4], "mAttack");
+        mytft->drawPot(1, 1, potentiometer[presetNr][5], "mDecay");
+        mytft->drawPot(2, 1, potentiometer[presetNr][6], "mSustain");
+        mytft->drawPot(3, 1, potentiometer[presetNr][7], "mRelease");
 
-        drawPot(0, 2, potentiometer[presetNr][8], "Attack");
-        drawPot(1, 2, potentiometer[presetNr][9], "Decay");
-        drawPot(2, 2, potentiometer[presetNr][10], "Sustain");
-        drawPot(3, 2, potentiometer[presetNr][11], "Release");
+        mytft->drawPot(0, 2, potentiometer[presetNr][8], "Attack");
+        mytft->drawPot(1, 2, potentiometer[presetNr][9], "Decay");
+        mytft->drawPot(2, 2, potentiometer[presetNr][10], "Sustain");
+        mytft->drawPot(3, 2, potentiometer[presetNr][11], "Release");
 
-        draw_sequencer_option(SEQUENCER_OPTIONS_VERY_RIGHT, "Prset", presetNr, 3, 0);
+        //draw_sequencer_option(SEQUENCER_OPTIONS_VERY_RIGHT, "Prset", presetNr, 3, 0);
     }
 }
 void Plugin_3::change_preset()

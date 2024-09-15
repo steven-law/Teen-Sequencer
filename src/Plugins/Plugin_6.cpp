@@ -159,31 +159,31 @@ void Plugin_6::draw_plugin()
     if (change_plugin_row)
     {
         change_plugin_row = false;
-        clearWorkSpace();
+        mytft->clearWorkSpace();
         // Serial.println("drawing plugin 2");
-        drawPot(0, 0, potentiometer[presetNr][0], "16*");
-        drawPot(1, 0, potentiometer[presetNr][1], "8*");
-        drawPot(2, 0, potentiometer[presetNr][2], "5 1/3");
-        drawPot(3, 0, potentiometer[presetNr][3], "4*");
+        mytft->drawPot(0, 0, potentiometer[presetNr][0], "16*");
+        mytft->drawPot(1, 0, potentiometer[presetNr][1], "8*");
+        mytft->drawPot(2, 0, potentiometer[presetNr][2], "5 1/3");
+        mytft->drawPot(3, 0, potentiometer[presetNr][3], "4*");
 
-        drawPot(0, 1, potentiometer[presetNr][4], "2 2/3");
-        drawPot(1, 1, potentiometer[presetNr][5], "2*");
-        drawPot(2, 1, potentiometer[presetNr][6], "1 3/5");
-        drawPot(3, 1, potentiometer[presetNr][7], "1 1/3");
+        mytft->drawPot(0, 1, potentiometer[presetNr][4], "2 2/3");
+        mytft->drawPot(1, 1, potentiometer[presetNr][5], "2*");
+        mytft->drawPot(2, 1, potentiometer[presetNr][6], "1 3/5");
+        mytft->drawPot(3, 1, potentiometer[presetNr][7], "1 1/3");
 
-        drawPot(0, 2, potentiometer[presetNr][8], "Filt-Frq");
-        drawPot(1, 2, potentiometer[presetNr][9], "Resonance");
-        drawPot(2, 2, potentiometer[presetNr][10], "Sweep");
-        drawPot(3, 2, potentiometer[presetNr][11], filterName[potentiometer[presetNr][11]]);
+        mytft->drawPot(0, 2, potentiometer[presetNr][8], "Filt-Frq");
+        mytft->drawPot(1, 2, potentiometer[presetNr][9], "Resonance");
+        mytft->drawPot(2, 2, potentiometer[presetNr][10], "Sweep");
+        mytft->drawPot(3, 2, potentiometer[presetNr][11], filterName[potentiometer[presetNr][11]]);
 
-        drawEnvelope(3, potentiometer[presetNr][12], potentiometer[presetNr][13],
+        mytft->drawEnvelope(3, potentiometer[presetNr][12], potentiometer[presetNr][13],
                      potentiometer[presetNr][14], potentiometer[presetNr][15]);
-        // drawPot(0, 3, potentiometer[presetNr][12], "Attack");
-        // drawPot(1, 3, potentiometer[presetNr][13], "Decay");
-        // drawPot(2, 3, potentiometer[presetNr][14], "Sustain");
-        // drawPot(3, 3, potentiometer[presetNr][15], "Release");
+        // mytft->drawPot(0, 3, potentiometer[presetNr][12], "Attack");
+        // mytft->drawPot(1, 3, potentiometer[presetNr][13], "Decay");
+        // mytft->drawPot(2, 3, potentiometer[presetNr][14], "Sustain");
+        // mytft->drawPot(3, 3, potentiometer[presetNr][15], "Release");
 
-        draw_sequencer_option(SEQUENCER_OPTIONS_VERY_RIGHT, "Prset", presetNr, 3, 0);
+        //draw_sequencer_option(SEQUENCER_OPTIONS_VERY_RIGHT, "Prset", presetNr, 3, 0);
     }
 }
 void Plugin_6::change_preset(){
@@ -330,7 +330,7 @@ void Plugin_6::set_envelope_ADSR(byte YPos, int maxA, int maxD, int maxR)
         byte rowIx = YPos * 4;
         potentiometer[presetNr][0 + rowIx] = constrain(potentiometer[presetNr][0 + rowIx] + encoded[0], 0, MIDI_CC_RANGE);
         assign_envelope_attack(potentiometer[presetNr][0 + rowIx], maxA);
-        drawEnvelope(YPos, potentiometer[presetNr][0 + rowIx], potentiometer[presetNr][1 + rowIx],
+        mytft->drawEnvelope(YPos, potentiometer[presetNr][0 + rowIx], potentiometer[presetNr][1 + rowIx],
                      potentiometer[presetNr][2 + rowIx], potentiometer[presetNr][3 + rowIx]);
     }
     if (enc_moved[1])
@@ -338,7 +338,7 @@ void Plugin_6::set_envelope_ADSR(byte YPos, int maxA, int maxD, int maxR)
         byte rowIx = YPos * 4;
         potentiometer[presetNr][1 + rowIx] = constrain(potentiometer[presetNr][1 + rowIx] + encoded[1], 0, MIDI_CC_RANGE);
         assign_envelope_decay(potentiometer[presetNr][1 + rowIx], maxD);
-        drawEnvelope(YPos, potentiometer[presetNr][0 + rowIx], potentiometer[presetNr][1 + rowIx],
+        mytft->drawEnvelope(YPos, potentiometer[presetNr][0 + rowIx], potentiometer[presetNr][1 + rowIx],
                      potentiometer[presetNr][2 + rowIx], potentiometer[presetNr][3 + rowIx]);
     }
     if (enc_moved[2])
@@ -346,7 +346,7 @@ void Plugin_6::set_envelope_ADSR(byte YPos, int maxA, int maxD, int maxR)
         byte rowIx = YPos * 4;
         potentiometer[presetNr][2 + rowIx] = constrain(potentiometer[presetNr][2 + rowIx] + encoded[2], 0, MIDI_CC_RANGE);
         assign_envelope_sustain(potentiometer[presetNr][2 + rowIx]);
-        drawEnvelope(YPos, potentiometer[presetNr][0 + rowIx], potentiometer[presetNr][1 + rowIx],
+        mytft->drawEnvelope(YPos, potentiometer[presetNr][0 + rowIx], potentiometer[presetNr][1 + rowIx],
                      potentiometer[presetNr][2 + rowIx], potentiometer[presetNr][3 + rowIx]);
     }
     if (enc_moved[3])
@@ -354,7 +354,7 @@ void Plugin_6::set_envelope_ADSR(byte YPos, int maxA, int maxD, int maxR)
         byte rowIx = YPos * 4;
         potentiometer[presetNr][3 + rowIx] = constrain(potentiometer[presetNr][3 + rowIx] + encoded[3], 0, MIDI_CC_RANGE);
         assign_envelope_release(potentiometer[presetNr][3 + rowIx], maxR);
-        drawEnvelope(YPos, potentiometer[presetNr][0 + rowIx], potentiometer[presetNr][1 + rowIx],
+        mytft->drawEnvelope(YPos, potentiometer[presetNr][0 + rowIx], potentiometer[presetNr][1 + rowIx],
                      potentiometer[presetNr][2 + rowIx], potentiometer[presetNr][3 + rowIx]);
     }
 }

@@ -78,7 +78,7 @@ void Track::set_seq_mode1_value(byte XPos, byte YPos, const char *name)
     {
         int n = XPos + (YPos * NUM_ENCODERS);
         SeqMod1Value[n] = constrain(SeqMod1Value[n] + encoded[XPos], 0, MIDI_CC_RANGE);
-        drawPot(XPos, YPos, SeqMod1Value[n], name);
+        mytft->drawPot(XPos, YPos, SeqMod1Value[n], name);
     }
 }
 void Track::draw_seq_mode1()
@@ -86,10 +86,10 @@ void Track::draw_seq_mode1()
     if (change_plugin_row)
     {
         change_plugin_row = false;
-        drawPot(0, 0, SeqMod1Value[0], "Oct -");
-        drawPot(1, 0, SeqMod1Value[1], "Oct +");
-        drawPot(2, 0, SeqMod1Value[2], "Vol -");
-        drawPot(3, 0, SeqMod1Value[3], "Vol +");
+        mytft->drawPot(0, 0, SeqMod1Value[0], "Oct -");
+        mytft->drawPot(1, 0, SeqMod1Value[1], "Oct +");
+        mytft->drawPot(2, 0, SeqMod1Value[2], "Vol -");
+        mytft->drawPot(3, 0, SeqMod1Value[3], "Vol +");
     }
 }
 // dropseq
@@ -204,7 +204,7 @@ void Track::set_seq_mode2_value(byte XPos, byte YPos, const char *name, int min,
     {
         int n = XPos + (YPos * NUM_ENCODERS);
         SeqMod2Value[n] = constrain(SeqMod2Value[n] + encoded[XPos], 0, MIDI_CC_RANGE);
-        drawPot(XPos, YPos, SeqMod2Value[n], name);
+        mytft->drawPot(XPos, YPos, SeqMod2Value[n], name);
     }
 }
 void Track::draw_seq_mode2()
@@ -212,25 +212,25 @@ void Track::draw_seq_mode2()
     if (change_plugin_row)
     {
         change_plugin_row = false;
-        drawPot(0, 0, SeqMod2Value[0], "Drop");
-        drawPot(1, 0, SeqMod2Value[1], "Rst @");
-        drawPot(2, 0, SeqMod2Value[2], "Oct -");
-        drawPot(3, 0, SeqMod2Value[3], "Oct +");
+        mytft->drawPot(0, 0, SeqMod2Value[0], "Drop");
+        mytft->drawPot(1, 0, SeqMod2Value[1], "Rst @");
+        mytft->drawPot(2, 0, SeqMod2Value[2], "Oct -");
+        mytft->drawPot(3, 0, SeqMod2Value[3], "Oct +");
 
-        drawPot(0, 1, SeqMod2Value[4], "C");
-        drawPot(1, 1, SeqMod2Value[5], "C#");
-        drawPot(2, 1, SeqMod2Value[6], "D");
-        drawPot(3, 1, SeqMod2Value[7], "D#");
+        mytft->drawPot(0, 1, SeqMod2Value[4], "C");
+        mytft->drawPot(1, 1, SeqMod2Value[5], "C#");
+        mytft->drawPot(2, 1, SeqMod2Value[6], "D");
+        mytft->drawPot(3, 1, SeqMod2Value[7], "D#");
 
-        drawPot(0, 2, SeqMod2Value[8], "E");
-        drawPot(1, 2, SeqMod2Value[9], "F");
-        drawPot(2, 2, SeqMod2Value[10], "F#");
-        drawPot(3, 2, SeqMod2Value[11], "G");
+        mytft->drawPot(0, 2, SeqMod2Value[8], "E");
+        mytft->drawPot(1, 2, SeqMod2Value[9], "F");
+        mytft->drawPot(2, 2, SeqMod2Value[10], "F#");
+        mytft->drawPot(3, 2, SeqMod2Value[11], "G");
 
-        drawPot(0, 3, SeqMod2Value[12], "G#");
-        drawPot(1, 3, SeqMod2Value[13], "A");
-        drawPot(2, 3, SeqMod2Value[14], "A#");
-        drawPot(3, 3, SeqMod2Value[15], "B");
+        mytft->drawPot(0, 3, SeqMod2Value[12], "G#");
+        mytft->drawPot(1, 3, SeqMod2Value[13], "A");
+        mytft->drawPot(2, 3, SeqMod2Value[14], "A#");
+        mytft->drawPot(3, 3, SeqMod2Value[15], "B");
     }
 }
 // bitread
@@ -294,7 +294,7 @@ void Track::set_seq_mode3_value(byte XPos, byte YPos, const char *name, int min,
     {
         int n = XPos + (YPos * NUM_ENCODERS);
         SeqMod3Value[n] = constrain(SeqMod3Value[n] + encoded[XPos], 0, MIDI_CC_RANGE * 2);
-        drawPot(XPos, YPos, SeqMod3Value[n], name);
+        mytft->drawPot(XPos, YPos, SeqMod3Value[n], name);
     }
 }
 void Track::draw_seq_mode3()
@@ -302,20 +302,20 @@ void Track::draw_seq_mode3()
     if (change_plugin_row)
     {
         change_plugin_row = false;
-        drawPot(0, 0, SeqMod3Value[0], noteNames[0]);
-        drawPot(1, 0, SeqMod3Value[1], noteNames[1]);
-        drawPot(2, 0, SeqMod3Value[2], noteNames[2]);
-        drawPot(3, 0, SeqMod3Value[3], noteNames[3]);
+        mytft->drawPot(0, 0, SeqMod3Value[0], noteNames[0]);
+        mytft->drawPot(1, 0, SeqMod3Value[1], noteNames[1]);
+        mytft->drawPot(2, 0, SeqMod3Value[2], noteNames[2]);
+        mytft->drawPot(3, 0, SeqMod3Value[3], noteNames[3]);
 
-        drawPot(0, 1, SeqMod3Value[4], noteNames[4]);
-        drawPot(1, 1, SeqMod3Value[5], noteNames[5]);
-        drawPot(2, 1, SeqMod3Value[6], noteNames[6]);
-        drawPot(3, 1, SeqMod3Value[7], noteNames[7]);
+        mytft->drawPot(0, 1, SeqMod3Value[4], noteNames[4]);
+        mytft->drawPot(1, 1, SeqMod3Value[5], noteNames[5]);
+        mytft->drawPot(2, 1, SeqMod3Value[6], noteNames[6]);
+        mytft->drawPot(3, 1, SeqMod3Value[7], noteNames[7]);
 
-        drawPot(0, 2, SeqMod3Value[8], noteNames[8]);
-        drawPot(1, 2, SeqMod3Value[9], noteNames[9]);
-        drawPot(2, 2, SeqMod3Value[10], noteNames[10]);
-        drawPot(3, 2, SeqMod3Value[11], noteNames[11]);
+        mytft->drawPot(0, 2, SeqMod3Value[8], noteNames[8]);
+        mytft->drawPot(1, 2, SeqMod3Value[9], noteNames[9]);
+        mytft->drawPot(2, 2, SeqMod3Value[10], noteNames[10]);
+        mytft->drawPot(3, 2, SeqMod3Value[11], noteNames[11]);
     }
 }
 // 16 step pot sequencer
@@ -388,7 +388,7 @@ void Track::set_seq_mode4_value(byte XPos, byte YPos, const char *name)
     {
         int n = XPos + (YPos * NUM_ENCODERS);
         SeqMod4Value[n] = constrain(SeqMod4Value[n] + encoded[XPos], 0, MIDI_CC_RANGE);
-        drawPot(XPos, YPos, SeqMod4Value[n], name);
+        mytft->drawPot(XPos, YPos, SeqMod4Value[n], name);
     }
 }
 void Track::draw_seq_mode4()
@@ -396,24 +396,24 @@ void Track::draw_seq_mode4()
     if (change_plugin_row)
     {
         change_plugin_row = false;
-        drawPot(0, 0, SeqMod4Value[0], "1");
-        drawPot(1, 0, SeqMod4Value[1], "2");
-        drawPot(2, 0, SeqMod4Value[2], "3");
-        drawPot(3, 0, SeqMod4Value[3], "4");
+        mytft->drawPot(0, 0, SeqMod4Value[0], "1");
+        mytft->drawPot(1, 0, SeqMod4Value[1], "2");
+        mytft->drawPot(2, 0, SeqMod4Value[2], "3");
+        mytft->drawPot(3, 0, SeqMod4Value[3], "4");
 
-        drawPot(0, 1, SeqMod4Value[4], "5");
-        drawPot(1, 1, SeqMod4Value[5], "6");
-        drawPot(2, 1, SeqMod4Value[6], "7");
-        drawPot(3, 1, SeqMod4Value[7], "8");
+        mytft->drawPot(0, 1, SeqMod4Value[4], "5");
+        mytft->drawPot(1, 1, SeqMod4Value[5], "6");
+        mytft->drawPot(2, 1, SeqMod4Value[6], "7");
+        mytft->drawPot(3, 1, SeqMod4Value[7], "8");
 
-        drawPot(0, 2, SeqMod4Value[8], "9");
-        drawPot(1, 2, SeqMod4Value[9], "10");
-        drawPot(2, 2, SeqMod4Value[10], "11");
-        drawPot(3, 2, SeqMod4Value[11], "12");
+        mytft->drawPot(0, 2, SeqMod4Value[8], "9");
+        mytft->drawPot(1, 2, SeqMod4Value[9], "10");
+        mytft->drawPot(2, 2, SeqMod4Value[10], "11");
+        mytft->drawPot(3, 2, SeqMod4Value[11], "12");
 
-        drawPot(0, 3, SeqMod4Value[12], "13");
-        drawPot(1, 3, SeqMod4Value[13], "14");
-        drawPot(2, 3, SeqMod4Value[14], "15");
-        drawPot(3, 3, SeqMod4Value[15], "16");
+        mytft->drawPot(0, 3, SeqMod4Value[12], "13");
+        mytft->drawPot(1, 3, SeqMod4Value[13], "14");
+        mytft->drawPot(2, 3, SeqMod4Value[14], "15");
+        mytft->drawPot(3, 3, SeqMod4Value[15], "16");
     }
 }

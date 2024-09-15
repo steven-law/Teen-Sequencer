@@ -33,8 +33,8 @@ void FX_1::draw_plugin()
     if (change_plugin_row)
     {
         change_plugin_row = false;
-        drawPot(0, 0, potentiometer[presetNr][0], "Roomsize");
-        drawPot(1, 0, potentiometer[presetNr][1], "Damping");
+        mytft->drawPot(0, 0, potentiometer[presetNr][0], "Roomsize");
+        mytft->drawPot(1, 0, potentiometer[presetNr][1], "Damping");
     }
 }
 

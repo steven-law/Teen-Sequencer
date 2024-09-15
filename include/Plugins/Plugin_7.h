@@ -11,7 +11,8 @@
 #include <Plugins/pluginClass.h>
 #include <ownLibs/synth_fm_drum.h>
 #include <ownLibs/effect_dynamics.h>
-
+#include "hardware/tftClass.h"
+class tftClass;
 // TeensyDAW: begin automatically generated code
 // Name: Boom
 // Description: Subtractive Synthesizer
@@ -46,7 +47,6 @@ extern int encoded[4];
 extern bool change_plugin_row;
 extern float *note_frequency;
 extern int tuning;
-void clearWorkSpace();
 class Plugin_7 : public PluginControll
 {
 public:

@@ -99,24 +99,24 @@ void Plugin_9::draw_plugin()
     if (change_plugin_row)
     {
         change_plugin_row = false;
-        clearWorkSpace();
+        mytft->clearWorkSpace();
 
-        drawPot(0, 0, potentiometer[presetNr][0], "Raw1");
-        drawPot(1, 0, potentiometer[presetNr][1], "Raw2");
-        drawPot(2, 0, potentiometer[presetNr][2], "Raw3");
-        drawPot(3, 0, potentiometer[presetNr][3], "Raw4");
+        mytft->drawPot(0, 0, potentiometer[presetNr][0], "Raw1");
+        mytft->drawPot(1, 0, potentiometer[presetNr][1], "Raw2");
+        mytft->drawPot(2, 0, potentiometer[presetNr][2], "Raw3");
+        mytft->drawPot(3, 0, potentiometer[presetNr][3], "Raw4");
 
-        drawPot(0, 1, potentiometer[presetNr][4], "Raw5");
-        drawPot(1, 1, potentiometer[presetNr][5], "Raw6");
-        drawPot(2, 1, potentiometer[presetNr][6], "Raw7");
-        drawPot(3, 1, potentiometer[presetNr][7], "Raw8");
+        mytft->drawPot(0, 1, potentiometer[presetNr][4], "Raw5");
+        mytft->drawPot(1, 1, potentiometer[presetNr][5], "Raw6");
+        mytft->drawPot(2, 1, potentiometer[presetNr][6], "Raw7");
+        mytft->drawPot(3, 1, potentiometer[presetNr][7], "Raw8");
 
-        drawPot(0, 2, potentiometer[presetNr][8], "Raw9");
-        drawPot(1, 2, potentiometer[presetNr][9], "Raw10");
-        drawPot(2, 2, potentiometer[presetNr][10], "Raw11");
-        //drawPot(3, 2, potentiometer[presetNr][11], "Raw12");
+        mytft->drawPot(0, 2, potentiometer[presetNr][8], "Raw9");
+        mytft->drawPot(1, 2, potentiometer[presetNr][9], "Raw10");
+        mytft->drawPot(2, 2, potentiometer[presetNr][10], "Raw11");
+        //mytft->drawPot(3, 2, potentiometer[presetNr][11], "Raw12");
 
-        draw_sequencer_option(SEQUENCER_OPTIONS_VERY_RIGHT, "Prset", presetNr, 3, 0);
+        //draw_sequencer_option(SEQUENCER_OPTIONS_VERY_RIGHT, "Prset", presetNr, 3, 0);
     }
 }
 

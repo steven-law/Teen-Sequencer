@@ -112,27 +112,27 @@ void Plugin_7::draw_plugin()
     if (change_plugin_row)
     {
         change_plugin_row = false;
-        clearWorkSpace();
+        mytft->clearWorkSpace();
         // Serial.println("drawing plugin 5");
 
-        drawPot(0, 0, potentiometer[presetNr][0], "Sweep");
-        drawPot(1, 0, potentiometer[presetNr][1], "Noise");
-        drawPot(2, 0, potentiometer[presetNr][2], "O-Drive");
-        drawPot(3, 0, potentiometer[presetNr][3], "Decay");
+        mytft->drawPot(0, 0, potentiometer[presetNr][0], "Sweep");
+        mytft->drawPot(1, 0, potentiometer[presetNr][1], "Noise");
+        mytft->drawPot(2, 0, potentiometer[presetNr][2], "O-Drive");
+        mytft->drawPot(3, 0, potentiometer[presetNr][3], "Decay");
 
-        drawPot(0, 1, potentiometer[presetNr][4], "Trshold");
-        drawPot(1, 1, potentiometer[presetNr][5], "Attack");
-        drawPot(2, 1, potentiometer[presetNr][6], "Release");
-        drawPot(3, 1, potentiometer[presetNr][7], "Hysteris");
+        mytft->drawPot(0, 1, potentiometer[presetNr][4], "Trshold");
+        mytft->drawPot(1, 1, potentiometer[presetNr][5], "Attack");
+        mytft->drawPot(2, 1, potentiometer[presetNr][6], "Release");
+        mytft->drawPot(3, 1, potentiometer[presetNr][7], "Hysteris");
 
-        drawPot(0, 2, potentiometer[presetNr][8], "Ratio");
-        drawPot(1, 2, potentiometer[presetNr][9], "Knewdth");
-        drawPot(2, 2, potentiometer[presetNr][10], "AmakUpG");
-        drawPot(3, 2, potentiometer[presetNr][11], "makUpG");
+        mytft->drawPot(0, 2, potentiometer[presetNr][8], "Ratio");
+        mytft->drawPot(1, 2, potentiometer[presetNr][9], "Knewdth");
+        mytft->drawPot(2, 2, potentiometer[presetNr][10], "AmakUpG");
+        mytft->drawPot(3, 2, potentiometer[presetNr][11], "makUpG");
 
-        drawPot(3, 3, potentiometer[presetNr][15], "Gain");
+        mytft->drawPot(3, 3, potentiometer[presetNr][15], "Gain");
 
-        draw_sequencer_option(SEQUENCER_OPTIONS_VERY_RIGHT, "Prset", presetNr, 3, 0);
+        //draw_sequencer_option(SEQUENCER_OPTIONS_VERY_RIGHT, "Prset", presetNr, 3, 0);
     }
 }
 void Plugin_7::change_preset(){}

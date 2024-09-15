@@ -3,8 +3,8 @@
 
 #include <Arduino.h>
 #include "hw_stuff.h"
-#include "SD.h"
-extern File myFile;
+
+
 
 
 #define NUM_STEPS 16

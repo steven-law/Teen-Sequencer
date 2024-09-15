@@ -117,29 +117,29 @@ void Plugin_5::draw_plugin()
     if (change_plugin_row)
     {
         change_plugin_row = false;
-        clearWorkSpace();
+        mytft->clearWorkSpace();
         // Serial.println("drawing plugin 5");
-        drawPot(0, 0, potentiometer[presetNr][0], "Freq");
-        drawPot(1, 0, potentiometer[presetNr][1], "Sweep");
-        drawPot(2, 0, potentiometer[presetNr][2], "O-Drive");
-        drawPot(3, 0, potentiometer[presetNr][3], "Decay");
+        mytft->drawPot(0, 0, potentiometer[presetNr][0], "Freq");
+        mytft->drawPot(1, 0, potentiometer[presetNr][1], "Sweep");
+        mytft->drawPot(2, 0, potentiometer[presetNr][2], "O-Drive");
+        mytft->drawPot(3, 0, potentiometer[presetNr][3], "Decay");
 
-        drawPot(0, 1, potentiometer[presetNr][4], "Freq");
-        drawPot(1, 1, potentiometer[presetNr][5], "Sweep");
-        drawPot(2, 1, potentiometer[presetNr][6], "Noise");
-        drawPot(3, 1, potentiometer[presetNr][7], "Decay");
+        mytft->drawPot(0, 1, potentiometer[presetNr][4], "Freq");
+        mytft->drawPot(1, 1, potentiometer[presetNr][5], "Sweep");
+        mytft->drawPot(2, 1, potentiometer[presetNr][6], "Noise");
+        mytft->drawPot(3, 1, potentiometer[presetNr][7], "Decay");
 
-        drawPot(0, 2, potentiometer[presetNr][8], "Freq");
-        drawPot(1, 2, potentiometer[presetNr][9], "Reso");
-        drawPot(2, 2, potentiometer[presetNr][10], "Attack");
-        drawPot(3, 2, potentiometer[presetNr][11], "Decay");
+        mytft->drawPot(0, 2, potentiometer[presetNr][8], "Freq");
+        mytft->drawPot(1, 2, potentiometer[presetNr][9], "Reso");
+        mytft->drawPot(2, 2, potentiometer[presetNr][10], "Attack");
+        mytft->drawPot(3, 2, potentiometer[presetNr][11], "Decay");
 
-        drawPot(0, 3, potentiometer[presetNr][12], "TomL");
-        drawPot(1, 3, potentiometer[presetNr][13], "TomM");
-        drawPot(2, 3, potentiometer[presetNr][14], "TomH");
-        drawPot(3, 3, potentiometer[presetNr][15], "Decay");
+        mytft->drawPot(0, 3, potentiometer[presetNr][12], "TomL");
+        mytft->drawPot(1, 3, potentiometer[presetNr][13], "TomM");
+        mytft->drawPot(2, 3, potentiometer[presetNr][14], "TomH");
+        mytft->drawPot(3, 3, potentiometer[presetNr][15], "Decay");
 
-        draw_sequencer_option(SEQUENCER_OPTIONS_VERY_RIGHT, "Prset", presetNr, 3, 0);
+        //draw_sequencer_option(SEQUENCER_OPTIONS_VERY_RIGHT, "Prset", presetNr, 3, 0);
     }
 }
 void Plugin_5::change_preset(){}

@@ -10,7 +10,8 @@
 #include <Plugins/plugin_List.h>
 #include "project_variables.h"
 #include "FX/FX_Section.h"
-
+#include "hardware/tftClass.h"
+class tftClass;
 extern bool change_plugin_row;
 
 extern float *note_frequency;
@@ -18,9 +19,9 @@ extern float *note_frequency;
 // Encoder Pins
 extern bool enc_moved[4];
 extern int encoded[4];
-void drawPot(int XPos, byte YPos, int dvalue, const char *dname);
+//tftClass mytft->drawPot(int XPos, byte YPos, int dvalue, const char *dname);
 byte getEncodervalue(byte XPos, byte YPos, const char *name, byte oldValue);
-void clearWorkSpace();
+//void clearWorkSpace();
 
 // TeensyDAW: begin automatically generated code
 class Output

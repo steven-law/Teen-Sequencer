@@ -10,6 +10,8 @@
 #include "ownLibs/mixers.h"
 #include <Plugins/pluginClass.h>
 #include <Plugins/AudioSamples/AudioSamples.h>
+#include "hardware/tftClass.h"
+class tftClass;
 // TeensyDAW: begin automatically generated code
 // Name: mDrm
 // Description: Plays 12 Samplesounds stored on Flash (PROGMEM)
@@ -34,7 +36,6 @@ extern int encoded[4];
 extern bool change_plugin_row;
 extern float *note_frequency;
 extern int tuning;
-void clearWorkSpace();
 class Plugin_4 : public PluginControll
 {
 public:

@@ -2,10 +2,12 @@
 #define PLUGIN_CLASS
 #include <SD.h>
 #include <project_variables.h>
+//#include "hardware/tftClass.h"
+//class tftClass;
 extern bool enc_moved[4];
 extern int encoded[4];
 extern bool change_plugin_row;
-void drawPot(int XPos, byte YPos, int dvalue, const char *dname);
+//void mytft->drawPot(int XPos, byte YPos, int dvalue, const char *dname);
 
 class PluginControll
 {

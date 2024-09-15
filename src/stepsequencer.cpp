@@ -32,37 +32,9 @@ void Track::set_stepSequencer_parameters(byte row)
     default:
         break;
     }
-    draw_stepSequencer_parameters(row);
+    mytft->draw_stepSequencer_parameters(row);
 }
-void Track::draw_stepSequencer_parameters(byte lastProw)
-{
-    if (change_plugin_row)
-    {
-        tft->fillRect(18 * STEP_FRAME_W, 5 * STEP_FRAME_H, 20 * STEP_FRAME_W, 12 * STEP_FRAME_H, ILI9341_DARKGREY);
-        change_plugin_row = false;
-        if (lastProw == 0)
-        {
-            draw_coordinateX(0, 0);
-            draw_coordinateY(1, 0);
-            draw_stepSequencer_parameter_value(ENCODER_STEP_FX, 0, CCnames[setStepFX]);
-            draw_stepSequencer_parameter_value(3, 0, "Velo");
-        }
-        if (lastProw == 1)
-        {
-            draw_stepSequencer_parameter_value(ENCODER_SEQUENCE_LENGTH, 1, "seqL");
-            draw_stepSequencer_parameter_value(ENCODER_STEP_DIVISION, 1, "sDiv");
-            draw_stepSequencer_parameter_value(ENCODER_STEP_LENGTH, 1, "stpL");
-            draw_stepSequencer_parameter_value(ENCODER_OCTAVE, 1, "Oct");
-        }
-        if (lastProw == 2)
-        {
-            draw_stepSequencer_parameter_text(ENCODER_SEQ_MODE, 2, seqModname[parameter[8]], "sMod");
-            draw_stepSequencer_parameter_text(ENCODER_MIDICH_OUT, 2, channelOutNames[parameter[SET_MIDICH_OUT]], "MCh");
 
-            draw_stepSequencer_parameter_value(ENCODER_CLIP2_EDIT, 2, "Clip");
-        }
-    }
-}
 
 void Track::set_stepSequencer_parameter_value(byte XPos, byte YPos, const char *name, byte min, byte max)
 {
@@ -75,18 +47,13 @@ void Track::set_stepSequencer_parameter_value(byte XPos, byte YPos, const char *
         Serial.printf("parameter: %d, value: %d, name %s\n", index, parameter[index], name);
         if (index == SET_OCTAVE || index == SET_CLIP2_EDIT)
         {
-            clear_notes_in_grid();
-            draw_notes_in_grid();
+            //mytft->clear_notes_in_grid();
+            mytft->draw_notes_in_grid();
         }
-        draw_stepSequencer_parameter_value(XPos, YPos, name);
+        mytft->draw_stepSequencer_parameter_value(YPos, XPos, YPos,parameter[index], name);
     }
 }
-void Track::draw_stepSequencer_parameter_value(byte XPos, byte YPos, const char *name)
-{
-    byte index = XPos + (YPos * NUM_ENCODERS);
-    draw_Text(XPos, YPos, SEQUENCER_OPTIONS_VERY_RIGHT, (XPos * 2) + 5, 0, 4, name, encoder_colour[XPos], false, false);
-    draw_Value(XPos, YPos, SEQUENCER_OPTIONS_VERY_RIGHT, (XPos * 2) + 6, 4, 4, parameter[index], encoder_colour[XPos], true, false);
-}
+
 
 void Track::set_stepSequencer_parameter_text(byte XPos, byte YPos, const char *name, const char *text, byte min, byte max)
 {
@@ -96,18 +63,10 @@ void Track::set_stepSequencer_parameter_text(byte XPos, byte YPos, const char *n
         enc_moved[XPos] = false;
         parameter[index] = constrain(parameter[index] + encoded[XPos], min, max);
         Serial.printf("parameter: %d, value: %d, name %s, text %s\n", index, parameter[index], name, text);
-        draw_stepSequencer_parameter_text(XPos, YPos, text, name);
+        mytft->draw_stepSequencer_parameter_text(YPos,XPos, YPos, text, name);
     }
 }
-void Track::draw_stepSequencer_parameter_text(byte XPos, byte YPos, const char *text, const char *name)
 
-{
-    // change_plugin_row=true;
-    byte index = XPos + (YPos * NUM_ENCODERS);
-    Serial.printf("Drawing text at index %d, name %s, text %s\n", index, name, text);
-    draw_Text(XPos, YPos, SEQUENCER_OPTIONS_VERY_RIGHT, (XPos * 2) + 5, 0, 4, name, encoder_colour[XPos], false, false);
-    draw_Text(XPos, YPos, SEQUENCER_OPTIONS_VERY_RIGHT, (XPos * 2) + 6, 4, 4, text, encoder_colour[XPos], true, false);
-}
 
 // MIDI CC
 void Track::set_CCchannel(byte XPos, byte YPos)
@@ -116,7 +75,7 @@ void Track::set_CCchannel(byte XPos, byte YPos)
     if (enc_moved[n])
     {
         CCchannel[edit_presetNr_ccChannel][n] = constrain(CCchannel[edit_presetNr_ccChannel][n] + encoded[n], 1, 128);
-        draw_MIDI_CC(XPos, YPos);
+        mytft->draw_MIDI_CC(XPos, YPos);
         enc_moved[n] = false;
     }
 }
@@ -126,19 +85,15 @@ void Track::set_CCvalue(byte XPos, byte YPos)
     if (enc_moved[n])
     {
         CCvalue[edit_presetNr_ccValue][n] = constrain(CCvalue[edit_presetNr_ccValue][n] + encoded[n], 0, 127);
-        draw_MIDI_CC(XPos, YPos);
+        mytft->draw_MIDI_CC(XPos, YPos);
         sendControlChange(CCchannel[edit_presetNr_ccChannel][n], CCvalue[edit_presetNr_ccValue][n], parameter[SET_MIDICH_OUT]);
         enc_moved[n] = false;
     }
 }
-void Track::draw_MIDI_CC(byte XPos, byte YPos)
-{
-    int n = XPos + (YPos * NUM_ENCODERS);
-    drawPot(XPos, YPos, CCvalue[edit_presetNr_ccValue][n], CCnames[CCchannel[edit_presetNr_ccChannel][n]]);
-}
+
 void Track::set_MIDI_CC(byte row)
 {
-    draw_MIDI_CC_screen();
+    
     if (!neotrellisPressed[TRELLIS_BUTTON_SHIFT] && !neotrellisPressed[TRELLIS_BUTTON_ENTER])
     {
         if (row == 0)
@@ -206,38 +161,9 @@ void Track::set_MIDI_CC(byte row)
         set_edit_presetNr_ccChannel(2, 0);
         set_edit_presetNr_ccValue(3, 0);
     }
+    mytft->draw_MIDI_CC_screen();
 }
-void Track::draw_MIDI_CC_screen()
-{
 
-    if (change_plugin_row)
-    {
-        clearWorkSpace();
-        change_plugin_row = false;
-        draw_MIDI_CC(0, 0);
-        draw_MIDI_CC(1, 0);
-        draw_MIDI_CC(2, 0);
-        draw_MIDI_CC(3, 0);
-
-        draw_MIDI_CC(0, 1);
-        draw_MIDI_CC(1, 1);
-        draw_MIDI_CC(2, 1);
-        draw_MIDI_CC(3, 1);
-
-        draw_MIDI_CC(0, 2);
-        draw_MIDI_CC(1, 2);
-        draw_MIDI_CC(2, 2);
-        draw_MIDI_CC(3, 2);
-
-        draw_MIDI_CC(0, 3);
-        draw_MIDI_CC(1, 3);
-        draw_MIDI_CC(2, 3);
-        draw_MIDI_CC(3, 3);
-
-        draw_edit_presetNr_ccChannel(2, 0);
-        draw_edit_presetNr_ccValue(3, 0);
-    }
-}
 void Track::set_edit_presetNr_ccChannel(byte n, byte lastProw)
 {
     if (enc_moved[n])
@@ -245,16 +171,12 @@ void Track::set_edit_presetNr_ccChannel(byte n, byte lastProw)
         edit_presetNr_ccChannel = constrain(edit_presetNr_ccChannel + encoded[n], 0, NUM_PRESETS - 1);
 
         change_plugin_row = true;
-        draw_MIDI_CC_screen();
-        draw_edit_presetNr_ccChannel(n, lastProw);
+        mytft->draw_MIDI_CC_screen();
+        mytft->draw_edit_presetNr_ccChannel(n, lastProw);
         enc_moved[n] = false;
     }
 }
-void Track::draw_edit_presetNr_ccChannel(byte n, byte lastProw)
-{
-    draw_Text(n, lastProw, SEQUENCER_OPTIONS_VERY_RIGHT, (n * 2) + 5, 0, 4, "cc-Set", encoder_colour[n], false, false);
-    draw_Value(n, lastProw, SEQUENCER_OPTIONS_VERY_RIGHT, (n * 2) + 6, 4, 4, edit_presetNr_ccChannel, encoder_colour[n], true, false);
-}
+
 void Track::set_edit_presetNr_ccValue(byte n, byte lastProw)
 {
     if (enc_moved[n])
@@ -262,16 +184,12 @@ void Track::set_edit_presetNr_ccValue(byte n, byte lastProw)
         edit_presetNr_ccValue = constrain(edit_presetNr_ccValue + encoded[n], 0, NUM_PRESETS - 1);
 
         change_plugin_row = true;
-        draw_MIDI_CC_screen();
-        draw_edit_presetNr_ccValue(n, lastProw);
+        mytft->draw_MIDI_CC_screen();
+        mytft->draw_edit_presetNr_ccValue(n, lastProw);
         enc_moved[n] = false;
     }
 }
-void Track::draw_edit_presetNr_ccValue(byte n, byte lastProw)
-{
-    draw_Text(n, lastProw, SEQUENCER_OPTIONS_VERY_RIGHT, (n * 2) + 5, 0, 4, "vl-Set", encoder_colour[n], false, false);
-    draw_Value(n, lastProw, SEQUENCER_OPTIONS_VERY_RIGHT, (n * 2) + 6, 4, 4, edit_presetNr_ccValue, encoder_colour[n], true, false);
-}
+
 // coordinates
 void Track::set_coordinateX(byte n, byte lastProw)
 {
@@ -279,8 +197,8 @@ void Track::set_coordinateX(byte n, byte lastProw)
     // if (enc_moved[n])
     if (millis() % 100 == 0)
     {
-        draw_coordinateX(0, lastProw);
-        draw_coordinateY(1, lastProw);
+       // draw_coordinateX(0, lastProw);
+      //  draw_coordinateY(1, lastProw);
 
         //  enc_moved[n] = false;
     }
@@ -290,22 +208,13 @@ void Track::set_coordinateY(byte n, byte lastProw)
 
     if (millis() % 100 == 0)
     {
-        draw_coordinateX(0, lastProw);
-        draw_coordinateY(1, lastProw);
+      //  draw_coordinateX(0, lastProw);
+      //  draw_coordinateY(1, lastProw);
 
         //   enc_moved[n] = false;
     }
 }
-void Track::draw_coordinateX(byte n, byte lastProw)
-{
-    draw_Text(n, lastProw, SEQUENCER_OPTIONS_VERY_RIGHT, (n * 2) + 5, 4, 4, "Tick", encoder_colour[n], false, false);
-    draw_Value(n, lastProw, SEQUENCER_OPTIONS_VERY_RIGHT, (n * 2) + 6, 4, 4, tickStart, encoder_colour[n], true, false);
-}
-void Track::draw_coordinateY(byte n, byte lastProw)
-{
-    draw_Text(n, lastProw, SEQUENCER_OPTIONS_VERY_RIGHT, (n * 2) + 5, 4, 4, "Note", encoder_colour[n], false, false);
-    draw_Value(n, lastProw, SEQUENCER_OPTIONS_VERY_RIGHT, (n * 2) + 6, 4, 4, note2set, encoder_colour[n], true, false);
-}
+
 // helpers
 // sequencer note input stuff
 void Track::set_active_note(byte _clip, byte _tick, byte _voice, byte _note)
@@ -337,7 +246,7 @@ void Track::set_note_on_tick(int x, int y)
     for (int i = 0; i < parameter[SET_STEP_LENGTH]; i++)
     {
         sTick = x + i;
-        note2set = (y - SEQ_GRID_TOP) + (parameter[SET_OCTAVE] * NOTES_PER_OCTAVE);
+        note2set = (y - 1) + (parameter[SET_OCTAVE] * NOTES_PER_OCTAVE);
         this->check_for_free_voices(sTick, note2set);
     }
 }
@@ -391,7 +300,7 @@ void Track::check_for_free_voices(byte onTick, byte newNote)
     if (note >= parameter[SET_OCTAVE] * NOTES_PER_OCTAVE && note < (parameter[SET_OCTAVE] + 1) * NOTES_PER_OCTAVE)
     {
         if (active_track == my_Arranger_Y_axis - 1)
-            void tftClass::draw_note_on_tick(note, onTick, this->parameter[SET_CLIP2_EDIT], velo, tftColor);
+            mytft->draw_note_on_tick(note, onTick);
     }
     trellis_set_main_buffer(this->parameter[SET_CLIP2_EDIT], (onTick / 6), (MIDI_channel_in - 1), trellisColor);
 }

@@ -9,7 +9,8 @@
 #include <SerialFlash.h>
 #include "ownLibs/mixers.h"
 #include <Plugins/pluginClass.h>
-
+#include "hardware/tftClass.h"
+class tftClass;
 
 // TeensyDAW: begin automatically generated code
 // Name: 1Osc
@@ -41,7 +42,6 @@
 
 extern bool change_plugin_row;
 
-void clearWorkSpace();
 class Plugin_11 : public PluginControll
 {
 public:

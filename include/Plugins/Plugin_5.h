@@ -10,7 +10,8 @@
 #include "ownLibs/mixers.h"
 #include <Plugins/pluginClass.h>
 #include <ownLibs/synth_fm_drum.h>
-
+#include "hardware/tftClass.h"
+class tftClass;
 // TeensyDAW: begin automatically generated code
 // Name: Drum
 // Description: Synthesize 12 Drum sounds
@@ -44,7 +45,6 @@ extern int encoded[4];
 extern bool change_plugin_row;
 extern float *note_frequency;
 extern int tuning;
-void clearWorkSpace();
 class Plugin_5 : public PluginControll
 {
 public:

@@ -8,13 +8,14 @@
 #include "project_variables.h"
 #include "project_functions.h"
 #include <Plugins/Plugin_1.h>
-
+#include "hardware/tftClass.h"
+class tftClass;
 extern bool enc_moved[4];
 extern int encoded[4];
 extern bool change_plugin_row;
 extern float *note_frequency;
 extern int tuning;
-void clearWorkSpace();
+//void clearWorkSpace();
 
 void Plugin_1::setup()
 {
@@ -75,24 +76,24 @@ void Plugin_1::draw_plugin()
     if (change_plugin_row)
     {
         change_plugin_row = false;
-        clearWorkSpace();
+        mytft->clearWorkSpace();
         // Serial.println("drawing plugin 1");
-        drawPot(0, 0, potentiometer[presetNr][0], "Vol");
-        drawPot(1, 0, potentiometer[presetNr][1], "Vol");
-        drawPot(2, 0, potentiometer[presetNr][2], "Vol");
-        drawPot(3, 0, potentiometer[presetNr][3], "Vol");
+        mytft->drawPot(0, 0, potentiometer[presetNr][0], "Vol");
+        mytft->drawPot(1, 0, potentiometer[presetNr][1], "Vol");
+        mytft->drawPot(2, 0, potentiometer[presetNr][2], "Vol");
+        mytft->drawPot(3, 0, potentiometer[presetNr][3], "Vol");
 
-        drawPot(0, 1, potentiometer[presetNr][4], "Vol");
-        drawPot(1, 1, potentiometer[presetNr][5], "Vol");
-        drawPot(2, 1, potentiometer[presetNr][6], "Vol");
-        drawPot(3, 1, potentiometer[presetNr][7], "Vol");
+        mytft->drawPot(0, 1, potentiometer[presetNr][4], "Vol");
+        mytft->drawPot(1, 1, potentiometer[presetNr][5], "Vol");
+        mytft->drawPot(2, 1, potentiometer[presetNr][6], "Vol");
+        mytft->drawPot(3, 1, potentiometer[presetNr][7], "Vol");
 
-        drawPot(0, 2, potentiometer[presetNr][8], "Vol");
-        drawPot(1, 2, potentiometer[presetNr][9], "Vol");
-        drawPot(2, 2, potentiometer[presetNr][10], "Vol");
-        drawPot(3, 2, potentiometer[presetNr][11], "Vol");
+        mytft->drawPot(0, 2, potentiometer[presetNr][8], "Vol");
+        mytft->drawPot(1, 2, potentiometer[presetNr][9], "Vol");
+        mytft->drawPot(2, 2, potentiometer[presetNr][10], "Vol");
+        mytft->drawPot(3, 2, potentiometer[presetNr][11], "Vol");
 
-        draw_sequencer_option(SEQUENCER_OPTIONS_VERY_RIGHT, "Prset", presetNr, 3, 0);
+        //draw_sequencer_option(SEQUENCER_OPTIONS_VERY_RIGHT, "Prset", presetNr, 3, 0);
     }
 }
 void Plugin_1::change_preset(){

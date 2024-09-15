@@ -9,7 +9,8 @@
 #include <SerialFlash.h>
 #include "ownLibs/mixers.h"
 #include <Plugins/pluginClass.h>
-
+#include "hardware/tftClass.h"
+class tftClass;
 #define PL6_VOICES 8
 // TeensyDAW: begin automatically generated code
 // Name: Draw
@@ -43,7 +44,6 @@ extern int encoded[4];
 extern bool change_plugin_row;
 extern float *note_frequency;
 extern int tuning;
-void clearWorkSpace();
 class Plugin_6 : public PluginControll
 {
 public:

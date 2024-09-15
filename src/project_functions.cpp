@@ -68,7 +68,7 @@ void input_behaviour()
         if (neotrellisPressed[TRELLIS_POTROW])
         {
             change_plugin_row = true;
-            allTracks[active_track]->draw_stepSequencer_parameters(lastPotRow);
+            mytft->draw_stepSequencer_parameters(lastPotRow);
             neotrellisPressed[TRELLIS_POTROW] = false;
         }
         allTracks[active_track]->set_stepSequencer_parameters(lastPotRow);
@@ -79,7 +79,7 @@ void input_behaviour()
         if (neotrellisPressed[TRELLIS_POTROW])
         {
             change_plugin_row = true;
-            allTracks[active_track]->draw_arranger_parameters(lastPotRow);
+            mytft->draw_arranger_parameters(lastPotRow);
             neotrellisPressed[TRELLIS_POTROW] = false;
         }
 

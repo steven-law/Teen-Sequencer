@@ -12,7 +12,8 @@
 #include "project_variables.h"
 #include "project_functions.h"
 #include <Plugins/pluginClass.h>
-
+#include "hardware/tftClass.h"
+class tftClass;
 // TeensyDAW: begin automatically generated code
 // Name: dTune
 // Description: 2VCO Detuned Subtractive Synthesizer
@@ -46,7 +47,6 @@ extern int encoded[4];
 extern bool change_plugin_row;
 extern float *note_frequency;
 extern int tuning;
-void clearWorkSpace();
 class Plugin_8 : public PluginControll
 {
 public:

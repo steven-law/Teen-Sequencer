@@ -63,10 +63,10 @@ void Plugin_11::draw_plugin()
     if (change_plugin_row)
     {
         change_plugin_row = false;
-        clearWorkSpace();
+         mytft->clearWorkSpace();
         // Serial.println("drawing plugin 2");
-        drawPot(1, 0, potentiometer[presetNr][1], "Nothing");
-        draw_sequencer_option(SEQUENCER_OPTIONS_VERY_RIGHT, "Prset", presetNr, 3, 0);
+        mytft->drawPot(1, 0, potentiometer[presetNr][1], "Nothing");
+        //draw_sequencer_option(SEQUENCER_OPTIONS_VERY_RIGHT, "Prset", presetNr, 3, 0);
     }
 }
 

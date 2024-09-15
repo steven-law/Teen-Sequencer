@@ -6,8 +6,9 @@
 #include <ili9341_t3n_font_Arial.h> // from ILI9341_t3
 #include <Bounce2.h>
 #include <Encoder.h>
-
-//display
+#include "SD.h"
+extern File myFile;
+// display
 extern ILI9341_t3n tft;
 #define CS_PIN 14   // alternate Pins: any digital pin
 #define TFT_DC 9    // alternate Pins 9, 10, 20, 21
@@ -19,10 +20,19 @@ extern ILI9341_t3n tft;
 #define STEP_FRAME_W 16
 #define STEP_FRAME_H 16
 #define TRACK_FRAME_H 24
+// for arranger
+#define BARS_PER_PAGE 16
+// for sequencer
+#define SEQ_GRID_LEFT 30
+#define SEQ_GRID_RIGHT (18 * STEP_FRAME_W) - 2
+#define SEQ_GRID_TOP 1
+#define SEQ_GRID_BOTTOM 12
+#define SEQUENCER_OPTIONS_VERY_RIGHT 18
+#define SEQUENCER_OPTIONS_RIGHT 16
+extern bool updateTFTScreen;
 
 extern uint16_t tft_frame_buffer[ILI9341_TFTWIDTH * ILI9341_TFTHEIGHT];
 #define ENABLE_ILI9341_FRAMEBUFFER
-
 
 #define TRELLIS_PADS_X_DIM 16
 #define TRELLIS_PADS_Y_DIM 8
@@ -59,8 +69,6 @@ extern uint16_t tft_frame_buffer[ILI9341_TFTWIDTH * ILI9341_TFTHEIGHT];
 #define TRELLIS_SCREEN_ARRANGER_2 16
 
 #define TRELLIS_SCREEN_STARTUP 99
-
-
 
 // trellis
 #define TRELLIS_PADS_X_DIM 16
@@ -163,18 +171,14 @@ void readMIDI();
 void myNoteOn(byte channel, byte note, byte velocity);
 void myNoteOff(byte channel, byte note, byte velocity);
 
-
-//project
+// project
 #define NUM_TRACKS 8
-
-
 
 extern int pixelTouchX;
 extern int gridTouchY;
 extern byte lastPotRow;
 extern byte activeScreen;
 extern bool change_plugin_row;
-File myFile;
 
 // pages
 #define TRACK_1_PAGE 0
@@ -204,13 +208,12 @@ File myFile;
 #define SONGMODE_PAGE_15 14
 #define SONGMODE_PAGE_16 15
 
-//clips
+// clips
 #define MAX_CLIPS 9
 #define NUM_USER_CLIPS 7
 #define NUM_PRESETS 8
 
-
-//colors
+// colors
 extern int trackColor[9];
 
 #endif // HW_STUFF_H

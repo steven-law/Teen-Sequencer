@@ -9,14 +9,14 @@
 #include "project_variables.h"
 #include "project_functions.h"
 #include "Plugins/plugin_List.h"
-// void draw_sequencer_option(byte x, const char *nameshort, int value, byte enc, const char *pluginName);
+//#include "hardware/tftClass.h"
 
+// void draw_sequencer_option(byte x, const char *nameshort, int value, byte enc, const char *pluginName);
+class tftClass;
 #define NOTES_PER_OCTAVE 12
 #define MIDI_CC_RANGE 127
 
 #define NO_NOTE 128
-
-
 
 // potrow 0
 #define ENCODER_STEP_FX 2
@@ -64,9 +64,29 @@ class Track
 {
 
 public:
-    // Stepsequencer
-    bool recordState = false;
+    byte my_Arranger_Y_axis;
     byte parameter[16]{0, 0, 128, 99, 96, 1, 3, 4, 0, 0, 0, 0};
+    // Stepsequencer
+    struct tick_t
+    {
+        byte voice[MAX_VOICES];
+        byte velo[MAX_VOICES];
+        byte stepFX;
+    };
+    struct clip_t
+    {
+        tick_t tick[MAX_TICKS];
+    };
+    clip_t *clip = nullptr;
+    byte CCvalue[NUM_PRESETS + 1][16];
+    byte CCchannel[NUM_PRESETS + 1][16];
+    byte edit_presetNr_ccChannel = 0;
+    byte edit_presetNr_ccValue = 0;
+
+    bool recordState = false;
+    
+
+    //mixer
     byte mixGainPot = 127;
     float mixGain = 1;
     byte mixDryPot;
@@ -85,12 +105,18 @@ public:
     bool cvNoteOn;
     bool cvNoteOff;
     byte cvNote;
+    byte bar_to_edit = 0;
 
+    // arranger
     int internal_clock = -1;
     int internal_clock_bar = 0;
     int external_clock_bar = 0;
     byte clip_to_play[256];
+    int noteOffset[256];
+    byte barVelocity[256];
 
+    byte play_presetNr_ccChannel[256];
+    byte play_presetNr_ccValue[256];
     Track(ILI9341_t3n *display, byte Y)
     {
         // MIDI1.setHandleNoteOn(myNoteOn);
@@ -141,19 +167,16 @@ public:
         }
     }
 
-    void drawStepSequencerStatic();
     void set_stepSequencer_parameters(byte row);
-    void draw_stepSequencer_parameters(byte row);
 
     void set_note_on_tick(int x, int y);
-    void clear_notes_in_grid();
-    void draw_notes_in_grid();
     void draw_sequencer_modes(byte mode);
+
     void set_recordState(bool _status);
     bool get_recordState();
     void record_noteOn(byte Note, byte Velo, byte Channel);
     void record_noteOff(byte Note, byte Velo, byte Channel);
-    void draw_MIDI_CC_screen();
+
     void set_MIDI_CC(byte row);
     // update
     void update(int PixelX, byte gridY);
@@ -200,7 +223,6 @@ private:
 
     byte MIDI_channel_in;
 
-    byte my_Arranger_Y_axis;
     byte note2set;
     byte setStepFX = 74;
     byte tickStart;
@@ -210,8 +232,6 @@ private:
     int gridX_4_save;
     byte gridY_4_save;
 
-    int noteOffset[256];
-    byte barVelocity[256];
     byte sTick;
 
     bool internal_clock_is_on = false;
@@ -222,29 +242,12 @@ private:
     byte recordVoice;
     byte recordChannel;
     byte sequence_length = MAX_TICKS;
-    struct tick_t
-    {
-        byte voice[MAX_VOICES];
-        byte velo[MAX_VOICES];
-        byte stepFX;
-    };
-    struct clip_t
-    {
-        tick_t tick[MAX_TICKS];
-    };
-    clip_t *clip = nullptr;
+
     byte search_free_voice = 0;
     byte old_cnote = NO_NOTE;
     byte oldNotesInArray[MAX_VOICES]{NO_NOTE, NO_NOTE, NO_NOTE, NO_NOTE, NO_NOTE, NO_NOTE, NO_NOTE, NO_NOTE, NO_NOTE, NO_NOTE, NO_NOTE, NO_NOTE};
     bool note_is_on[MAX_VOICES] = {true, true, true, true, true, true, true, true, true, true, true, true};
     bool ready_for_NoteOff[MAX_VOICES] = {false, false, false, false, false, false, false, false, false, false, false, false};
-    byte CCvalue[NUM_PRESETS + 1][16];
-    byte CCchannel[NUM_PRESETS + 1][16];
-    byte edit_presetNr_ccChannel = 0;
-    byte edit_presetNr_ccValue = 0;
-    byte play_presetNr_ccChannel[256];
-    byte play_presetNr_ccValue[256];
-    byte bar_to_edit = 0;
 
     byte SeqMod1Value[16]; // oct- ; oct+ ; vol- ; vol+
     byte SeqMod2Value[16];
@@ -259,26 +262,19 @@ private:
     // void play_seq_mode0(byte cloock);
 
     void set_stepSequencer_parameter_value(byte XPos, byte YPos, const char *name, byte min, byte max);
-    void draw_stepSequencer_parameter_value(byte XPos, byte YPos, const char *name);
 
     void set_stepSequencer_parameter_text(byte XPos, byte YPos, const char *name, const char *text, byte min, byte max);
-    void draw_stepSequencer_parameter_text(byte XPos, byte YPos, const char *text, const char *name);
     // sequencer options:
     // octave
 
     void set_CCvalue(byte XPos, byte YPos);
     void set_CCchannel(byte XPos, byte YPos);
-    void draw_MIDI_CC(byte XPos, byte YPos);
 
     void set_edit_presetNr_ccChannel(byte n, byte lastProw);
-    void draw_edit_presetNr_ccChannel(byte n, byte lastProw);
     void set_edit_presetNr_ccValue(byte n, byte lastProw);
-    void draw_edit_presetNr_ccValue(byte n, byte lastProw);
     // coordinates
     void set_coordinateX(byte n, byte lastProw);
     void set_coordinateY(byte n, byte lastProw);
-    void draw_coordinateX(byte n, byte lastProw);
-    void draw_coordinateY(byte n, byte lastProw);
     // helpers
 
     // sequencer note input stuff
@@ -290,10 +286,7 @@ private:
     byte get_active_stepFX(byte _clip, byte _tick, byte _voice);
     void check_for_free_voices(byte onTick, byte cnote);
 
-
     // stepsequencer
-
-
 
     //----------------------------------------------------------------
     // arranger stuff
@@ -303,18 +296,9 @@ private:
     // clip to play
     byte get_clip_to_play(byte when);
 
-
     // note offset / note transpose
 
-
     // bar Velocity
-
-    void draw_barVelocity(byte n, int b);
-    // MIDI CC
-
-    void draw_play_presetNr_ccChannel(byte n, byte lastProw);
-
-    void draw_play_presetNr_ccValue(byte n, byte lastProw);
 };
 
 extern Track *allTracks[8];

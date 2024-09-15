@@ -293,7 +293,7 @@ void Track::set_seq_mode_parameters(byte row)
 }
 void Track::draw_sequencer_modes(byte mode)
 {
-    clearWorkSpace();
+    mytft->clearWorkSpace();
     change_plugin_row = true;
     if (mode == 1)
         draw_seq_mode1();
@@ -380,20 +380,18 @@ void Track::set_clip_to_play(byte n, byte b)
             for (int i = 0; i < parameter[SET_STEP_DIVIVISION]; i++)
             {
                 clip_to_play[bar_to_edit + i] = constrain(clip_to_play[bar_to_edit + i] + encoded[n], 0, NUM_USER_CLIPS + 1);
-                draw_arrangment_line(n, bar_to_edit + i);
+                mytft->draw_arrangment_line(n, bar_to_edit + i);
             }
-            draw_clip_to_play(n, bar_to_edit);
+            mytft->draw_clip_to_play(n, bar_to_edit);
             enc_moved[n] = false;
         }
     }
 }
-
-
-
 byte Track::get_clip_to_play(byte when)
 {
     return clip_to_play[when];
 }
+
 // note offset / note transpose
 void Track::set_note_offset(byte n, int b)
 {
@@ -404,22 +402,17 @@ void Track::set_note_offset(byte n, int b)
         {
             int _tempOffset = constrain(noteOffset[when] + encoded[n], -99, +99);
 
-            draw_noteOffset(n, when);
+            mytft->draw_noteOffset(n, when);
             for (int i = 0; i < parameter[SET_STEP_DIVIVISION]; i++)
             {
                 noteOffset[when + i] = _tempOffset;
-                draw_arrangment_line(n, when + i);
+                mytft->draw_arrangment_line(n, when + i);
             }
             enc_moved[n] = false;
         }
     }
 }
-void Track::draw_noteOffset(byte n, int b)
-{
-    draw_Text(n, 1, SEQUENCER_OPTIONS_VERY_RIGHT, (n * 2) + 5, 4, 4, "Trns", encoder_colour[n], false, false);
-    draw_Value(n, 1, SEQUENCER_OPTIONS_VERY_RIGHT, (n * 2) + 6, 4, 4, noteOffset[b], encoder_colour[n], true, false);
-    // draw_sequencer_option(SEQUENCER_OPTIONS_VERY_RIGHT, "ofSet", noteOffset[b], n, 0);
-}
+
 // velocity per bar
 void Track::set_barVelocity(byte n, int b)
 {
@@ -429,35 +422,17 @@ void Track::set_barVelocity(byte n, int b)
         if (enc_moved[n])
         {
             barVelocity[when] = constrain(barVelocity[when] + encoded[n], 0, 127);
-            draw_barVelocity(n, when);
+            mytft->draw_barVelocity(n, when);
             for (int i = 0; i < parameter[SET_STEP_DIVIVISION]; i++)
             {
 
-                draw_arrangment_line(n, when + i);
+                mytft->draw_arrangment_line(n, when + i);
             }
             enc_moved[n] = false;
         }
     }
 }
-void Track::draw_barVelocity(byte n, int b)
-{
-    draw_Text(n, 1, SEQUENCER_OPTIONS_VERY_RIGHT, (n * 2) + 5, 4, 4, "Velo", encoder_colour[n], false, false);
-    draw_Value(n, 1, SEQUENCER_OPTIONS_VERY_RIGHT, (n * 2) + 6, 4, 4, barVelocity[b], encoder_colour[n], true, false);
-    // draw_sequencer_option(SEQUENCER_OPTIONS_VERY_RIGHT, "ofSet", noteOffset[b], n, 0);
-}
-void Track::draw_offset_arranger(byte n, byte b)
-{
-    int xoffset;
-    if (noteOffset[b] < 0)
-        xoffset = 1;
-    else
-        xoffset = 5;
-    // draw clipnumber in the arranger
-    tft->setFont(Arial_8);
-    tft->setTextColor(ILI9341_BLACK);
-    tft->setCursor((b - (16 * arrangerpage)) * STEP_FRAME_W + STEP_FRAME_W * 2 + xoffset, (my_Arranger_Y_axis)*TRACK_FRAME_H + 11);
-    tft->print(noteOffset[b]);
-}
+
 // MIDICC
 void Track::set_play_presetNr_ccChannel(byte n, byte lastProw)
 {
@@ -467,14 +442,9 @@ void Track::set_play_presetNr_ccChannel(byte n, byte lastProw)
         Serial.printf("cc-Set: %d, vl-set: %d, bar: %d\n", play_presetNr_ccChannel[bar_to_edit], play_presetNr_ccValue[bar_to_edit], bar_to_edit);
         change_plugin_row = true;
         // draw_MIDI_CC_screen();
-        draw_play_presetNr_ccChannel(n, lastProw);
+        mytft->draw_play_presetNr_ccChannel(n, lastProw);
         enc_moved[n] = false;
     }
-}
-void Track::draw_play_presetNr_ccChannel(byte n, byte lastProw)
-{
-    draw_Text(n, lastProw, SEQUENCER_OPTIONS_VERY_RIGHT, (n * 2) + 5, 0, 4, "cc-Set", encoder_colour[n], false, false);
-    draw_Value(n, lastProw, SEQUENCER_OPTIONS_VERY_RIGHT, (n * 2) + 6, 4, 4, play_presetNr_ccChannel[bar_to_edit], encoder_colour[n], true, false);
 }
 void Track::set_play_presetNr_ccValue(byte n, byte lastProw)
 {
@@ -484,15 +454,11 @@ void Track::set_play_presetNr_ccValue(byte n, byte lastProw)
         Serial.printf("cc-Set: %d, vl-set: %d, bar: %d\n", play_presetNr_ccChannel[bar_to_edit], play_presetNr_ccValue[bar_to_edit], bar_to_edit);
         change_plugin_row = true;
         // draw_MIDI_CC_screen();
-        draw_play_presetNr_ccValue(n, lastProw);
+        mytft->draw_play_presetNr_ccValue(n, lastProw);
         enc_moved[n] = false;
     }
 }
-void Track::draw_play_presetNr_ccValue(byte n, byte lastProw)
-{
-    draw_Text(n, lastProw, SEQUENCER_OPTIONS_VERY_RIGHT, (n * 2) + 5, 0, 4, "vl-Set", encoder_colour[n], false, false);
-    draw_Value(n, lastProw, SEQUENCER_OPTIONS_VERY_RIGHT, (n * 2) + 6, 4, 4, play_presetNr_ccValue[bar_to_edit], encoder_colour[n], true, false);
-}
+
 
 Track track1(&tft, 1);
 Track track2(&tft, 2);

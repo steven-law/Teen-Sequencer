@@ -91,24 +91,24 @@ void Plugin_4::draw_plugin()
     if (change_plugin_row)
     {
         change_plugin_row = false;
-        clearWorkSpace();
+        mytft->clearWorkSpace();
 
-        drawPot(0, 0, potentiometer[presetNr][0], "Kick");
-        drawPot(1, 0, potentiometer[presetNr][1], "Clap");
-        drawPot(2, 0, potentiometer[presetNr][2], "HHat");
-        drawPot(3, 0, potentiometer[presetNr][3], "Snare");
+        mytft->drawPot(0, 0, potentiometer[presetNr][0], "Kick");
+        mytft->drawPot(1, 0, potentiometer[presetNr][1], "Clap");
+        mytft->drawPot(2, 0, potentiometer[presetNr][2], "HHat");
+        mytft->drawPot(3, 0, potentiometer[presetNr][3], "Snare");
 
-        drawPot(0, 1, potentiometer[presetNr][4], "Tick");
-        drawPot(1, 1, potentiometer[presetNr][5], "Pong");
-        drawPot(2, 1, potentiometer[presetNr][6], "Tom");
-        drawPot(3, 1, potentiometer[presetNr][7], "Cash");
+        mytft->drawPot(0, 1, potentiometer[presetNr][4], "Tick");
+        mytft->drawPot(1, 1, potentiometer[presetNr][5], "Pong");
+        mytft->drawPot(2, 1, potentiometer[presetNr][6], "Tom");
+        mytft->drawPot(3, 1, potentiometer[presetNr][7], "Cash");
 
-        drawPot(0, 2, potentiometer[presetNr][8], "Vol");
-        drawPot(1, 2, potentiometer[presetNr][9], "Vol");
-        drawPot(2, 2, potentiometer[presetNr][10], "Vol");
-        drawPot(3, 2, potentiometer[presetNr][11], "Vol");
+        mytft->drawPot(0, 2, potentiometer[presetNr][8], "Vol");
+        mytft->drawPot(1, 2, potentiometer[presetNr][9], "Vol");
+        mytft->drawPot(2, 2, potentiometer[presetNr][10], "Vol");
+        mytft->drawPot(3, 2, potentiometer[presetNr][11], "Vol");
 
-        draw_sequencer_option(SEQUENCER_OPTIONS_VERY_RIGHT, "Prset", presetNr, 3, 0);
+        //draw_sequencer_option(SEQUENCER_OPTIONS_VERY_RIGHT, "Prset", presetNr, 3, 0);
     }
 }
 

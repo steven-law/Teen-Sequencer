@@ -10,7 +10,8 @@
 #include "ownLibs/mixers.h"
 #include <Plugins/pluginClass.h>
 #include "ownLibs/filter_ladderlite.h"
-
+#include "hardware/tftClass.h"
+class tftClass;
 // TeensyDAW: begin automatically generated code
 // Name: 1Osc
 // Description: Subtractive Synthesizer
@@ -43,7 +44,6 @@ extern int encoded[4];
 extern bool change_plugin_row;
 extern float *note_frequency;
 extern int tuning;
-void clearWorkSpace();
 class Plugin_2 : public PluginControll
 {
 public:

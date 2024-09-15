@@ -9,7 +9,8 @@
 #include <SerialFlash.h>
 #include "ownLibs/mixers.h"
 #include <Plugins/pluginClass.h>
-
+#include "hardware/tftClass.h"
+class tftClass;
 /*
 M WF    M Ratio   M Vol    C WF
 M Atk   M Dec     M St     M Rl
@@ -42,7 +43,6 @@ extern int encoded[4];
 extern bool change_plugin_row;
 extern float *note_frequency;
 extern int tuning;
-void clearWorkSpace();
 class Plugin_3 : public PluginControll
 {
 public:

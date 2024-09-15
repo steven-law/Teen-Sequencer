@@ -15,7 +15,6 @@ void mouse(byte deltaX, byte maxY);
 void clock_to_notes(int _tick);
 void input_behaviour();
 
-void show_active_songpage();
 void trellis_set_main_buffer(int _page, int _x, int _y, int color);
 
 

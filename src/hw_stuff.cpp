@@ -1,12 +1,10 @@
 #include <Arduino.h>
 #include "hw_stuff.h"
-
+File myFile;
 // Display
 ILI9341_t3n tft = ILI9341_t3n(TFT_CS, TFT_DC, TFT_RST, TFT_MOSI, TFT_SCK, TFT_MISO); // initiate TFT-Srceen
+bool updateTFTScreen;
 DMAMEM uint16_t tft_frame_buffer[ILI9341_TFTWIDTH * ILI9341_TFTHEIGHT];
-
-
-
 
 byte trellisPianoTrack;
 int trellisMainGridBuffer[TRELLIS_MAX_PAGES][TRELLIS_PADS_X_DIM][TRELLIS_PADS_Y_DIM];
@@ -128,15 +126,13 @@ void readMIDI()
     usbMIDI.read();
 }
 
-
-//project
-// extern Clock Masterclock;
+// project
+//  extern Clock Masterclock;
 int pixelTouchX = 0;
 int gridTouchY = 0;
 byte lastPotRow = 0;
 byte activeScreen = 0;
 bool change_plugin_row = false;
 
-
-//colors
+// colors
 int trackColor[9]{ILI9341_RED, ILI9341_PINK, ILI9341_OLIVE, ILI9341_YELLOW, ILI9341_BLUE, 9365295, ILI9341_CYAN, ILI9341_GREEN, ILI9341_WHITE};

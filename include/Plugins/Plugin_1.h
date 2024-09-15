@@ -11,7 +11,8 @@
 #include "project_variables.h"
 #include "project_functions.h"
 #include <Plugins/pluginClass.h>
-
+#include "hardware/tftClass.h"
+class tftClass;
 // TeensyDAW: begin automatically generated code
 // Name: Strng
 // Description: Synthesize 12 plucked string sounds, such as a guitar sound
@@ -37,7 +38,7 @@ extern int encoded[4];
 extern bool change_plugin_row;
 extern float *note_frequency;
 extern int tuning;
-void clearWorkSpace();
+//void mytft->clearWorkSpace();
 class Plugin_1 : public PluginControll
 {
 public:

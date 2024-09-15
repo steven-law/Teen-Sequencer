@@ -33,8 +33,8 @@ void FX_2::draw_plugin()
     if (change_plugin_row)
     {
         change_plugin_row = false;
-        drawPot(0, 0, potentiometer[presetNr][0], "BitDepth");
-        drawPot(1, 0, potentiometer[presetNr][1], "SmpRate");
+        mytft->drawPot(0, 0, potentiometer[presetNr][0], "BitDepth");
+        mytft->drawPot(1, 0, potentiometer[presetNr][1], "SmpRate");
     }
 }
 
