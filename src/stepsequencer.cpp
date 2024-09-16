@@ -72,11 +72,11 @@ void Track::set_stepSequencer_parameter_text(byte XPos, byte YPos, const char *n
 void Track::set_CCchannel(byte XPos, byte YPos)
 {
     int n = XPos + (YPos * NUM_ENCODERS);
-    if (enc_moved[n])
+    if (enc_moved[XPos])
     {
-        CCchannel[edit_presetNr_ccChannel][n] = constrain(CCchannel[edit_presetNr_ccChannel][n] + encoded[n], 1, 128);
+        CCchannel[edit_presetNr_ccChannel][n] = constrain(CCchannel[edit_presetNr_ccChannel][XPos] + encoded[XPos], 1, 128);
         mytft->draw_MIDI_CC(XPos, YPos);
-        enc_moved[n] = false;
+        enc_moved[XPos] = false;
     }
 }
 void Track::set_CCvalue(byte XPos, byte YPos)
@@ -247,13 +247,14 @@ void Track::set_note_on_tick(int x, int y)
     {
         sTick = x + i;
         note2set = (y - 1) + (parameter[SET_OCTAVE] * NOTES_PER_OCTAVE);
+         search_free_voice = (y - 1);
         this->check_for_free_voices(sTick, note2set);
     }
 }
 void Track::check_for_free_voices(byte onTick, byte newNote)
 {
     Serial.printf("newNote: %d onTick: %d\n", newNote, onTick);
-    search_free_voice = pixelOn_X;
+   
 
     // löschen der Note
 

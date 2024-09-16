@@ -16,14 +16,14 @@ void sendClock();
 class MyClock
 {
 public:
-  static ILI9341_t3n *tft; // Pointer to the display object
+  //static ILI9341_t3n *tft; // Pointer to the display object
   static MyClock *instance;
   static byte tempo;
   static byte startOfLoop;
   static byte endOfLoop;
   static byte barTick;
   static bool isPlaying;
-  MyClock(ILI9341_t3n *display);
+  MyClock(int index);
   void setup();
 
   static void onSync24Callback(uint32_t tick);

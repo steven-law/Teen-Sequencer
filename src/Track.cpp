@@ -10,12 +10,8 @@ void Track::update(int PixelX, byte gridY)
     {
         // note2set = (gridY - SEQ_GRID_TOP) + (parameter[SET_OCTAVE] * NOTES_PER_OCTAVE);
         // tickStart = (PixelX - SEQ_GRID_LEFT) / 2;
-        // pixelOn_X = PixelX;
-        // pixelOn_Y = gridY;
     }
     bar_to_edit = ((PixelX - SEQ_GRID_LEFT) / STEP_FRAME_W) + (BARS_PER_PAGE * (arrangerpage));
-    gridX_4_save = PixelX / STEP_FRAME_W;
-    gridY_4_save = gridY;
     // save_track();
     // load_track();
 }
@@ -337,7 +333,6 @@ void Track::record_noteOn(byte Note, byte Velo, byte Channel)
     recordLastNote[recordVoice] = Note;
     recordVelocity[recordVoice] = Velo;
     recordStartTick[recordVoice] = internal_clock;
-    recordChannel = Channel;
     // clip[parameter[SET_CLIP2_EDIT]].tick[internal_clock].voice[0] = Note;
     // clip[parameter[SET_CLIP2_EDIT]].tick[internal_clock].velo[0] = Velo;
 }

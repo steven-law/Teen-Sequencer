@@ -57,7 +57,7 @@ public:
     tftClass(ILI9341_t3n *display);
     ~tftClass();
 
-    void tftUpdate(int _pixelOnX, int _pixelOnY, byte _activeTrack, byte _activePage, byte _lastPotRow);
+    void tftUpdate(int _pixelOnX, int _pixelOnY);
     void tftUpdateClock(byte _currentTick, byte _currentBar, byte _startLoop, byte _endLoop);
 
     void show();
@@ -131,9 +131,6 @@ private:
     byte cursorOnTick;
     byte cursorOnNote;
     const int encoder_colour[NUM_ENCODERS] = {ILI9341_BLUE, ILI9341_RED, ILI9341_GREEN, ILI9341_WHITE};
-    byte activeTrack;
-    byte activePage;
-    byte actualPotRow;
     unsigned long infoboxTimeAtCall = 0;
     unsigned long infoboxTimeAtPress = 0;
     int infoboxWaitingTime = 1000;

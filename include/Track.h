@@ -227,10 +227,7 @@ private:
     byte setStepFX = 74;
     byte tickStart;
     byte noteToPlay[MAX_VOICES];
-    int pixelOn_X;
-    int pixelOn_Y;
-    int gridX_4_save;
-    byte gridY_4_save;
+
 
     byte sTick;
 
@@ -240,11 +237,9 @@ private:
     byte recordLastNote[MAX_VOICES];
     byte recordVelocity[MAX_VOICES];
     byte recordVoice;
-    byte recordChannel;
     byte sequence_length = MAX_TICKS;
 
     byte search_free_voice = 0;
-    byte old_cnote = NO_NOTE;
     byte oldNotesInArray[MAX_VOICES]{NO_NOTE, NO_NOTE, NO_NOTE, NO_NOTE, NO_NOTE, NO_NOTE, NO_NOTE, NO_NOTE, NO_NOTE, NO_NOTE, NO_NOTE, NO_NOTE};
     bool note_is_on[MAX_VOICES] = {true, true, true, true, true, true, true, true, true, true, true, true};
     bool ready_for_NoteOff[MAX_VOICES] = {false, false, false, false, false, false, false, false, false, false, false, false};
@@ -255,14 +250,12 @@ private:
     byte SeqMod4Value[16];
     byte maxVal;
 
-    byte mute_norm_solo_pot = 1;
 
     // sequencer Modes
 
     // void play_seq_mode0(byte cloock);
 
     void set_stepSequencer_parameter_value(byte XPos, byte YPos, const char *name, byte min, byte max);
-
     void set_stepSequencer_parameter_text(byte XPos, byte YPos, const char *name, const char *text, byte min, byte max);
     // sequencer options:
     // octave
@@ -279,7 +272,6 @@ private:
 
     // sequencer note input stuff
     void set_active_note(byte _clip, byte _tick, byte _voice, byte _note);
-
     void set_active_velo(byte _clip, byte _tick, byte _voice, byte _velo);
     byte get_active_velo(byte _clip, byte _tick, byte _voice);
     void set_active_stepFX(byte _clip, byte _tick, byte _voice, byte _stepFX);

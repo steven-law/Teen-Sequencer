@@ -1,6 +1,6 @@
 #include <ownLibs/myClock.h>
 
-ILI9341_t3n *MyClock::tft = nullptr; // Hier wird der Display-Pointer auf `nullptr` gesetzt, muss aber im Code richtig initialisiert werden
+// ILI9341_t3n *MyClock::tft = nullptr; // Hier wird der Display-Pointer auf `nullptr` gesetzt, muss aber im Code richtig initialisiert werden
 byte MyClock::tempo = 120;
 byte MyClock::startOfLoop = 0;
 byte MyClock::endOfLoop = 4;
@@ -8,10 +8,10 @@ bool MyClock::isPlaying = false;
 byte MyClock::barTick = -1;
 MyClock *MyClock::instance = nullptr;
 
-MyClock::MyClock(ILI9341_t3n *display)
+MyClock::MyClock(int index)
 {
-    MyClock::tft = display; // Initialisierung der statischen Variable
-    instance = this;        // Setzen der Instanz
+    // MyClock::tft = display; // Initialisierung der statischen Variable
+    instance = this; // Setzen der Instanz
 }
 void MyClock::setup()
 {
@@ -38,12 +38,11 @@ void MyClock::onStepCallback(uint32_t tick) // Each call represents exactly one 
 {
 
     tick = tick % NUM_STEPS;
-    mytft->updateClock=true;
+    updateTFTScreen = true;
     if (tick == 0)
     {
         barTick++;
         barTick = barTick % endOfLoop; // Setze wert2 mit Modulo-Operator zurück
-       mytft->updateClock=true;
     }
     // Serial.printf("Bar: %d\n", tick);
 
@@ -86,13 +85,13 @@ void MyClock::set_stop()
 }
 void MyClock::draw_clock_option(byte x, byte v)
 {
-    tft->setCursor(STEP_FRAME_W * x + 2, 3);
+    /*tft->setCursor(STEP_FRAME_W * x + 2, 3);
     tft->setFont(Arial_10);
     tft->setTextColor(ILI9341_WHITE);
     tft->setTextSize(1);
     tft->fillRect(STEP_FRAME_W * x + 2, 1, STEP_FRAME_W * 2 - 4, STEP_FRAME_H - 2, ILI9341_DARKGREY);
     tft->print(v);
-    tft->updateScreenAsync();
+    tft->updateScreenAsync();*/
 }
 
 void MyClock::set_start_of_loop(byte n)

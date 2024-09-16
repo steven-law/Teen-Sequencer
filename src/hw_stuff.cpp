@@ -76,6 +76,7 @@ void readEncoders()
         // If it fell, flag the need to toggle the LED
         if (encButtons[i].fell())
         {
+            updateTFTScreen = true;
             enc_button[i] = true;
             Serial.printf("EncButton: %d\n", i);
         }
@@ -86,6 +87,7 @@ void readEncoders()
         if (newEnc[i] > oldEnc[i])
         {
             enc_moved[i] = true;
+            updateTFTScreen = true;
             encoded[i] = encMultiplier[i];
             oldEnc[i] = newEnc[i];
             // Serial.printf("Encoder%d: %d mult: %d\n", i, encoded[i], encMultiplier[i]);
@@ -93,6 +95,7 @@ void readEncoders()
         if (newEnc[i] < oldEnc[i])
         {
             enc_moved[i] = true;
+            updateTFTScreen = true;
             encoded[i] = -encMultiplier[i];
             oldEnc[i] = newEnc[i];
             // Serial.printf("Encoder%d: %d mult: %d\n", i, encoded[i], encMultiplier[i]);

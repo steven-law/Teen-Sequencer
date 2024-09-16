@@ -37,9 +37,6 @@ done: look what takes so long to load the song screen
 #include <FX/fx_List.h>
 #include "FX/Output.h"
 
-
-
-
 #define NEOTRELLIS_INT_PIN 39
 #define TRELLIS_INT_PIN 41
 #define MIDI_CLOCK 0xF8
@@ -91,7 +88,7 @@ FX_1 fx_1("Rev", 1);
 FX_2 fx_2("Bit", 2);
 FX_3 fx_3("Nix", 3);
 Output MasterOut(3);
-MyClock myClock(&tft);
+MyClock myClock(1);
 
 MIDI_CREATE_INSTANCE(HardwareSerial, Serial1, MIDI1);
 USBHost myusb;
@@ -327,13 +324,13 @@ void loop()
   // Serial.println("hello");
   //  put your main code here, to run repeatedly:
   readEncoders();
+  trellis_update();
   // readMainButtons();
   readMIDI();
 
   MIDI1.read();
   myusb.Task();
   usbMidi1.read();
-
   sendNoteOn_CV_Gate();
   sendNoteOff_CV_Gate();
   detect_USB_device();
@@ -347,35 +344,15 @@ void loop()
     delay(0);
   }
   neotrellis_set_control_buffer(3, 1, TRELLIS_BLACK);
-  // trellis.setPixelColor(23, 1, TRELLIS_BLACK);
-  // trellis.show();
+  
 
-  // trellis_setStepsequencer();
-  trellis_show_arranger();
-
-  trellis_update();
-
-  trellis_show_tft_mixer();
-
-  neo_trellis_select_trackClips();
-  neo_trellis_set_brightness();
-  neo_trellis_save_load();
-
-  input_behaviour();
+  neotrellis_update();
   for (int i = 0; i < NUM_TRACKS; i++)
   {
     allTracks[i]->update(pixelTouchX, gridTouchY);
     trellis_show_clockbar(i, allTracks[i]->internal_clock / 6);
   }
   mytft->get_infobox_background();
-  mytft->tftUpdate(pixelTouchX, gridTouchY, active_track, activeScreen, lastPotRow);
-  mytft->tftUpdateClock(myClock.barTick, myClock.barTick, myClock.startOfLoop, myClock.endOfLoop);
-  if (updateTFTScreen)
-  {
-    mytft->show();
-    updateTFTScreen = false;
-    // trellis.writeDisplay();
-  }
 
   unsigned long loopEndTime = millis();
   unsigned long neotrellisCurrentMillis = millis();
@@ -396,9 +373,18 @@ void loop()
     else
     {
       mouse(2, 14);
-       mytft->tftUpdateCursor(pixelTouchX, gridTouchY, 1, STEP_FRAME_H);
+      mytft->tftUpdateCursor(pixelTouchX, gridTouchY, 1, STEP_FRAME_H);
     }
+    mytft->tftUpdate(pixelTouchX, gridTouchY);
+    mytft->tftUpdateClock(myClock.barTick, myClock.barTick, myClock.startOfLoop, myClock.endOfLoop);
   }
+  if (updateTFTScreen)
+  {
+    mytft->show();
+    updateTFTScreen = false;
+    // trellis.writeDisplay();
+  }
+  input_behaviour();
   if (loopEndTime - loopStartTime > 500 /*|| trellisCurrentMillis - trellisRestartPreviousMillis >= trellisRestartInterval*/)
   {
     trellisRestartPreviousMillis = trellisRestartMillis;
@@ -410,7 +396,6 @@ void loop()
 }
 
 // Mixer
-
 
 void set_mixer(byte row)
 {
@@ -470,10 +455,10 @@ void set_mixer_gain(byte XPos, byte YPos, const char *name, byte trackn)
       plugin_8.MixGain.gain(allTracks[trackn]->mixGain);
     if (allTracks[trackn]->parameter[SET_MIDICH_OUT] == CH_PLUGIN_9)
       plugin_9.MixGain.gain(allTracks[trackn]->mixGain);
+
     mytft->drawPot(XPos, YPos, allTracks[trackn]->mixGainPot, name);
   }
 }
-
 
 void set_mixer_FX_page1(byte row)
 {
@@ -1112,6 +1097,9 @@ void neotrellis_show()
 }
 void neotrellis_update()
 {
+  trellis_show_tft_mixer();
+  neo_trellis_select_trackClips();
+  neo_trellis_save_load();
   neotrellis_perform_set_active();
   neotrellis_show_tft_seqMode();
   neotrellis_show_tft_plugin();
@@ -1119,6 +1107,7 @@ void neotrellis_update()
   neotrellis_set_mute();
   neotrellis_set_solo();
   neotrellis_set_fast_record();
+  neo_trellis_set_brightness();
 }
 // 1st row
 void neotrellis_set_potRow()
@@ -1454,6 +1443,7 @@ void trellis_show_tft_mixer()
       activeScreen = INPUT_FUNCTIONS_FOR_MIXER1;
       mytft->clearWorkSpace();
       mytft->draw_mixer();
+      mytft->show_active_page_info("Mixer", 0);
     }
     if (trellisPressed[1])
     {
@@ -1466,7 +1456,7 @@ void trellis_show_tft_mixer()
       activeScreen = INPUT_FUNCTIONS_FOR_MIXER2;
       mytft->clearWorkSpace();
       mytft->draw_mixer_FX_page1();
-
+      mytft->show_active_page_info("FX Vol", 1);
       trellis_recall_main_buffer(TRELLIS_SCREEN_MIXER);
     }
     if (trellisPressed[2])
@@ -1480,7 +1470,7 @@ void trellis_show_tft_mixer()
       activeScreen = INPUT_FUNCTIONS_FOR_MIXER3;
       mytft->clearWorkSpace();
       mytft->draw_mixer_FX_page2();
-
+      mytft->show_active_page_info("FX Vol", 2);
       trellis_recall_main_buffer(TRELLIS_SCREEN_MIXER);
     }
     if (trellisPressed[3])
@@ -1494,6 +1484,7 @@ void trellis_show_tft_mixer()
       activeScreen = INPUT_FUNCTIONS_FOR_FX1;
       mytft->clearWorkSpace();
       fx_1.draw_plugin();
+      mytft->show_active_page_info("FX Ctrl", 1);
 
       trellis_recall_main_buffer(TRELLIS_SCREEN_MIXER);
     }
@@ -1508,6 +1499,7 @@ void trellis_show_tft_mixer()
       activeScreen = INPUT_FUNCTIONS_FOR_FX2;
       mytft->clearWorkSpace();
       fx_2.draw_plugin();
+      mytft->show_active_page_info("FX Ctrl", 2);
 
       trellis_recall_main_buffer(TRELLIS_SCREEN_MIXER);
     }
@@ -1522,6 +1514,7 @@ void trellis_show_tft_mixer()
       activeScreen = INPUT_FUNCTIONS_FOR_FX3;
       mytft->clearWorkSpace();
       fx_3.draw_plugin();
+      mytft->show_active_page_info("FX Ctrl", 3);
 
       trellis_recall_main_buffer(TRELLIS_SCREEN_MIXER);
     }
@@ -1539,6 +1532,8 @@ void trellis_show_tft_mixer()
       // activeScreen = INPUT_FUNCTIONS_FOR_FX1;
       // clearWorkSpace();
       set_perform_page(lastPotRow);
+      mytft->show_active_page_info("Perform", 0);
+
       trellis_recall_main_buffer(TRELLIS_SCREEN_PERFORM);
     }
   }
@@ -1561,6 +1556,11 @@ void trellis_play_mixer()
           trellisPressed[_nr] = false;
 
           allTracks[t]->mixGainPot = _gain[s];
+          mytft->set_infobox_background(750);
+          tft.printf("Track: %d", t);
+          mytft->set_infobox_next_line(1);
+          tft.printf("Main Vol =  %d ", _gain[s]);
+          mytft->reset_infobox_background();
           break;
         }
       }
@@ -2023,7 +2023,7 @@ void neotrellis_perform_set_active()
       {
         trellis_set_main_buffer(TRELLIS_SCREEN_PERFORM, x, y, TRELLIS_BLACK);
         // trellis.clrLED(TrellisLED[x + (y * TRELLIS_PADS_X_DIM)]);
-        //byte _nr = x + (trellisPerformIndex[x] * TRELLIS_PADS_X_DIM);
+        // byte _nr = x + (trellisPerformIndex[x] * TRELLIS_PADS_X_DIM);
         // if (trellisPressed[_nr]){
         trellis_set_main_buffer(TRELLIS_SCREEN_PERFORM, x, trellisPerformIndex[x], TRELLIS_WHITE);
         // break;}
@@ -2177,9 +2177,9 @@ void neo_trellis_select_trackClips()
 
           activeScreen = INPUT_FUNCTIONS_FOR_SEQUENCER;
           allTracks[y]->parameter[SET_CLIP2_EDIT] = x;
-          updateTFTScreen = true;
+          // updateTFTScreen = true;
           for (int i = 0; i < NUM_PARAMETERS; i++)
-          change_plugin_row = true;
+            change_plugin_row = true;
           mytft->drawStepSequencerStatic();
           mytft->draw_stepSequencer_parameters(lastPotRow);
           // allTracks[active_track]->clear_notes_in_grid();
@@ -2203,13 +2203,13 @@ void neo_trellis_select_trackClips()
           active_track = y;
           mytft->show_active_page_info("Track", active_track);
 
-          updateTFTScreen = true;
+          // updateTFTScreen = true;
           change_plugin_row = true;
           activeScreen = INPUT_FUNCTIONS_FOR_SEQUENCER;
           trellisScreen = allTracks[active_track]->parameter[SET_CLIP2_EDIT];
           // trellisScreen = 0;
           for (int i = 0; i < NUM_PARAMETERS; i++)
-          mytft->drawStepSequencerStatic();
+            mytft->drawStepSequencerStatic();
           mytft->draw_stepSequencer_parameters(lastPotRow);
           // allTracks[active_track]->clear_notes_in_grid();
           mytft->draw_notes_in_grid();
@@ -2249,7 +2249,7 @@ void trellis_setStepsequencer()
             else
               trellisNote = 1;
             trellisPressed[_nr] = false;
-            updateTFTScreen = true;
+            // updateTFTScreen = true;
             change_plugin_row = true;
             neotrellisPressed[TRELLIS_BUTTON_SEQUENCER] = false;
             allTracks[track]->set_note_on_tick(keyTick, trellisNote);
@@ -2513,6 +2513,7 @@ void trellis_writeDisplay()
 void trellis_update()
 {
   trellis_play_piano();
+  trellis_show_arranger();
   unsigned long trellisCurrentMillis = millis();
   if (trellisCurrentMillis - trellisReadPreviousMillis >= trellisReadInterval)
   {
@@ -2520,9 +2521,7 @@ void trellis_update()
     trellis_read();
     // trellis_recall_main_buffer(_trellisScreen);
     trellis_set_arranger();
-
     trellis_perform();
-
     trellis_setStepsequencer();
     trellis_play_mixer();
 
