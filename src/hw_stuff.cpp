@@ -86,6 +86,7 @@ void readEncoders()
 
         if (newEnc[i] > oldEnc[i])
         {
+           // change_plugin_row = true;
             enc_moved[i] = true;
             updateTFTScreen = true;
             encoded[i] = encMultiplier[i];
@@ -94,6 +95,7 @@ void readEncoders()
         }
         if (newEnc[i] < oldEnc[i])
         {
+          //  change_plugin_row = true;
             enc_moved[i] = true;
             updateTFTScreen = true;
             encoded[i] = -encMultiplier[i];

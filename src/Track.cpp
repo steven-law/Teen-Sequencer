@@ -231,9 +231,9 @@ void Track::play_sequencer_mode(byte cloock, byte start, byte end)
         internal_clock_is_on = false;
 
     if (external_clock_bar >= end)
-        external_clock_bar = start ;
+        external_clock_bar = start;
     if (internal_clock_bar >= end)
-        internal_clock_bar = start ;
+        internal_clock_bar = start;
     if (cloock % MAX_TICKS == 0)
         external_clock_bar++;
     if (internal_clock >= parameter[SET_SEQUENCE_LENGTH])
@@ -350,7 +350,34 @@ void Track::record_noteOff(byte Note, byte Velo, byte Channel)
     }
 }
 //---------------------------arranger stuff-------------------------------------
+void Track::set_arranger_parameters(byte lastProw)
+{
 
+    switch (lastProw)
+    {
+    case 0:
+        encoder_SetCursor(STEP_FRAME_W, 8); // Encoder: 0,1
+        set_clip_to_play(2, pixelTouchX);
+        set_note_offset(3, pixelTouchX);
+        break;
+    case 1:
+        encoder_SetCursor(STEP_FRAME_W, 8); // Encoder: 0,1
+        set_barVelocity(2, pixelTouchX);
+        // myClock.set_tempo(1);
+        // myClock.set_start_of_loop(2); // Encoder: 2
+        // myClock.set_end_of_loop(3);   // Encoder: 3
+        break;
+    case 2:
+        encoder_SetCursor(STEP_FRAME_W, 8); // Encoder: 0,1
+        set_play_presetNr_ccChannel(2, 2);
+        set_play_presetNr_ccValue(3, 2);
+        break;
+    case 3:
+    default:
+        break;
+    }
+    mytft->draw_arranger_parameters(lastProw);
+}
 void Track::change_presets()
 {
     for (int i = 0; i < 16; i++)
@@ -364,7 +391,6 @@ void Track::change_presets()
     }
     Serial.printf("Trackbar Track: %d,clip2play: %d externalbar: %d internalBar: %d\n", my_Arranger_Y_axis - 1, clip_to_play[external_clock_bar], external_clock_bar, internal_clock_bar);
 }
-// clip to play
 void Track::set_clip_to_play(byte n, byte b)
 {
     if (gridTouchY == my_Arranger_Y_axis)
@@ -375,55 +401,60 @@ void Track::set_clip_to_play(byte n, byte b)
             for (int i = 0; i < parameter[SET_STEP_DIVIVISION]; i++)
             {
                 clip_to_play[bar_to_edit + i] = constrain(clip_to_play[bar_to_edit + i] + encoded[n], 0, NUM_USER_CLIPS + 1);
-                mytft->draw_arrangment_line(n, bar_to_edit + i);
+                mytft->draw_arrangment_line(my_Arranger_Y_axis - 1, bar_to_edit + i);
             }
-            mytft->draw_clip_to_play(n, bar_to_edit);
+            updateTFTScreen = true;
+            mytft->draw_sequencer_arranger_parameter(my_Arranger_Y_axis - 1, n, "Clip", clip_to_play[bar_to_edit], "NO_NAME");
             enc_moved[n] = false;
         }
     }
 }
-byte Track::get_clip_to_play(byte when)
+void Track::set_clip_to_play_trellis(byte _bar, byte _clipNr)
 {
-    return clip_to_play[when];
-}
 
-// note offset / note transpose
-void Track::set_note_offset(byte n, int b)
+    for (int i = 0; i < parameter[SET_STEP_DIVIVISION]; i++)
+    {
+        clip_to_play[_bar + i] = _clipNr;
+        mytft->draw_arrangment_line(my_Arranger_Y_axis - 1, _bar + i);
+    }
+    updateTFTScreen = true;
+    mytft->draw_sequencer_arranger_parameter(my_Arranger_Y_axis - 1, 2, "Clip", clip_to_play[bar_to_edit], "NO_NAME");
+}
+void Track::set_note_offset(byte _encoder, int b)
 {
     if (gridTouchY == my_Arranger_Y_axis)
     {
         byte when = ((b - SEQ_GRID_LEFT) / STEP_FRAME_W) + (BARS_PER_PAGE * arrangerpage);
-        if (enc_moved[n])
+        if (enc_moved[_encoder])
         {
-            int _tempOffset = constrain(noteOffset[when] + encoded[n], -99, +99);
+            int _tempOffset = constrain(noteOffset[when] + encoded[_encoder], -99, +99);
 
-            mytft->draw_noteOffset(n, when);
             for (int i = 0; i < parameter[SET_STEP_DIVIVISION]; i++)
             {
                 noteOffset[when + i] = _tempOffset;
-                mytft->draw_arrangment_line(n, when + i);
+                mytft->draw_arrangment_line(my_Arranger_Y_axis - 1, when + i);
             }
-            enc_moved[n] = false;
+            Serial.printf("set NOteOffset: %d, when: %d\n", noteOffset[when], when);
+            updateTFTScreen = true;
+            mytft->draw_sequencer_arranger_parameter(my_Arranger_Y_axis - 1, _encoder, "Trns", noteOffset[when], "NO_NAME");
+            enc_moved[_encoder] = false;
         }
     }
 }
-
-// velocity per bar
-void Track::set_barVelocity(byte n, int b)
+void Track::set_barVelocity(byte _encoder, int b)
 {
     if (gridTouchY == my_Arranger_Y_axis)
     {
         byte when = ((b - SEQ_GRID_LEFT) / STEP_FRAME_W) + (BARS_PER_PAGE * arrangerpage);
-        if (enc_moved[n])
+        if (enc_moved[_encoder])
         {
-            barVelocity[when] = constrain(barVelocity[when] + encoded[n], 0, 127);
-            mytft->draw_barVelocity(n, when);
+            barVelocity[when] = constrain(barVelocity[when] + encoded[_encoder], 0, 127);
             for (int i = 0; i < parameter[SET_STEP_DIVIVISION]; i++)
             {
-
-                mytft->draw_arrangment_line(n, when + i);
+                mytft->draw_arrangment_line(my_Arranger_Y_axis - 1, when + i);
             }
-            enc_moved[n] = false;
+            enc_moved[_encoder] = false;
+            mytft->draw_sequencer_arranger_parameter(my_Arranger_Y_axis - 1, _encoder, "Velo", barVelocity[when], "NO_NAME");
         }
     }
 }
@@ -437,7 +468,7 @@ void Track::set_play_presetNr_ccChannel(byte n, byte lastProw)
         Serial.printf("cc-Set: %d, vl-set: %d, bar: %d\n", play_presetNr_ccChannel[bar_to_edit], play_presetNr_ccValue[bar_to_edit], bar_to_edit);
         change_plugin_row = true;
         // draw_MIDI_CC_screen();
-        mytft->draw_play_presetNr_ccChannel(n, lastProw);
+        mytft->draw_sequencer_arranger_parameter(my_Arranger_Y_axis - 1, n, "ccC", play_presetNr_ccChannel[bar_to_edit], "NO_NAME");
         enc_moved[n] = false;
     }
 }
@@ -449,11 +480,11 @@ void Track::set_play_presetNr_ccValue(byte n, byte lastProw)
         Serial.printf("cc-Set: %d, vl-set: %d, bar: %d\n", play_presetNr_ccChannel[bar_to_edit], play_presetNr_ccValue[bar_to_edit], bar_to_edit);
         change_plugin_row = true;
         // draw_MIDI_CC_screen();
-        mytft->draw_play_presetNr_ccValue(n, lastProw);
+        mytft->draw_sequencer_arranger_parameter(my_Arranger_Y_axis - 1, n, "ccC", play_presetNr_ccValue[bar_to_edit], "NO_NAME");
+
         enc_moved[n] = false;
     }
 }
-
 
 Track track1(&tft, 1);
 Track track2(&tft, 2);

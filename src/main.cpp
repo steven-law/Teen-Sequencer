@@ -190,7 +190,24 @@ void setup()
   {
   }
   //   put your setup code here, to run once:
-  mytft->tft_setup(100);
+  Serial.begin(15200);  // set MIDI baud
+  //initialize the TFT- and Touchscreen
+  tft.begin();
+  tft.setRotation(3);
+  //ts.begin();
+  //ts.setRotation(1);
+  //tft.setFrameBuffer(fb1);
+  //tft.useFrameBuffer(true);
+  while (!Serial && (millis() <= 1000))
+    ;
+  tft.fillScreen(ILI9341_BLACK);  //Xmin, Ymin, Xlength, Ylength, color
+  tft.setTextColor(ILI9341_WHITE);
+  tft.setFont(Arial_8);
+  tft.setCursor(0, 3);
+  Serial.println("Initializing Touchscreen...");
+  tft.println("Initializing Touchscreen...");
+  //tft.updateScreen();
+  delay(100);
   encoder_setup(100);
   delay(1500);
   midi_setup(100);
@@ -344,9 +361,9 @@ void loop()
     delay(0);
   }
   neotrellis_set_control_buffer(3, 1, TRELLIS_BLACK);
-  
 
   neotrellis_update();
+  input_behaviour();
   for (int i = 0; i < NUM_TRACKS; i++)
   {
     allTracks[i]->update(pixelTouchX, gridTouchY);
@@ -384,7 +401,7 @@ void loop()
     updateTFTScreen = false;
     // trellis.writeDisplay();
   }
-  input_behaviour();
+
   if (loopEndTime - loopStartTime > 500 /*|| trellisCurrentMillis - trellisRestartPreviousMillis >= trellisRestartInterval*/)
   {
     trellisRestartPreviousMillis = trellisRestartMillis;
@@ -925,7 +942,7 @@ TrellisCallback blink(keyEvent evt)
   {
     neotrellisPressed[evt.bit.NUM] = true;
     updateTFTScreen = true;
-    // change_plugin_row = true;
+    change_plugin_row = true;
   }
   else if (evt.bit.EDGE == SEESAW_KEYPAD_EDGE_FALLING)
   {
@@ -1385,29 +1402,76 @@ void trellis_set_arranger()
   {
     if (!neotrellisPressed[TRELLIS_BUTTON_RECORD])
     {
-      for (int x = 0; x < TRELLIS_PADS_X_DIM; x++)
+      for (int t = 0; t < NUM_TRACKS; t++)
       {
-        for (int y = 0; y < TRELLIS_PADS_Y_DIM; y++)
+        if (neotrellisPressed[3 + (X_DIM * (t + 4))])
         {
-          byte _key = x + (y * TRELLIS_PADS_X_DIM);
-          byte _clipPos = _key % TRELLIS_PADS_X_DIM;
-          byte _track = _key / TRELLIS_PADS_X_DIM;
-          byte _clipNr = gridTouchY;
-          byte _clipTrack = _clipPos + (arrangerpage * 16);
-          if (_clipPos < 16)
+          // if (temporaryTrellis)
           {
-            if (trellisPressed[_key])
+
+            trellis.clear();
+            Serial.printf("set trellis arranger neotrellis pressed\n");
+            for (int x = 0; x < TRELLIS_PADS_X_DIM; x++)
             {
-              trellisPressed[_key] = false;
-              change_plugin_row = true;
-              if (activeScreen >= INPUT_FUNCTIONS_FOR_ARRANGER)
+              byte _nr = x + (allTracks[t]->clip_to_play[x + (arrangerpage * 16)] * TRELLIS_PADS_X_DIM);
+              trellis.setLED(TrellisLED[_nr]);
+            }
+            trellis.writeDisplay();
+          }
+          for (int x = 0; x < TRELLIS_PADS_X_DIM; x++)
+          {
+            for (int y = 0; y < TRELLIS_PADS_Y_DIM; y++)
+            {
+              byte _key = x + (y * TRELLIS_PADS_X_DIM);
+              // pixelTouchX = (_key % TRELLIS_PADS_X_DIM)*16+32;
+
+              if (trellisPressed[_key])
               {
+                trellisScreen = arrangerpage + TRELLIS_SCREEN_ARRANGER_1;
+                trellis.clear();
+                trellis_recall_main_buffer(trellisScreen);
+                trellis.writeDisplay();
+
+                byte _clipPos = x;
+                byte _track = t;
+                byte _clipNr = y;
+                byte _bar = _clipPos + (arrangerpage * 16);
+                neotrellisPressed[3 + (X_DIM * (t + 4))] = false;
+                trellisPressed[_key] = false;
+                change_plugin_row = true;
+                Serial.printf("Set trellis arranger track: %d, bar: %d, clipNr: %d\n", _track, _bar, _clipNr);
                 for (int i = 0; i < allTracks[_track]->parameter[SET_STEP_DIVIVISION]; i++)
                 {
-                  allTracks[_track]->clip_to_play[_clipTrack + i] = _clipNr;
-                  mytft->draw_clip_to_play(3, _clipTrack + i);
-                  mytft->draw_arrangment_line(3, _clipTrack + i);
-                  // trellis_set_main_buffer(arrangerpage + TRELLIS_SCREEN_ARRANGER_1, _clipPos + i, _track, _color);
+                  allTracks[_track]->set_clip_to_play_trellis(_bar, _clipNr);
+                }
+                break;
+              }
+            }
+          }
+        }
+        else
+        {
+          for (int x = 0; x < TRELLIS_PADS_X_DIM; x++)
+          {
+            for (int y = 0; y < TRELLIS_PADS_Y_DIM; y++)
+            {
+              byte _key = x + (y * TRELLIS_PADS_X_DIM);
+              // pixelTouchX = (_key % TRELLIS_PADS_X_DIM)*16+32;
+
+              if (trellisPressed[_key])
+              {
+
+                byte _clipPos = x;
+                byte _track = t;
+                byte _clipNr = gridTouchY;
+                byte _bar = _clipPos + (arrangerpage * 16);
+                neotrellisPressed[3 + (X_DIM * (t + 4))] = false;
+                trellisPressed[_key] = false;
+                change_plugin_row = true;
+                Serial.printf("Set trellis arranger track: %d, bar: %d, clipNr: %d\n", _track, _bar, _clipNr);
+                for (int i = 0; i < allTracks[_track]->parameter[SET_STEP_DIVIVISION]; i++)
+                {
+                  allTracks[_track]->set_clip_to_play_trellis(_bar, _clipNr);
                 }
               }
             }
@@ -2182,7 +2246,6 @@ void neo_trellis_select_trackClips()
             change_plugin_row = true;
           mytft->drawStepSequencerStatic();
           mytft->draw_stepSequencer_parameters(lastPotRow);
-          // allTracks[active_track]->clear_notes_in_grid();
           mytft->draw_notes_in_grid();
           neotrellis_set_control_buffer(3, 3, trellisTrackColor[active_track]);
 
@@ -2207,11 +2270,9 @@ void neo_trellis_select_trackClips()
           change_plugin_row = true;
           activeScreen = INPUT_FUNCTIONS_FOR_SEQUENCER;
           trellisScreen = allTracks[active_track]->parameter[SET_CLIP2_EDIT];
-          // trellisScreen = 0;
           for (int i = 0; i < NUM_PARAMETERS; i++)
             mytft->drawStepSequencerStatic();
           mytft->draw_stepSequencer_parameters(lastPotRow);
-          // allTracks[active_track]->clear_notes_in_grid();
           mytft->draw_notes_in_grid();
           neotrellis_set_control_buffer(3, 3, trellisTrackColor[active_track]);
           trellis_recall_main_buffer(trellisScreen);
@@ -2485,7 +2546,7 @@ void trellis_read()
         }
 
         updateTFTScreen = true;
-
+        // change_plugin_row = true;
         trellisPressed[_nr] = true;
         Serial.print("nr");
         Serial.println(_nr);

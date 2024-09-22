@@ -23,9 +23,6 @@ void neotrellis_stop_clock();
 void neotrellis_set_potRow();
 void neotrellis_SetCursor(byte maxY);
 
-
-
-
 void encoder_SetCursor(byte deltaX, byte maxY)
 
 {
@@ -33,12 +30,16 @@ void encoder_SetCursor(byte deltaX, byte maxY)
     if (enc_moved[0])
     {
         pixelTouchX = constrain(pixelTouchX + encoded[0] * deltaX, 0, 304);
+       // mytft->draw_sequencer_arranger_parameter(gridTouchY - 1, 0, "Bar", pixelTouchX / 16 - 2, "NO_NAME");
+
         // Serial.printf("encoder: %d + deltaX: %d = pixelTouchX %d\n", encoded[0], deltaX, pixelTouchX);
         // enc_moved[0] = false;
     }
     if (enc_moved[1])
     {
         gridTouchY = constrain(gridTouchY + encoded[1], 0, maxY);
+       // mytft->draw_sequencer_arranger_parameter(gridTouchY - 1, 1, "Track", gridTouchY - 1, "NO_NAME");
+
         // enc_moved[1] = false;
     }
 }
@@ -62,7 +63,7 @@ void input_behaviour()
     // if we are in one of the sequencer pages
     if (activeScreen == INPUT_FUNCTIONS_FOR_SEQUENCER)
     {
-       
+
         neotrellis_SetCursor(14);
 
         if (neotrellisPressed[TRELLIS_POTROW])
@@ -76,36 +77,22 @@ void input_behaviour()
     // if we are in one of the Arrangerpages
     if (activeScreen == INPUT_FUNCTIONS_FOR_ARRANGER)
     {
-        if (neotrellisPressed[TRELLIS_POTROW])
-        {
-            change_plugin_row = true;
-            mytft->draw_arranger_parameters(lastPotRow);
-            neotrellisPressed[TRELLIS_POTROW] = false;
-        }
 
         neotrellis_SetCursor(8);
 
-        switch (lastPotRow)
+        allTracks[gridTouchY - 1]->set_arranger_parameters(lastPotRow);
+        if (neotrellisPressed[TRELLIS_POTROW])
         {
-        case 0:
-            // gridTouchY = 0;
-            encoder_SetCursor(STEP_FRAME_W, 8); // Encoder: 0,1
-            allTracks[gridTouchY - 1]->set_clip_to_play(2, pixelTouchX);
-            allTracks[gridTouchY - 1]->set_note_offset(3, pixelTouchX);
-            break;
-        case 1:
-            allTracks[gridTouchY - 1]->set_barVelocity(0, pixelTouchX);
+            mytft->draw_arranger_parameters(lastPotRow);
+            neotrellisPressed[TRELLIS_POTROW] = false;
+        }
+      
+            
+        if (lastPotRow == 3)
+        {
             myClock.set_tempo(1);
             myClock.set_start_of_loop(2); // Encoder: 2
             myClock.set_end_of_loop(3);   // Encoder: 3
-            break;
-        case 2:
-            allTracks[gridTouchY - 1]->set_play_presetNr_ccChannel(2, 2);
-            allTracks[gridTouchY - 1]->set_play_presetNr_ccValue(3, 2);
-            break;
-        case 3:
-        default:
-            break;
         }
     }
     if (activeScreen == INPUT_FUNCTIONS_FOR_SEQUENCER_MODES)
@@ -144,9 +131,6 @@ void input_behaviour()
         fx_1.set_parameters(lastPotRow);
     if (activeScreen == INPUT_FUNCTIONS_FOR_FX2)
         fx_2.set_parameters(lastPotRow);
-    //if (activeScreen == INPUT_FUNCTIONS_FOR_PERFORM)
-       // trellisMain->set_perform_page(lastPotRow);
+    // if (activeScreen == INPUT_FUNCTIONS_FOR_PERFORM)
+    //  trellisMain->set_perform_page(lastPotRow);
 }
-
-
-

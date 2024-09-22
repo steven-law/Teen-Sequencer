@@ -73,7 +73,7 @@ public:
     void set_infobox_background(int _DisplayTime);
     void reset_infobox_background();
     void set_infobox_next_line(byte _lineNumber); //_lineNumber must be bigger 0
-
+    void draw_sequencer_arranger_parameter(byte _track, byte _encoder, const char *_name, int _value, const char *_valuedName);
     // cursor
     void tftUpdateCursor(int X, int Y, int dX, int dY);
     void moveCursor();
@@ -84,16 +84,11 @@ public:
     // songmode
     void gridSongMode(int songpageNumber);
     void drawsongmodepageselector();
-    void draw_clip_to_play(byte n, byte b);
-    void draw_arrangment_line(byte _trackNr, byte _bar); // b= 0-255; which bar
-    void draw_arrangment_lines(byte n, byte b);
     void draw_arranger_parameters(byte lastProw);
-    void draw_clipNr_arranger(byte n, byte b);
-    void draw_noteOffset(byte n, int b);
-    void draw_offset_arranger(byte n, byte b);
-    void draw_barVelocity(byte n, int b);
-    void draw_play_presetNr_ccChannel(byte n, byte lastProw);
-    void draw_play_presetNr_ccValue(byte n, byte lastProw);
+    void draw_arrangment_line(byte _trackNr, byte _bar); // b= 0-255; which bar
+    void draw_arrangment_lines(byte _track, byte _page);
+    void draw_clipNr_arranger(byte _trackNr, byte _bar);
+    void draw_offset_arranger(byte _trackNr, byte _bar);
 
     // stepsequencer
     void drawStepSequencerStatic();
@@ -102,16 +97,14 @@ public:
     void drawOctaveTriangle();
     void draw_Clipselector();
     void draw_note_on_tick(byte _note, byte _when);
-    void clear_notes_in_grid();
-
     void draw_notes_in_grid();
+
     void draw_MIDI_CC_screen();
     void draw_MIDI_CC(byte XPos, byte YPos);
     void draw_stepSequencer_parameter_value(byte lastPRow, byte XPos, byte YPos, byte value, const char *name);
     void draw_stepSequencer_parameter_text(byte lastPRow, byte XPos, byte YPos, const char *text, const char *name);
     void draw_edit_presetNr_ccChannel(byte n, byte lastProw);
     void draw_edit_presetNr_ccValue(byte n, byte lastProw);
-
 
     // mixer
     void draw_mixer();
@@ -120,16 +113,17 @@ public:
     bool updateClock;
 
 private:
-
     ILI9341_t3n *tft; // Pointer to the display object
     int pixelOnX;
     int pixelOnY;
-       uint16_t tftRAM[16][16];
+    uint16_t tftRAM[16][16];
     byte cursorDeltaX;
     byte cursorDeltaY;
 
     byte cursorOnTick;
     byte cursorOnNote;
+    byte cursorOnBar;
+    byte cursorOnTrack;
     const int encoder_colour[NUM_ENCODERS] = {ILI9341_BLUE, ILI9341_RED, ILI9341_GREEN, ILI9341_WHITE};
     unsigned long infoboxTimeAtCall = 0;
     unsigned long infoboxTimeAtPress = 0;

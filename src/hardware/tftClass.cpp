@@ -36,8 +36,13 @@ void tftClass::tftUpdate(int _pixelOnX, int _pixelOnY)
     pixelOnY = _pixelOnY;
     if (activeScreen == INPUT_FUNCTIONS_FOR_SEQUENCER)
     {
-        cursorOnTick = pixelOnX / 2 - SEQ_GRID_LEFT;
+        cursorOnTick = (pixelOnX -SEQ_GRID_LEFT)/ 2 ;
         cursorOnNote = pixelOnY - 1;
+    }
+    if (activeScreen == INPUT_FUNCTIONS_FOR_SEQUENCER)
+    {
+        cursorOnBar = pixelOnX / 16 - SEQ_GRID_LEFT;
+        cursorOnTrack = pixelOnY - 1;
     }
 }
 void tftClass::tftUpdateClock(byte _currentTick, byte _currentBar, byte _startLoop, byte _endLoop)
@@ -256,9 +261,9 @@ void tftClass::draw_value_box(byte lastPRow, byte XPos, byte YPos, byte offest_X
     byte yPos = YPos * STEP_FRAME_H;
 
     tft->setFont(Arial_8);
-    tft->setTextColor(ILI9341_DARKGREY);
-    tft->setCursor(xPos + offest_X, yPos + offset_Y);
-    tft->fillRect(xPos, yPos + offset_Y, _size * STEP_FRAME_W + offest_X, STEP_FRAME_H + offset_Y, ILI9341_DARKGREY);
+    // tft->setTextColor(ILI9341_DARKGREY);
+    // tft->setCursor(xPos + offest_X, yPos + offset_Y);
+    tft->fillRect(xPos, yPos + offset_Y, _size * STEP_FRAME_W + offest_X, STEP_FRAME_H, ILI9341_DARKGREY);
     // tft->print(old_value[index]);
     if (lastPotRow != lastPRow)
         color = ILI9341_LIGHTGREY;
@@ -273,7 +278,7 @@ void tftClass::draw_value_box(byte lastPRow, byte XPos, byte YPos, byte offest_X
         tft->print(name);
     if (_value != NO_VALUE)
         tft->print(_value);
-   // tft->updateScreenAsync();
+    // tft->updateScreenAsync();
 }
 
 void tftClass::show_active_page_info(const char *_pagename, byte _pagenumber)
@@ -319,6 +324,16 @@ void tftClass::reset_infobox_background()
         change_plugin_row = true;
     }
 }
+void tftClass::draw_sequencer_arranger_parameter(byte _track, byte _encoder, const char *_name, int _value, const char *_valuedName)
+{
+    Serial.println("drawing seq-Arr parameter");
+    byte _ypos = _encoder * 2;
+    draw_value_box(0, SEQUENCER_OPTIONS_VERY_RIGHT, (_ypos) + 5, 4, 4, NO_VALUE, _name, encoder_colour[_encoder], 2, false, false);
+    draw_value_box(0, SEQUENCER_OPTIONS_VERY_RIGHT, (_ypos) + 6, 4, 4, _value, NO_NAME, encoder_colour[_encoder], 2, true, false);
+    if (_valuedName != "NO_NAME")
+        draw_value_box(0, SEQUENCER_OPTIONS_VERY_RIGHT, (_ypos) + 6, 4, 4, NO_VALUE, _valuedName, encoder_colour[_encoder], 2, true, false);
+}
+
 // cursor
 void tftClass::tftUpdateCursor(int X, int Y, int dX, int dY)
 {
@@ -439,17 +454,17 @@ void tftClass::gridSongMode(int songpageNumber)
         }
     }
     for (int i = 0; i < NUM_TRACKS; i++)
-        draw_arrangment_lines(3, songpageNumber);
+        draw_arrangment_lines(i, songpageNumber);
     change_plugin_row = true;
     draw_arranger_parameters(lastPotRow);
 
     show_active_page_info("Song:", songpageNumber);
 }
-void tftClass::draw_arrangment_lines(byte n, byte b) // b= active page
+void tftClass::draw_arrangment_lines(byte _track, byte _page) // b= active page
 {
     for (int i = 0; i < 16; i++)
     {
-        draw_arrangment_line(n, i + (BARS_PER_PAGE * (b - SONGMODE_PAGE_1)));
+        draw_arrangment_line(_track, i + (BARS_PER_PAGE * (_page - SONGMODE_PAGE_1)));
         // Serial.printf("active page = %d, which bar = %d\n", b, i + (16 * (b - SONGMODE_PAGE_1)));
     }
 }
@@ -457,27 +472,33 @@ void tftClass::draw_arrangment_line(byte _trackNr, byte _bar) // b= 0-255; which
 {
 
     int minY = map(allTracks[_trackNr]->barVelocity[_bar], 0, 127, 0, 10);
-
+    int _color;
+    int _trelliscolor;
     if (allTracks[_trackNr]->clip_to_play[_bar] == MAX_CLIPS - 1)
     {
-        for (int thickness = -10; thickness < 10; thickness++)
-        {
-            tft->drawFastHLine(((_bar - (16 * arrangerpage)) * STEP_FRAME_W + STEP_FRAME_W * 2) + 1, ((allTracks[_trackNr]->my_Arranger_Y_axis) * TRACK_FRAME_H + thickness) + 12, STEP_FRAME_W - 1, ILI9341_DARKGREY); //(x-start, y, length, color)
-        }
-        trellis_set_main_buffer(arrangerpage + TRELLIS_SCREEN_ARRANGER_1, (_bar % 16), allTracks[_trackNr]->my_Arranger_Y_axis - 1, TRELLIS_BLACK);
+        _color = ILI9341_DARKGREY;
+        _trelliscolor = TRELLIS_BLACK;
     }
     else
     {
         // for other clips
-        for (int thickness = -minY; thickness < minY; thickness++)
-        {
-            tft->drawFastHLine(((_bar - (16 * arrangerpage)) * STEP_FRAME_W + STEP_FRAME_W * 2) + 1, ((allTracks[_trackNr]->my_Arranger_Y_axis) * TRACK_FRAME_H + thickness) + 12, STEP_FRAME_W - 1, trackColor[allTracks[_trackNr]->my_Arranger_Y_axis - 1] + (allTracks[active_track]->clip_to_play[_bar] * 20)); //(x-start, y, length, color)
-        }
-        trellis_set_main_buffer(arrangerpage + TRELLIS_SCREEN_ARRANGER_1, (_bar % 16), allTracks[_trackNr]->my_Arranger_Y_axis - 1, trellisTrackColor[allTracks[_trackNr]->my_Arranger_Y_axis - 1] + (allTracks[_trackNr]->clip_to_play[_bar] * 20));
-
+        _color = trackColor[allTracks[_trackNr]->my_Arranger_Y_axis - 1] + (allTracks[active_track]->clip_to_play[_bar] * 20);
+        _trelliscolor = trellisTrackColor[allTracks[_trackNr]->my_Arranger_Y_axis - 1] + (allTracks[_trackNr]->clip_to_play[_bar] * 20);
+    }
+    for (int thickness = -10; thickness < 10; thickness++)
+    {
+        tft->drawFastHLine(((_bar - (16 * arrangerpage)) * STEP_FRAME_W + STEP_FRAME_W * 2) + 1, ((allTracks[_trackNr]->my_Arranger_Y_axis) * TRACK_FRAME_H + thickness) + 12, STEP_FRAME_W - 1, ILI9341_DARKGREY); //(x-start, y, length, color)
+    }
+    for (int thickness = -minY; thickness < minY; thickness++)
+    {
+        tft->drawFastHLine(((_bar - (16 * arrangerpage)) * STEP_FRAME_W + STEP_FRAME_W * 2) + 1, ((allTracks[_trackNr]->my_Arranger_Y_axis) * TRACK_FRAME_H + thickness) + 12, STEP_FRAME_W - 1, _color); //(x-start, y, length, color)
+    }
+    if (allTracks[_trackNr]->clip_to_play[_bar] < MAX_CLIPS - 1)
+    {
         draw_clipNr_arranger(_trackNr, _bar);
         draw_offset_arranger(_trackNr, _bar);
     }
+    trellis_set_main_buffer(arrangerpage + TRELLIS_SCREEN_ARRANGER_1, (_bar % 16), allTracks[_trackNr]->my_Arranger_Y_axis - 1, _trelliscolor);
 }
 
 void tftClass::draw_arranger_parameters(byte lastProw)
@@ -488,32 +509,30 @@ void tftClass::draw_arranger_parameters(byte lastProw)
         change_plugin_row = false;
         if (lastProw == 0)
         {
-            draw_clip_to_play(2, 0);
-            draw_noteOffset(3, 0);
+            draw_sequencer_arranger_parameter(cursorOnTrack, 0, "Bar", cursorOnBar, "NO_NAME");
+            draw_sequencer_arranger_parameter(cursorOnTrack, 1, "Track", cursorOnTrack, "NO_NAME");
+            draw_sequencer_arranger_parameter(cursorOnTrack, 2, "Clip", allTracks[cursorOnTrack]->clip_to_play[cursorOnBar], "NO_NAME");
+            draw_sequencer_arranger_parameter(cursorOnTrack, 3, "Trns", allTracks[cursorOnTrack]->noteOffset[cursorOnBar], "NO_NAME");
+
             // drawOctaveNumber();
             // draw_velocity(3, 0);
         }
         if (lastProw == 1)
         {
-            draw_barVelocity(0, 1);
+            draw_sequencer_arranger_parameter(cursorOnTrack, 0, "Bar", cursorOnBar, "NO_NAME");
+            draw_sequencer_arranger_parameter(cursorOnTrack, 1, "Track", cursorOnTrack, "NO_NAME");
+            draw_sequencer_arranger_parameter(cursorOnTrack, 2, "Velo", allTracks[cursorOnTrack]->barVelocity[cursorOnBar], "NO_NAME");
         }
         if (lastProw == 2)
         {
-            // draw_barVelocity(0, 1);
-            draw_play_presetNr_ccChannel(2, 2);
-            draw_play_presetNr_ccValue(3, 2);
-            // drawOctaveNumber();
-            // draw_velocity(3, 0);
+            draw_sequencer_arranger_parameter(cursorOnTrack, 0, "Bar", cursorOnBar, "NO_NAME");
+            draw_sequencer_arranger_parameter(cursorOnTrack, 1, "Track", cursorOnTrack, "NO_NAME");
+            draw_sequencer_arranger_parameter(cursorOnTrack, 2, "ccC", allTracks[cursorOnTrack]->play_presetNr_ccChannel[cursorOnBar], "NO_NAME");
+            draw_sequencer_arranger_parameter(cursorOnTrack, 3, "ccV", allTracks[cursorOnTrack]->play_presetNr_ccValue[cursorOnBar], "NO_NAME");
         }
     }
 }
-void tftClass::draw_clip_to_play(byte _trackNr, byte _bar)
-{
-    draw_value_box(0, SEQUENCER_OPTIONS_VERY_RIGHT, (2 * 2) + 5, 0, 4, NO_VALUE, "Clip", encoder_colour[_trackNr], 2, false, false);
-    draw_value_box(0, SEQUENCER_OPTIONS_VERY_RIGHT, (2 * 2) + 5, 0, 4, allTracks[_trackNr]->clip_to_play[_bar], NO_NAME, encoder_colour[_trackNr], 2, true, false);
 
-    // draw_sequencer_option(SEQUENCER_OPTIONS_VERY_RIGHT, "clNr", clip_to_play[b], n, 0);
-}
 void tftClass::draw_offset_arranger(byte _trackNr, byte _bar)
 {
     int xoffset;
@@ -524,7 +543,7 @@ void tftClass::draw_offset_arranger(byte _trackNr, byte _bar)
     // draw clipnumber in the arranger
     tft->setFont(Arial_8);
     tft->setTextColor(ILI9341_BLACK);
-    tft->setCursor((_bar - (16 * arrangerpage)) * STEP_FRAME_W + STEP_FRAME_W * 2 + xoffset, (_trackNr)*TRACK_FRAME_H + 11);
+    tft->setCursor((_bar - (16 * arrangerpage)) * STEP_FRAME_W + STEP_FRAME_W * 2 + xoffset, (allTracks[_trackNr]->my_Arranger_Y_axis) * TRACK_FRAME_H + 11);
     tft->print(allTracks[_trackNr]->noteOffset[_bar]);
 }
 void tftClass::draw_clipNr_arranger(byte _trackNr, byte _bar)
@@ -534,31 +553,6 @@ void tftClass::draw_clipNr_arranger(byte _trackNr, byte _bar)
     tft->setTextColor(ILI9341_BLACK);
     tft->setCursor((_bar - (16 * arrangerpage)) * STEP_FRAME_W + STEP_FRAME_W * 2 + 2, (allTracks[_trackNr]->my_Arranger_Y_axis) * TRACK_FRAME_H + 6);
     tft->print(allTracks[_trackNr]->clip_to_play[_bar]);
-}
-void tftClass::draw_play_presetNr_ccValue(byte _trackNr, byte lastProw)
-{
-    draw_value_box(3, SEQUENCER_OPTIONS_VERY_RIGHT, (3 * 2) + 5, 0, 4, NO_VALUE, "vl-Set", encoder_colour[_trackNr], 2, false, false);
-    draw_value_box(3, SEQUENCER_OPTIONS_VERY_RIGHT, (3 * 2) + 6, 0, 4, allTracks[_trackNr]->play_presetNr_ccValue[allTracks[_trackNr]->bar_to_edit], NO_NAME, encoder_colour[_trackNr], 2, true, false);
-}
-void tftClass::draw_play_presetNr_ccChannel(byte _trackNr, byte lastProw)
-{
-    draw_value_box(3, SEQUENCER_OPTIONS_VERY_RIGHT, (2 * 2) + 5, 0, 4, NO_VALUE, "cc-Set", encoder_colour[_trackNr], 2, false, false);
-    draw_value_box(3, SEQUENCER_OPTIONS_VERY_RIGHT, (2 * 2) + 6, 0, 4, allTracks[_trackNr]->play_presetNr_ccChannel[allTracks[_trackNr]->bar_to_edit], NO_NAME, encoder_colour[_trackNr], 2, true, false);
-}
-void tftClass::draw_barVelocity(byte _trackNr, int _bar)
-{
-
-    draw_value_box(1, SEQUENCER_OPTIONS_VERY_RIGHT, (0 * 2) + 5, 0, 4, NO_VALUE, "Velo", encoder_colour[_trackNr], 2, false, false);
-    draw_value_box(1, SEQUENCER_OPTIONS_VERY_RIGHT, (0 * 2) + 6, 0, 4, allTracks[_trackNr]->barVelocity[_bar], NO_NAME, encoder_colour[_trackNr], 2, true, false);
-
-    // draw_sequencer_option(SEQUENCER_OPTIONS_VERY_RIGHT, "ofSet", noteOffset[b], n, 0);
-}
-void tftClass::draw_noteOffset(byte _trackNr, int _bar)
-{
-    draw_value_box(0, SEQUENCER_OPTIONS_VERY_RIGHT, (3 * 2) + 5, 0, 4, NO_VALUE, "Trns", encoder_colour[_trackNr], 2, false, false);
-    draw_value_box(0, SEQUENCER_OPTIONS_VERY_RIGHT, (3 * 2) + 6, 0, 4, allTracks[_trackNr]->noteOffset[_bar], NO_NAME, encoder_colour[_trackNr], 2, true, false);
-
-    // draw_sequencer_option(SEQUENCER_OPTIONS_VERY_RIGHT, "ofSet", noteOffset[b], n, 0);
 }
 
 // stepsequncer
@@ -635,33 +629,31 @@ void tftClass::draw_note_on_tick(byte _note, byte _when)
         byte Note = _note % NOTES_PER_OCTAVE;
 
         // Serial.printf("draw velocity: %d tick: %d for note: %d on voice: %d\n", velo, dr_X, note, i);
-        byte note = allTracks[active_track]->clip[allTracks[active_track]->parameter[SET_CLIP2_EDIT]].tick[_when].voice[Note];
-        byte velo = allTracks[active_track]->clip[allTracks[active_track]->parameter[SET_CLIP2_EDIT]].tick[_when].velo[Note];
+        byte note = allTracks[active_track]->clip[allTracks[active_track]->parameter[SET_CLIP2_EDIT]].tick[_when].voice[_note];
+        byte velo = allTracks[active_track]->clip[allTracks[active_track]->parameter[SET_CLIP2_EDIT]].tick[_when].velo[_note];
         if (note == NO_NOTE)
             _color = ILI9341_DARKGREY;
         else
             _color = trackColor[active_track] + (allTracks[active_track]->parameter[SET_CLIP2_EDIT] * 20);
-        if (note >= allTracks[active_track]->parameter[SET_OCTAVE] * NOTES_PER_OCTAVE && note < (allTracks[active_track]->parameter[SET_OCTAVE] + 1) * NOTES_PER_OCTAVE)
+        if ((note >= allTracks[active_track]->parameter[SET_OCTAVE] * NOTES_PER_OCTAVE && note < (allTracks[active_track]->parameter[SET_OCTAVE] + 1) * NOTES_PER_OCTAVE) || note == NO_NOTE)
         {
-            Serial.printf("set _note: %d Note: %d, note: %d \n", _note, Note, note);
+            Serial.printf("set _note: %d when: %d, color: %d \n", _note, _when, _color);
             int minY = map(velo, 0, 127, 0, 4);
             int maxY = map(velo, 0, 127, 0, 5);
             for (int w = -minY; w < maxY; w++)
             {
-                tft->drawPixel((_when * 2) + 32, ((Note + 1) * STEP_FRAME_H) + w + 8, _color);
-                tft->drawPixel((_when * 2) + 32 + 1, ((Note + 1) * STEP_FRAME_H) + w + 8, _color);
+                tft->drawPixel((_when * 2) + 32, ((_note + 1) * STEP_FRAME_H) + w + 8, _color);
+                tft->drawPixel((_when * 2) + 32 + 1, ((_note + 1) * STEP_FRAME_H) + w + 8, _color);
             }
         }
     }
 }
 void tftClass::draw_notes_in_grid()
 {
-    // clear_notes_in_grid();
     for (int i = 0; i < MAX_TICKS; i++)
     {
         for (int v = 0; v < MAX_VOICES; v++)
         {
-            // clear_notes_on_tick(i);
             draw_note_on_tick(v, i);
         }
     }
@@ -674,7 +666,7 @@ void tftClass::draw_stepSequencer_parameter_text(byte lastPRow, byte XPos, byte 
     Serial.printf("Drawing text at index %d, name %s, text %s\n", index, name, text);
     draw_value_box(lastPRow, SEQUENCER_OPTIONS_VERY_RIGHT, (XPos * 2) + 5, 0, 4, NO_VALUE, name, encoder_colour[XPos], 2, false, false);
     draw_value_box(lastPRow, SEQUENCER_OPTIONS_VERY_RIGHT, (XPos * 2) + 6, 4, 4, NO_VALUE, text, encoder_colour[XPos], 2, true, false);
-change_plugin_row=true;
+    change_plugin_row = true;
     // draw_Text(XPos, YPos, SEQUENCER_OPTIONS_VERY_RIGHT, (XPos * 2) + 6, 4, 4, text, encoder_colour[XPos], true, false);
 }
 void tftClass::draw_stepSequencer_parameter_value(byte lastPRow, byte XPos, byte YPos, byte value, const char *name)
@@ -691,23 +683,37 @@ void tftClass::draw_stepSequencer_parameters(byte lastProw)
         change_plugin_row = false;
         if (lastProw == 0)
         {
-            draw_stepSequencer_parameter_value(0, 0, 0, allTracks[active_track]->parameter[0], "Tick");
-            draw_stepSequencer_parameter_value(0, 1, 0, allTracks[active_track]->parameter[1], "Note");
-            draw_stepSequencer_parameter_value(0, 2, 0, allTracks[active_track]->parameter[2], CCnames[allTracks[active_track]->parameter[2]]);
-            draw_stepSequencer_parameter_value(0, 3, 0, allTracks[active_track]->parameter[3], "Velo");
+            draw_sequencer_arranger_parameter(active_track, 0, "Tick", allTracks[active_track]->parameter[0], NO_NAME);
+            draw_sequencer_arranger_parameter(active_track, 1, "Note", allTracks[active_track]->parameter[1]+ (allTracks[active_track]->parameter[SET_OCTAVE]*12), NO_NAME);
+            draw_sequencer_arranger_parameter(active_track, 2, CCnames[allTracks[active_track]->parameter[2]], allTracks[active_track]->parameter[2], NO_NAME);
+            draw_sequencer_arranger_parameter(active_track, 3, "Velo", allTracks[active_track]->parameter[3], NO_NAME);
+            // draw_stepSequencer_parameter_value(0, 0, 0, allTracks[active_track]->parameter[0], "Tick");
+            // draw_stepSequencer_parameter_value(0, 1, 0, allTracks[active_track]->parameter[1], "Note");
+            //  draw_stepSequencer_parameter_value(0, 2, 0, allTracks[active_track]->parameter[2], CCnames[allTracks[active_track]->parameter[2]]);
+            //  draw_stepSequencer_parameter_value(0, 3, 0, allTracks[active_track]->parameter[3], "Velo");
         }
         if (lastProw == 1)
         {
-            draw_stepSequencer_parameter_value(1, ENCODER_SEQUENCE_LENGTH, 1, allTracks[active_track]->parameter[4], "seqL");
-            draw_stepSequencer_parameter_value(1, ENCODER_STEP_DIVISION, 1, allTracks[active_track]->parameter[5], "sDiv");
-            draw_stepSequencer_parameter_value(1, ENCODER_STEP_LENGTH, 1, allTracks[active_track]->parameter[6], "stpL");
-            draw_stepSequencer_parameter_value(1, ENCODER_OCTAVE, 1, allTracks[active_track]->parameter[7], "Oct");
+            draw_sequencer_arranger_parameter(active_track, 0, "seqL", allTracks[active_track]->parameter[4], NO_NAME);
+            draw_sequencer_arranger_parameter(active_track, 1, "sDiv", allTracks[active_track]->parameter[5], NO_NAME);
+            draw_sequencer_arranger_parameter(active_track, 2, "stpL", allTracks[active_track]->parameter[6], NO_NAME);
+            draw_sequencer_arranger_parameter(active_track, 3, "Oct", allTracks[active_track]->parameter[7], NO_NAME);
+
+            // draw_stepSequencer_parameter_value(1, ENCODER_SEQUENCE_LENGTH, 1, allTracks[active_track]->parameter[4], "seqL");
+            // draw_stepSequencer_parameter_value(1, ENCODER_STEP_DIVISION, 1, allTracks[active_track]->parameter[5], "sDiv");
+            // draw_stepSequencer_parameter_value(1, ENCODER_STEP_LENGTH, 1, allTracks[active_track]->parameter[6], "stpL");
+            //  draw_stepSequencer_parameter_value(1, ENCODER_OCTAVE, 1, allTracks[active_track]->parameter[7], "Oct");
         }
         if (lastProw == 2)
         {
-            draw_stepSequencer_parameter_text(2, ENCODER_SEQ_MODE, 2, seqModname[allTracks[active_track]->parameter[8]], "sMod");
-            draw_stepSequencer_parameter_text(2, ENCODER_MIDICH_OUT, 2, channelOutNames[allTracks[active_track]->parameter[9]], "MCh");
-            draw_stepSequencer_parameter_value(2, ENCODER_CLIP2_EDIT, 2, allTracks[active_track]->parameter[11], "Clip");
+            draw_sequencer_arranger_parameter(active_track, 0, "sMod", NO_VALUE, seqModname[allTracks[active_track]->parameter[8]]);
+            draw_sequencer_arranger_parameter(active_track, 1, "MCh", NO_VALUE, channelOutNames[allTracks[active_track]->parameter[9]]);
+
+            draw_sequencer_arranger_parameter(active_track, 3, "Clip", allTracks[active_track]->parameter[11], NO_NAME);
+
+            //draw_stepSequencer_parameter_text(2, ENCODER_SEQ_MODE, 2, seqModname[allTracks[active_track]->parameter[8]], "sMod");
+            //draw_stepSequencer_parameter_text(2, ENCODER_MIDICH_OUT, 2, channelOutNames[allTracks[active_track]->parameter[9]], "MCh");
+            //draw_stepSequencer_parameter_value(2, ENCODER_CLIP2_EDIT, 2, allTracks[active_track]->parameter[11], "Clip");
         }
     }
 }
@@ -715,12 +721,12 @@ void tftClass::draw_stepSequencer_parameters(byte lastProw)
 void tftClass::draw_edit_presetNr_ccValue(byte n, byte lastProw)
 {
     draw_value_box(0, SEQUENCER_OPTIONS_VERY_RIGHT, (3 * 2) + 5, 0, 4, NO_VALUE, "vl-Set", encoder_colour[active_track], 2, false, false);
-    draw_value_box(0, SEQUENCER_OPTIONS_VERY_RIGHT, (3 * 2) + 5, 0, 4, allTracks[active_track]->edit_presetNr_ccValue, NO_NAME, encoder_colour[active_track], 2, false, false);
+    draw_value_box(0, SEQUENCER_OPTIONS_VERY_RIGHT, (3 * 2) + 6, 4, 4, allTracks[active_track]->edit_presetNr_ccValue, NO_NAME, encoder_colour[active_track], 2, true, false);
 }
 void tftClass::draw_edit_presetNr_ccChannel(byte n, byte lastProw)
 {
     draw_value_box(0, SEQUENCER_OPTIONS_VERY_RIGHT, (2 * 2) + 5, 0, 4, NO_VALUE, "cc-Set", encoder_colour[active_track], 2, false, false);
-    draw_value_box(0, SEQUENCER_OPTIONS_VERY_RIGHT, (2 * 2) + 5, 0, 4, allTracks[active_track]->edit_presetNr_ccChannel, NO_NAME, encoder_colour[active_track], 2, false, false);
+    draw_value_box(0, SEQUENCER_OPTIONS_VERY_RIGHT, (2 * 2) + 6, 4, 4, allTracks[active_track]->edit_presetNr_ccChannel, NO_NAME, encoder_colour[active_track], 2, true, false);
 }
 void tftClass::draw_MIDI_CC_screen()
 {
@@ -767,30 +773,30 @@ void tftClass::draw_mixer()
     {
         change_plugin_row = false;
         drawPot(0, 0, allTracks[0]->mixGainPot, "Tr D");
-        draw_value_box(lastPotRow, 3, 5, 4, 4, NO_VALUE, "M", ILI9341_RED, 1, false, allTracks[0]->muted);
-        draw_value_box(lastPotRow, 4, 5, 4, 4, NO_VALUE, "S", ILI9341_WHITE, 1, false, allTracks[0]->soloed);
+        draw_value_box(lastPotRow, 3, 5, 4, 4, NO_VALUE, "M", ILI9341_RED, 1, true, allTracks[0]->muted);
+        draw_value_box(lastPotRow, 4, 5, 4, 4, NO_VALUE, "S", ILI9341_WHITE, 1, true, allTracks[0]->soloed);
         drawPot(1, 0, allTracks[1]->mixGainPot, "Tr 2");
-        draw_value_box(lastPotRow, 7, 5, 4, 4, NO_VALUE, "M", ILI9341_RED, 1, false, allTracks[1]->muted);
-        draw_value_box(lastPotRow, 8, 5, 4, 4, NO_VALUE, "S", ILI9341_WHITE, 1, false, allTracks[1]->soloed);
+        draw_value_box(lastPotRow, 7, 5, 4, 4, NO_VALUE, "M", ILI9341_RED, 1, true, allTracks[1]->muted);
+        draw_value_box(lastPotRow, 8, 5, 4, 4, NO_VALUE, "S", ILI9341_WHITE, 1, true, allTracks[1]->soloed);
         drawPot(2, 0, allTracks[2]->mixGainPot, "Tr 3");
-        draw_value_box(lastPotRow, 11, 5, 4, 4, NO_VALUE, "M", ILI9341_RED, 1, false, allTracks[2]->muted);
-        draw_value_box(lastPotRow, 12, 5, 4, 4, NO_VALUE, "S", ILI9341_WHITE, 1, false, allTracks[2]->soloed);
+        draw_value_box(lastPotRow, 11, 5, 4, 4, NO_VALUE, "M", ILI9341_RED, 1, true, allTracks[2]->muted);
+        draw_value_box(lastPotRow, 12, 5, 4, 4, NO_VALUE, "S", ILI9341_WHITE, 1, true, allTracks[2]->soloed);
         drawPot(3, 0, allTracks[3]->mixGainPot, "Tr 4");
-        draw_value_box(lastPotRow, 15, 5, 4, 4, NO_VALUE, "M", ILI9341_RED, 1, false, allTracks[3]->muted);
-        draw_value_box(lastPotRow, 16, 5, 4, 4, NO_VALUE, "S", ILI9341_WHITE, 1, false, allTracks[3]->soloed);
+        draw_value_box(lastPotRow, 15, 5, 4, 4, NO_VALUE, "M", ILI9341_RED, 1, true, allTracks[3]->muted);
+        draw_value_box(lastPotRow, 16, 5, 4, 4, NO_VALUE, "S", ILI9341_WHITE, 1, true, allTracks[3]->soloed);
 
         drawPot(0, 2, allTracks[4]->mixGainPot, "Tr 5");
-        draw_value_box(lastPotRow, 3, 11, 4, 4, NO_VALUE, "M", ILI9341_RED, 1, false, allTracks[4]->muted);
-        draw_value_box(lastPotRow, 4, 11, 4, 4, NO_VALUE, "S", ILI9341_WHITE, 1, false, allTracks[4]->soloed);
+        draw_value_box(lastPotRow, 3, 11, 4, 4, NO_VALUE, "M", ILI9341_RED, 1, true, allTracks[4]->muted);
+        draw_value_box(lastPotRow, 4, 11, 4, 4, NO_VALUE, "S", ILI9341_WHITE, 1, true, allTracks[4]->soloed);
         drawPot(1, 2, allTracks[5]->mixGainPot, "Tr 6");
-        draw_value_box(lastPotRow, 7, 11, 4, 4, NO_VALUE, "M", ILI9341_RED, 1, false, allTracks[5]->muted);
-        draw_value_box(lastPotRow, 8, 11, 4, 4, NO_VALUE, "S", ILI9341_WHITE, 1, false, allTracks[5]->soloed);
+        draw_value_box(lastPotRow, 7, 11, 4, 4, NO_VALUE, "M", ILI9341_RED, 1, true, allTracks[5]->muted);
+        draw_value_box(lastPotRow, 8, 11, 4, 4, NO_VALUE, "S", ILI9341_WHITE, 1, true, allTracks[5]->soloed);
         drawPot(2, 2, allTracks[6]->mixGainPot, "Tr 7");
-        draw_value_box(lastPotRow, 11, 11, 4, 4, NO_VALUE, "M", ILI9341_RED, 1, false, allTracks[6]->muted);
-        draw_value_box(lastPotRow, 12, 11, 4, 4, NO_VALUE, "S", ILI9341_WHITE, 1, false, allTracks[6]->soloed);
+        draw_value_box(lastPotRow, 11, 11, 4, 4, NO_VALUE, "M", ILI9341_RED, 1, true, allTracks[6]->muted);
+        draw_value_box(lastPotRow, 12, 11, 4, 4, NO_VALUE, "S", ILI9341_WHITE, 1, true, allTracks[6]->soloed);
         drawPot(3, 2, allTracks[7]->mixGainPot, "Tr 8");
-        draw_value_box(lastPotRow, 15, 11, 4, 4, NO_VALUE, "M", ILI9341_RED, 1, false, allTracks[7]->muted);
-        draw_value_box(lastPotRow, 16, 11, 4, 4, NO_VALUE, "S", ILI9341_WHITE, 1, false, allTracks[7]->soloed);
+        draw_value_box(lastPotRow, 15, 11, 4, 4, NO_VALUE, "M", ILI9341_RED, 1, true, allTracks[7]->muted);
+        draw_value_box(lastPotRow, 16, 11, 4, 4, NO_VALUE, "S", ILI9341_WHITE, 1, true, allTracks[7]->soloed);
     }
 }
 void tftClass::draw_mixer_FX_page1()

@@ -9,7 +9,7 @@
 #include "project_variables.h"
 #include "project_functions.h"
 #include "Plugins/plugin_List.h"
-//#include "hardware/tftClass.h"
+// #include "hardware/tftClass.h"
 
 // void draw_sequencer_option(byte x, const char *nameshort, int value, byte enc, const char *pluginName);
 class tftClass;
@@ -84,9 +84,8 @@ public:
     byte edit_presetNr_ccValue = 0;
 
     bool recordState = false;
-    
 
-    //mixer
+    // mixer
     byte mixGainPot = 127;
     float mixGain = 1;
     byte mixDryPot;
@@ -185,10 +184,11 @@ public:
     void save_track(byte songNr);
     void load_track(byte songNr);
     // songmode
-
+    void set_arranger_parameters(byte lastProw);
     void set_clip_to_play(byte n, byte b);
-    void set_note_offset(byte n, int b);
-    void set_barVelocity(byte n, int b);
+    void set_clip_to_play_trellis(byte _bar, byte _clipNr);
+    void set_note_offset(byte _encoder, int b);
+    void set_barVelocity(byte _encoder, int b);
     void set_play_presetNr_ccChannel(byte n, byte lastProw);
     void set_play_presetNr_ccValue(byte n, byte lastProw);
     //
@@ -228,7 +228,6 @@ private:
     byte tickStart;
     byte noteToPlay[MAX_VOICES];
 
-
     byte sTick;
 
     bool internal_clock_is_on = false;
@@ -250,7 +249,6 @@ private:
     byte SeqMod4Value[16];
     byte maxVal;
 
-
     // sequencer Modes
 
     // void play_seq_mode0(byte cloock);
@@ -258,17 +256,10 @@ private:
     void set_stepSequencer_parameter_value(byte XPos, byte YPos, const char *name, byte min, byte max);
     void set_stepSequencer_parameter_text(byte XPos, byte YPos, const char *name, const char *text, byte min, byte max);
     // sequencer options:
-    // octave
-
     void set_CCvalue(byte XPos, byte YPos);
     void set_CCchannel(byte XPos, byte YPos);
-
     void set_edit_presetNr_ccChannel(byte n, byte lastProw);
     void set_edit_presetNr_ccValue(byte n, byte lastProw);
-    // coordinates
-    void set_coordinateX(byte n, byte lastProw);
-    void set_coordinateY(byte n, byte lastProw);
-    // helpers
 
     // sequencer note input stuff
     void set_active_note(byte _clip, byte _tick, byte _voice, byte _note);
@@ -283,10 +274,8 @@ private:
     //----------------------------------------------------------------
     // arranger stuff
     void change_presets();
-    void set_arranger_parameters(byte lastProw);
 
     // clip to play
-    byte get_clip_to_play(byte when);
 
     // note offset / note transpose
 
